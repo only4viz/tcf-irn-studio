@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TCF IRN B2 — Expression Écrite Studio</title>
+  <!-- APP VERSION: v1.2 (2026-11-19) — see PROJECT_NOTES.md for the changelog -->
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231e3a8a'/%3E%3Crect x='6' y='6' width='17' height='52' rx='8' fill='%232563eb'/%3E%3Crect x='23' y='6' width='18' height='52' fill='%23ffffff'/%3E%3Crect x='41' y='6' width='17' height='52' rx='8' fill='%23ef4444'/%3E%3Ccircle cx='32' cy='32' r='14' fill='%231e293b'/%3E%3Ctext x='32' y='37' font-family='Arial,sans-serif' font-size='13' font-weight='bold' fill='%23ffffff' text-anchor='middle'%3EB2%3C/text%3E%3C/svg%3E" />
 
@@ -87,7 +88,7 @@
   <!-- ===================================================================== -->
   <!-- TOP NAVIGATION HEADER                                                 -->
   <!-- ===================================================================== -->
-  <header class="bg-slate-900 text-white shadow-lg sticky top-1 z-40 border-b border-slate-800">
+  <header class="bg-slate-900 text-white shadow-lg relative md:sticky md:top-1 z-40 border-b border-slate-800">
     <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
       
       <!-- Brand Title & Subtitle -->
@@ -100,7 +101,7 @@
         <div>
           <div class="flex items-center gap-2">
             <h1 class="font-extrabold text-base sm:text-lg tracking-tight text-white" data-i18n="appTitle">TCF IRN B2 — Expression Écrite</h1>
-            <span id="engine-mode-pill" onclick="openCloudModal()" class="cursor-pointer text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30 transition">
+            <span id="engine-mode-pill" onclick="openCloudModal()" class="hidden sm:inline cursor-pointer text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30 transition">
               ⚡ Hybrid Local Engine
             </span>
           </div>
@@ -304,7 +305,7 @@
               <button onclick="generatePhraseBatch()" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-800 hover:bg-slate-700 text-white shadow-sm transition flex items-center gap-1.5">
                 <span>🎲</span> <span data-i18n="newPhrasesBtn">New Phrases</span>
               </button>
-              <button onclick="generateAiPhraseBatch()" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white shadow-sm transition flex items-center gap-1.5">
+              <button onclick="generateAiPhraseBatch()" id="ai-phrases-btn" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white shadow-sm transition flex items-center gap-1.5">
                 <span>✨</span> <span data-i18n="aiPhrasesBtn">AI Phrases</span>
               </button>
             </div>
@@ -348,11 +349,14 @@
               <span>📝</span> <span data-i18n="mode3Badge">MODE 3 • SIMULATION D'EXAMEN TCF IRN (B2)</span>
             </span>
             <h2 class="text-lg sm:text-xl font-extrabold text-slate-900" data-i18n="examTitle">TCF IRN Expression Écrite — Timed Task & Word-Count Trainer</h2>
-            <p class="text-xs sm:text-sm text-slate-600" data-i18n="examDesc">Select a task type and strict word-count bracket (40–60, 60–90, 90–100+), write your response in French, and receive a full B2 diagnostic report.</p>
+            <p class="text-xs sm:text-sm text-slate-600" data-i18n="examDesc">Official format: Tâche 1 = 30–60 words, Tâche 2 and 3 = 40–90 words, 30 minutes for all three. Practise one task or run a full exam.</p>
           </div>
 
           <!-- Task Switcher Pills -->
           <div class="flex flex-wrap items-center gap-2">
+            <button onclick="startFullExam()" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-rose-600 hover:bg-rose-500 text-white shadow-sm transition flex items-center gap-1.5" title="3 random subjects · 30 minutes · like the real TCF IRN">
+              <span>🎯</span> <span data-i18n="fullExamBtn">Full exam (3 tasks · 30 min)</span>
+            </button>
             <div class="flex items-center bg-slate-200/90 p-1 rounded-xl">
               <button onclick="selectExamTask('tache1')" id="exam-task-tache1" class="px-3 py-1.5 rounded-lg text-xs font-bold transition bg-blue-600 text-white shadow-sm">
                 Tâche 1 (Message)
@@ -373,17 +377,14 @@
           <div class="md:col-span-5">
             <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1.5" data-i18n="wordBracketLabel">Target Word-Count Bracket (Strict Exam Rule)</label>
             <div class="flex flex-wrap items-center bg-slate-200/90 p-1 rounded-xl gap-1">
-              <button onclick="setWordCountBracket(30, 60)" id="bracket-30-60" class="flex-1 px-2 py-1.5 rounded-lg text-xs font-bold transition text-slate-700 hover:text-slate-900 whitespace-nowrap">
-                30–60 <span data-i18n="wordsUnit">words</span>
+              <button onclick="setWordCountBracket(30, 60)" id="bracket-30-60" title="Official Tâche 1" class="flex-1 px-2 py-1.5 rounded-lg text-xs font-bold transition bg-blue-600 text-white shadow-sm whitespace-nowrap">
+                30–60 · T1
               </button>
-              <button onclick="setWordCountBracket(40, 60)" id="bracket-40-60" class="flex-1 px-2 py-1.5 rounded-lg text-xs font-bold transition bg-blue-600 text-white shadow-sm whitespace-nowrap">
-                40–60 <span data-i18n="wordsUnit">words</span>
+              <button onclick="setWordCountBracket(40, 90)" id="bracket-40-90" title="Official Tâche 2 & 3" class="flex-1 px-2 py-1.5 rounded-lg text-xs font-bold transition text-slate-700 hover:text-slate-900 whitespace-nowrap">
+                40–90 · T2/T3
               </button>
-              <button onclick="setWordCountBracket(60, 90)" id="bracket-60-90" class="flex-1 px-2 py-1.5 rounded-lg text-xs font-bold transition text-slate-700 hover:text-slate-900 whitespace-nowrap">
-                60–90 <span data-i18n="wordsUnit">words</span>
-              </button>
-              <button onclick="setWordCountBracket(90, 110)" id="bracket-90-110" class="flex-1 px-2 py-1.5 rounded-lg text-xs font-bold transition text-slate-700 hover:text-slate-900 whitespace-nowrap">
-                90–100+ <span data-i18n="wordsUnit">words</span>
+              <button onclick="setWordCountBracket(60, 90)" id="bracket-60-90" title="B2 training zone (still inside the official limit)" class="flex-1 px-2 py-1.5 rounded-lg text-xs font-bold transition text-slate-700 hover:text-slate-900 whitespace-nowrap">
+                60–90 · B2 🎯
               </button>
             </div>
           </div>
@@ -403,6 +404,18 @@
               ✨ AI
             </button>
           </div>
+        </div>
+      </div>
+
+      <!-- Full Exam Mode Banner -->
+      <div id="full-exam-banner" class="hidden bg-rose-50 border-2 border-rose-300 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="text-xs sm:text-sm text-rose-950">
+          <strong>🎯 <span data-i18n="fullExamBannerTitle">Full exam in progress</span></strong> —
+          <span data-i18n="fullExamBannerText">Switch between Tâche 1, 2 and 3 freely: each text is kept. One 30-minute clock for all three, like the real test.</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="grade-full-exam-btn" onclick="gradeFullExam()" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-rose-600 hover:bg-rose-500 text-white shadow-sm">🏁 <span data-i18n="gradeFullExamBtn">Finish & grade all 3</span></button>
+          <button onclick="exitFullExam()" class="px-3 py-2 rounded-xl text-xs font-bold bg-white hover:bg-rose-100 text-rose-800 border border-rose-200" data-i18n="exitFullExamBtn">Exit</button>
         </div>
       </div>
 
@@ -656,11 +669,13 @@
 
           <!-- Card 4: Word Count & Register Discipline -->
           <div class="rounded-xl border border-slate-200 p-4 bg-slate-50/60 space-y-2">
-            <h3 class="font-extrabold text-sm text-emerald-900">4. TCF IRN Task Structure & Word Brackets</h3>
+            <h3 class="font-extrabold text-sm text-emerald-900">4. Official TCF IRN Writing Test (30 min, 3 tasks)</h3>
             <p class="text-xs text-slate-700 leading-relaxed">
-              • <strong>Tâche 1 (30–60 or 40–60 words):</strong> Friendly/casual message. Greeting (<em>Salut Marc,</em>) + Why you write + Practical info (date, time, place) + Question + Sign-off (<em>À bientôt !</em>).<br>
-              • <strong>Tâche 2 (40–90 or 60–90 words):</strong> Past experience recount. Mix <em>Imparfait</em> (decor/emotions) + <em>Passé Composé</em> (events) + feelings.<br>
-              • <strong>Tâche 3 (40–90 or 90–100+ words):</strong> Formal opinion/argumentation. Thesis + 2 arguments with examples + nuance + conclusion.
+              • <strong>Tâche 1 (30–60 words):</strong> short message replying to someone: describe a person, a group, a place or an object. Greeting + requested information + question/closing (<em>À bientôt !</em>).<br>
+              • <strong>Tâche 2 (40–90 words):</strong> account of daily activities or an experience. <em>Imparfait</em> (setting/feelings) + <em>Passé composé</em> (events) + time connectors.<br>
+              • <strong>Tâche 3 (40–90 words):</strong> give and justify your opinion about a place, object or person. Position + 2 arguments + nuance + conclusion.<br>
+              • ⛔ <strong>Too few OR too many words, off-topic, or a missing task ⇒ the copy can be graded “A1 non atteint”.</strong> Aim for the upper half of the range for B2.<br>
+              <span class="text-[10px] text-slate-400">Source: France Éducation international, TCF IRN page (checked Nov 2026).</span>
             </p>
           </div>
         </div>
@@ -749,11 +764,16 @@
             <span id="ai-modal-status-badge" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-200 text-slate-700">Local Smart Mode</span>
           </div>
           <p class="text-xs text-indigo-900/80 leading-relaxed">
-            By default, the app works 100% offline with our built-in French B2 grammar & spelling analyzer. Paste your free <strong>Gemini API Key</strong> (either the new <code>AQ.Ab8R...</code> format or classic <code>AIza...</code> format) below or in <strong>Line 17</strong> of the code to unlock <strong>infinite AI-generated vocabulary, phrases, exam themes, and deep B2 teacher grading</strong> in EN/FR/RU!
+            By default, the app works 100% offline with the built-in bank and grammar checker. Paste your free <strong>Gemini API Key</strong> from <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" class="underline font-bold">Google AI Studio</a> (new <code>AQ.…</code> keys and classic <code>AIza…</code> keys both work) to unlock AI-generated words, phrases, exam subjects and detailed examiner grading. Every AI batch is also <strong>saved into your offline bank</strong> on this device.
           </p>
           <div>
-            <label class="block text-[11px] font-bold uppercase text-indigo-900 mb-1">Gemini API Key (Starts with AQ.Ab8R... or AIza...)</label>
-            <input id="gemini-api-key-input" type="password" placeholder="AQ.Ab8R... or AIzaSy..." class="w-full rounded-xl border border-indigo-300 bg-white px-3.5 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            <label class="block text-[11px] font-bold uppercase text-indigo-900 mb-1">Gemini API Key</label>
+            <div class="flex gap-2">
+              <input id="gemini-api-key-input" type="password" autocomplete="off" placeholder="AQ.… or AIza…" class="flex-1 min-w-0 rounded-xl border border-indigo-300 bg-white px-3.5 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <button id="test-ai-btn" type="button" onclick="testGeminiConnection()" class="px-3 py-2 rounded-xl text-xs font-extrabold bg-indigo-600 hover:bg-indigo-500 text-white whitespace-nowrap">🔌 Test</button>
+            </div>
+            <div id="ai-test-result" class="mt-1.5 text-xs text-slate-500">Click “Test” to check the key (shows Google's exact error if it fails).</div>
+            <div id="ai-bank-stats" class="mt-1 text-[11px] text-indigo-900/70"></div>
           </div>
         </div>
 
@@ -901,7 +921,7 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         checkPhrasesBtn: "Check Phrases & Explain Mistakes",
         mode3Badge: "MODE 3 • TCF IRN EXAM SIMULATOR (B2)",
         examTitle: "TCF IRN Expression Écrite — Timed Task & Word-Count Trainer",
-        examDesc: "Select a task and strict word-count bracket (40–60, 60–90, 90–100+), write your text in French, and get a full B2 grading report.",
+        examDesc: "Official format: Tâche 1 = 30–60 words, Tâche 2 and 3 = 40–90 words, 30 minutes for all three. Practise one task or run a full exam.",
         wordBracketLabel: "Target Word-Count Bracket (Strict Exam Rule)",
         wordsUnit: "words",
         selectThemeLabel: "Exam Subject / Theme",
@@ -952,7 +972,52 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         accentWarnBadge: "⚠️ Accent / Apostrophe Error (15/20)",
         genderWarnBadge: "⚠️ Gender / Article Trap (14/20)",
         wrongBadge: "❌ Needs Correction",
-        savedToMistakeBank: "📌 Added to your Mistake Bank"
+        savedToMistakeBank: "📌 Added to your Mistake Bank",
+        // v1.1
+        aiNoKeyToast: "💡 Add your free Gemini API key in ☁️ Settings for AI generation. Using the offline bank for now.",
+        aiErrorToast: "AI unavailable — using the offline bank",
+        aiWordsOk: "Fresh AI words (saved to your offline bank)",
+        aiPhrasesOk: "Fresh AI phrases (saved to your offline bank)",
+        aiThemeOk: "New AI exam subject created and saved",
+        alreadyGradedToast: "Already graded — click “New Set” for a new batch.",
+        mistakeBankEmptyToast: "Your Mistake Bank is empty! Loading mixed B2 words.",
+        noActiveMistakes: "No active mistakes left to drill — great job!",
+        structureHintBtn: "Structure hint",
+        confirmRestartExam: "A timer is running. Start a new full exam?",
+        confirmClearText: "Delete your text?",
+        confirmDeleteMistake: "Remove this item from your Mistake Bank?",
+        fullExamStarted: "🎯 Full exam started: 3 subjects, 30 minutes. Bon courage !",
+        timeUpFullExam: "⏰ Time is up! Grading your 3 texts...",
+        timeUpToast: "⏰ Time is up! Click Evaluate to get your note.",
+        writeFirstToast: "Please write your French text first!",
+        analyzingLabel: "Analyzing...",
+        taskNotDone: "Task not done — in the real exam a missing task means “A1 non atteint”.",
+        fullExamResultTitle: "Full exam result (average of 3 tasks)",
+        wordRuleWarning: "Word count outside the official range: in the real TCF IRN this copy can be graded “A1 non atteint”.",
+        gradeFullExamBtn: "Finish & grade all 3",
+        fullExamBtn: "Full exam (3 tasks · 30 min)",
+        fullExamBannerTitle: "Full exam in progress",
+        fullExamBannerText: "Switch between Tâche 1, 2 and 3 freely: each text is kept. One 30-minute clock for all three, like the real test.",
+        exitFullExamBtn: "Exit",
+        noErrorsFound: "No major grammar, auxiliary or accent errors detected!",
+        critTask: "Task", critCoherence: "Coherence", critLexis: "Vocabulary", critGrammar: "Grammar",
+        localGraderLabel: "Offline checker",
+        localGraderHint: "Offline rule-based checker: catches common traps only. Add a Gemini key for a full examiner-style grading.",
+        reportTitle: "Diagnostic report",
+        reportScore: "Score",
+        reportLevel: "Level",
+        reportFeedback: "Examiner feedback",
+        reportToImprove: "To reach B2",
+        reportMistakes: "Mistakes & explanations",
+        savedToBank: "saved to your Mistake Bank",
+        reportCorrected: "Corrected B2 version of your text",
+        sessionsCompleted: "sessions completed",
+        mistakeBankEmpty: "No mistakes saved yet! Anything you miss in Modes 1–3 will appear here automatically.",
+        historyEmpty: "Complete a word drill, phrase batch or essay to see your notes here.",
+        masteredLabel: "Mastered",
+        streakLabel: "Streak",
+        ruleNoteLabel: "Rule note",
+        ruleNoteHint: "Grammar rule from an essay correction — kept as a reminder, not used in spelling drills."
       },
       fr: {
         appTitle: "TCF IRN B2 — Studio d'Expression Écrite",
@@ -1002,7 +1067,7 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         checkPhrasesBtn: "Corriger mes phrases & Expliquer",
         mode3Badge: "MODE 3 • SIMULATEUR D'EXAMEN TCF IRN (B2)",
         examTitle: "Expression Écrite TCF IRN — Entraînement Chronométré",
-        examDesc: "Choisissez une tâche et une fourchette de mots (40–60, 60–90, 90–100+), rédigez votre texte et obtenez une correction détaillée niveau B2.",
+        examDesc: "Format officiel : Tâche 1 = 30–60 mots, Tâches 2 et 3 = 40–90 mots, 30 minutes pour les trois. Entraînez-vous tâche par tâche ou passez un examen complet.",
         wordBracketLabel: "Fourchette de mots cible (Règle stricte)",
         wordsUnit: "mots",
         selectThemeLabel: "Sujet d'examen",
@@ -1053,7 +1118,52 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         accentWarnBadge: "⚠️ Oubli d'accent ou d'apostrophe (15/20)",
         genderWarnBadge: "⚠️ Erreur de genre le/la (14/20)",
         wrongBadge: "❌ À corriger",
-        savedToMistakeBank: "📌 Ajouté à votre Banque d'Erreurs"
+        savedToMistakeBank: "📌 Ajouté à votre Banque d'Erreurs",
+        // v1.1
+        aiNoKeyToast: "💡 Ajoutez votre clé Gemini gratuite dans ☁️ Réglages pour la génération IA. Banque hors ligne utilisée pour l'instant.",
+        aiErrorToast: "IA indisponible — banque hors ligne utilisée",
+        aiWordsOk: "Nouveaux mots IA (enregistrés dans votre banque hors ligne)",
+        aiPhrasesOk: "Nouvelles phrases IA (enregistrées dans votre banque hors ligne)",
+        aiThemeOk: "Nouveau sujet d'examen IA créé et enregistré",
+        alreadyGradedToast: "Déjà corrigé — cliquez sur « Nouvelle série » pour continuer.",
+        mistakeBankEmptyToast: "Votre Banque d'erreurs est vide ! Chargement de mots B2 variés.",
+        noActiveMistakes: "Plus aucune erreur active à réviser — bravo !",
+        structureHintBtn: "Indice de structure",
+        confirmRestartExam: "Un chronomètre est en cours. Commencer un nouvel examen complet ?",
+        confirmClearText: "Supprimer votre texte ?",
+        confirmDeleteMistake: "Retirer cet élément de votre Banque d'erreurs ?",
+        fullExamStarted: "🎯 Examen complet lancé : 3 sujets, 30 minutes. Bon courage !",
+        timeUpFullExam: "⏰ Temps écoulé ! Correction de vos 3 textes...",
+        timeUpToast: "⏰ Temps écoulé ! Cliquez sur Évaluer pour obtenir votre note.",
+        writeFirstToast: "Écrivez d'abord votre texte en français !",
+        analyzingLabel: "Analyse en cours...",
+        taskNotDone: "Tâche non réalisée — à l'examen, une tâche manquante = « A1 non atteint ».",
+        fullExamResultTitle: "Résultat de l'examen complet (moyenne des 3 tâches)",
+        wordRuleWarning: "Nombre de mots hors de la fourchette officielle : au vrai TCF IRN, cette copie peut être notée « A1 non atteint ».",
+        gradeFullExamBtn: "Terminer et corriger les 3",
+        fullExamBtn: "Examen complet (3 tâches · 30 min)",
+        fullExamBannerTitle: "Examen complet en cours",
+        fullExamBannerText: "Passez librement d'une tâche à l'autre : chaque texte est conservé. Un seul chrono de 30 minutes pour les trois, comme à l'examen.",
+        exitFullExamBtn: "Quitter",
+        noErrorsFound: "Aucune erreur majeure de grammaire, d'auxiliaire ou d'accent détectée !",
+        critTask: "Tâche", critCoherence: "Cohérence", critLexis: "Lexique", critGrammar: "Grammaire",
+        localGraderLabel: "Correcteur hors ligne",
+        localGraderHint: "Correcteur hors ligne à base de règles : il repère seulement les pièges fréquents. Ajoutez une clé Gemini pour une correction complète.",
+        reportTitle: "Rapport de correction",
+        reportScore: "Note",
+        reportLevel: "Niveau",
+        reportFeedback: "Avis de l'examinateur",
+        reportToImprove: "Pour atteindre le B2",
+        reportMistakes: "Erreurs et explications",
+        savedToBank: "enregistrées dans votre Banque d'erreurs",
+        reportCorrected: "Version corrigée B2 de votre texte",
+        sessionsCompleted: "séances terminées",
+        mistakeBankEmpty: "Aucune erreur enregistrée ! Tout ce que vous manquez dans les modes 1 à 3 apparaîtra ici.",
+        historyEmpty: "Terminez une série de mots, de phrases ou une rédaction pour voir vos notes ici.",
+        masteredLabel: "Maîtrisé",
+        streakLabel: "Série",
+        ruleNoteLabel: "Règle",
+        ruleNoteHint: "Règle de grammaire issue d'une correction — gardée comme rappel, pas utilisée dans les dictées de mots."
       },
       ru: {
         appTitle: "TCF IRN B2 — Тренажёр Expression Écrite",
@@ -1103,7 +1213,7 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         checkPhrasesBtn: "Проверить фразы и разобрать ошибки",
         mode3Badge: "РЕЖИМ 3 • СИМУЛЯТОР ЭКЗАМЕНА TCF IRN (B2)",
         examTitle: "TCF IRN Expression Écrite — Темы с лимитом слов и таймером",
-        examDesc: "Выберите задание и точный лимит слов (40–60, 60–90, 90–100+), напишите текст по-французски и получите оценку с разбором ошибок.",
+        examDesc: "Официальный формат: Tâche 1 = 30–60 слов, Tâche 2 и 3 = 40–90 слов, 30 минут на все три. Тренируйте одно задание или пройдите полный экзамен.",
         wordBracketLabel: "Целевой лимит слов (Строгое правило экзамена)",
         wordsUnit: "слов",
         selectThemeLabel: "Тема задания",
@@ -1154,7 +1264,52 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         accentWarnBadge: "⚠️ Ошибка в акценте или апострофе (15/20)",
         genderWarnBadge: "⚠️ Ошибка в роде le/la (14/20)",
         wrongBadge: "❌ Требует исправления",
-        savedToMistakeBank: "📌 Сохранено в ваш Банк Ошибок"
+        savedToMistakeBank: "📌 Сохранено в ваш Банк Ошибок",
+        // v1.1
+        aiNoKeyToast: "💡 Добавьте бесплатный ключ Gemini в ☁️ Настройках для ИИ-генерации. Пока используется офлайн-база.",
+        aiErrorToast: "ИИ недоступен — используется офлайн-база",
+        aiWordsOk: "Новые слова от ИИ (сохранены в офлайн-базу)",
+        aiPhrasesOk: "Новые фразы от ИИ (сохранены в офлайн-базу)",
+        aiThemeOk: "Новая тема экзамена от ИИ создана и сохранена",
+        alreadyGradedToast: "Уже проверено — нажмите «Новый набор» для следующей серии.",
+        mistakeBankEmptyToast: "Ваш Банк ошибок пуст! Загружаем общий набор слов B2.",
+        noActiveMistakes: "Активных ошибок не осталось — отлично!",
+        structureHintBtn: "Подсказка структуры",
+        confirmRestartExam: "Таймер уже идёт. Начать новый полный экзамен?",
+        confirmClearText: "Удалить ваш текст?",
+        confirmDeleteMistake: "Удалить этот элемент из Банка ошибок?",
+        fullExamStarted: "🎯 Полный экзамен начат: 3 темы, 30 минут. Bon courage !",
+        timeUpFullExam: "⏰ Время вышло! Проверяем ваши 3 текста...",
+        timeUpToast: "⏰ Время вышло! Нажмите «Проверить», чтобы получить оценку.",
+        writeFirstToast: "Сначала напишите текст по-французски!",
+        analyzingLabel: "Анализ...",
+        taskNotDone: "Задание не выполнено — на экзамене пропущенное задание = «A1 non atteint».",
+        fullExamResultTitle: "Результат полного экзамена (среднее за 3 задания)",
+        wordRuleWarning: "Количество слов вне официального диапазона: на настоящем TCF IRN работу могут оценить как «A1 non atteint».",
+        gradeFullExamBtn: "Завершить и проверить все 3",
+        fullExamBtn: "Полный экзамен (3 задания · 30 мин)",
+        fullExamBannerTitle: "Идёт полный экзамен",
+        fullExamBannerText: "Переключайтесь между Tâche 1, 2 и 3 свободно: каждый текст сохраняется. Один таймер на 30 минут для всех трёх, как на экзамене.",
+        exitFullExamBtn: "Выйти",
+        noErrorsFound: "Серьёзных ошибок в грамматике, вспомогательных глаголах и акцентах не найдено!",
+        critTask: "Задание", critCoherence: "Связность", critLexis: "Лексика", critGrammar: "Грамматика",
+        localGraderLabel: "Офлайн-проверка",
+        localGraderHint: "Офлайн-проверка по правилам: находит только частые ловушки. Добавьте ключ Gemini для полной проверки как у экзаменатора.",
+        reportTitle: "Отчёт о проверке",
+        reportScore: "Оценка",
+        reportLevel: "Уровень",
+        reportFeedback: "Комментарий экзаменатора",
+        reportToImprove: "Чтобы достичь B2",
+        reportMistakes: "Ошибки и объяснения",
+        savedToBank: "сохранены в Банк ошибок",
+        reportCorrected: "Исправленная версия вашего текста (B2)",
+        sessionsCompleted: "занятий завершено",
+        mistakeBankEmpty: "Ошибок пока нет! Всё, что вы пропустите в режимах 1–3, появится здесь автоматически.",
+        historyEmpty: "Пройдите тренировку слов, фраз или напишите текст, чтобы увидеть оценки здесь.",
+        masteredLabel: "Выучено",
+        streakLabel: "Серия",
+        ruleNoteLabel: "Правило",
+        ruleNoteHint: "Грамматическое правило из проверки текста — сохранено как напоминание, не используется в диктанте слов."
       }
     };
 
@@ -1510,6 +1665,106 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
           fr: "« J'ai eu un imprévu » est la formule idéale pour justifier un retard ou une absence.",
           ru: "Фраза « J'ai eu un imprévu » — лучший способ объяснить перенос встречи или опоздание в Tâche 1."
         }
+      },
+
+      // ---- v1.1 additions (offline bank) ----
+      {
+        id: "w_v11_1", category: "admin",
+        fr: "le titre de séjour", alt: ["un titre de séjour"],
+        en: "residence permit", frDef: "Document qui autorise un étranger à vivre en France", ru: "вид на жительство",
+        pos: { en: "masculine noun", fr: "nom masculin", ru: "сущ. муж. рода" },
+        rule: { en: "*Séjour* takes an acute accent on the first e: sé-jour.", fr: "« Séjour » prend un accent aigu : sé-jour.", ru: "В слове « séjour » — accent aigu на первой e: sé-jour." }
+      },
+      {
+        id: "w_v11_2", category: "admin",
+        fr: "le justificatif de domicile", alt: ["un justificatif de domicile"],
+        en: "proof of address", frDef: "Facture ou quittance qui prouve où l'on habite", ru: "подтверждение адреса проживания",
+        pos: { en: "masculine noun", fr: "nom masculin", ru: "сущ. муж. рода" },
+        rule: { en: "Ends in *-if* (not -ive): *un justificatif*. Very frequent in préfecture paperwork.", fr: "Terminaison en « -if » : un justificatif. Mot clé des démarches en préfecture.", ru: "Окончание « -if »: un justificatif. Ключевое слово для документов в префектуре." }
+      },
+      {
+        id: "w_v11_3", category: "admin",
+        fr: "un rendez-vous", alt: ["le rendez-vous"],
+        en: "an appointment", frDef: "Rencontre fixée à une date et une heure précises", ru: "встреча / запись (на приём)",
+        pos: { en: "masculine noun (hyphen!)", fr: "nom masculin (avec trait d'union)", ru: "сущ. муж. рода (через дефис)" },
+        rule: { en: "Always with a hyphen and masculine: *un rendez-vous*, plural *des rendez-vous* (no extra s).", fr: "Toujours avec un trait d'union et au masculin ; invariable au pluriel : des rendez-vous.", ru: "Всегда через дефис и мужского рода; во множественном числе не меняется: des rendez-vous." }
+      },
+      {
+        id: "w_v11_4", category: "daily",
+        fr: "un événement", alt: ["un évènement", "l'événement", "l'évènement"],
+        en: "an event", frDef: "Ce qui se produit, une fête ou une manifestation", ru: "событие / мероприятие",
+        pos: { en: "masculine noun", fr: "nom masculin", ru: "сущ. муж. рода" },
+        rule: { en: "Classic spelling *événement* (é-é); the 1990 reform also accepts *évènement*.", fr: "Orthographe classique « événement » ; « évènement » est aussi accepté (rectifications de 1990).", ru: "Классическое написание « événement »; по реформе 1990 г. допускается и « évènement »." }
+      },
+      {
+        id: "w_v11_5", category: "daily",
+        fr: "la bibliothèque", alt: ["une bibliothèque"],
+        en: "the library", frDef: "Lieu où l'on emprunte des livres", ru: "библиотека",
+        pos: { en: "feminine noun", fr: "nom féminin", ru: "сущ. жен. рода" },
+        rule: { en: "Grave accent on the è before *-que*, and *th* in the middle: bi-bli-o-THÈ-que.", fr: "Accent grave sur le è et « th » au milieu : bibliothèque.", ru: "Accent grave на è и « th » в середине: bibliothèque." }
+      },
+      {
+        id: "w_v11_6", category: "daily",
+        fr: "le loyer", alt: ["un loyer"],
+        en: "the rent", frDef: "Somme payée chaque mois pour un logement", ru: "арендная плата (за жильё)",
+        pos: { en: "masculine noun", fr: "nom masculin", ru: "сущ. муж. рода" },
+        rule: { en: "*Le loyer* (rent) ≠ *la location* (renting). Don't confuse them.", fr: "« Le loyer » (somme payée) ≠ « la location » (action de louer).", ru: "« Le loyer » (плата) ≠ « la location » (аренда как действие). Не путайте." }
+      },
+      {
+        id: "w_v11_7", category: "daily",
+        fr: "le théâtre", alt: ["un théâtre"],
+        en: "the theatre", frDef: "Lieu où l'on regarde des pièces jouées par des acteurs", ru: "театр",
+        pos: { en: "masculine noun (although it ends in -e)", fr: "nom masculin (malgré le -e final)", ru: "сущ. муж. рода (хотя оканчивается на -e)" },
+        rule: { en: "Two accents: é + circumflex â. And it is masculine: *le* théâtre.", fr: "Deux accents : é et â. Et c'est un nom masculin : le théâtre.", ru: "Два акцента: é и â. И это мужской род: le théâtre." }
+      },
+      {
+        id: "w_v11_8", category: "connectors",
+        fr: "en revanche", alt: ["par contre"],
+        en: "on the other hand / however", frDef: "Connecteur qui introduit une opposition", ru: "зато / с другой стороны",
+        pos: { en: "B2 opposition connector", fr: "connecteur d'opposition B2", ru: "связка противопоставления B2" },
+        rule: { en: "*En revanche* is more elegant than *par contre* in a written exam.", fr: "« En revanche » est plus soutenu que « par contre » à l'écrit.", ru: "« En revanche » звучит изящнее, чем « par contre », в письменной части." }
+      },
+      {
+        id: "w_v11_9", category: "connectors",
+        fr: "grâce à", alt: [],
+        en: "thanks to", frDef: "Connecteur de cause positive", ru: "благодаря",
+        pos: { en: "cause connector (positive)", fr: "connecteur de cause (positive)", ru: "связка причины (положительной)" },
+        rule: { en: "Circumflex on â and grave on à: *grâce à*. Use *à cause de* for negative causes.", fr: "Accent circonflexe sur « â » et grave sur « à ». Cause négative : « à cause de ».", ru: "Circonflexe на â и grave на à. Для негативной причины — « à cause de »." }
+      },
+      {
+        id: "w_v11_10", category: "connectors",
+        fr: "c'est pourquoi", alt: ["c'est la raison pour laquelle"],
+        en: "that is why", frDef: "Connecteur qui introduit une conséquence", ru: "вот почему / поэтому",
+        pos: { en: "consequence connector", fr: "connecteur de conséquence", ru: "связка следствия" },
+        rule: { en: "Written in one word: *pourquoi*. Perfect to introduce your conclusion in Tâche 3.", fr: "« Pourquoi » en un seul mot. Idéal pour conclure en Tâche 3.", ru: "« Pourquoi » пишется слитно. Отлично подходит для вывода в Tâche 3." }
+      },
+      {
+        id: "w_v11_11", category: "imparfait",
+        fr: "j'étais déçu", alt: ["j'étais déçue"],
+        en: "I was disappointed", frDef: "Exprimer une déception passée (je + être, imparfait)", ru: "я был(а) разочарован(а)",
+        pos: { en: "imparfait + adjective", fr: "imparfait + adjectif", ru: "imparfait + прилагательное" },
+        rule: { en: "Cedilla in *déçu* (ç before u) and agreement: *déçue* for a woman.", fr: "Cédille dans « déçu » (ç devant u) et accord : « déçue » au féminin.", ru: "Седиль в « déçu » (ç перед u) и согласование: « déçue » для женщины." }
+      },
+      {
+        id: "w_v11_12", category: "participles",
+        fr: "j'ai reçu", alt: [],
+        en: "I received", frDef: "Passé composé du verbe recevoir (je)", ru: "я получил(а)",
+        pos: { en: "irregular past participle", fr: "participe passé irrégulier", ru: "неправильное причастие прошедшего времени" },
+        rule: { en: "*Recevoir* → *reçu*: cedilla keeps the [s] sound before u.", fr: "« Recevoir » → « reçu » : la cédille garde le son [s] devant u.", ru: "« Recevoir » → « reçu »: седиль сохраняет звук [s] перед u." }
+      },
+      {
+        id: "w_v11_13", category: "participles",
+        fr: "j'ai dû", alt: [],
+        en: "I had to", frDef: "Passé composé du verbe devoir (je)", ru: "мне пришлось / я должен был",
+        pos: { en: "irregular past participle", fr: "participe passé irrégulier", ru: "неправильное причастие прошедшего времени" },
+        rule: { en: "*Dû* takes a circumflex (to distinguish it from *du* = de + le).", fr: "« Dû » prend un accent circonflexe (pour le distinguer de « du »).", ru: "« Dû » пишется с circonflexe (чтобы отличать от « du »)." }
+      },
+      {
+        id: "w_v11_14", category: "vandertramp",
+        fr: "je suis né", alt: ["je suis née"],
+        en: "I was born", frDef: "Passé composé de naître (je)", ru: "я родился / родилась",
+        pos: { en: "être verb + agreement", fr: "verbe avec être + accord", ru: "глагол с être + согласование" },
+        rule: { en: "*Naître* uses ÊTRE: *je suis né(e)*, never *j'ai né*.", fr: "« Naître » se conjugue avec ÊTRE : je suis né(e), jamais « j'ai né ».", ru: "« Naître » спрягается с ÊTRE: je suis né(e), никогда не « j'ai né »." }
       }
     ];
 
@@ -1665,6 +1920,68 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
           fr: "Double auxiliaire ÊTRE : « je me suis levé(e) » (pronominal) et « je suis allé(e) » (mouvement).",
           ru: "Двойная проверка на глагол être: возвратный « je me suis levé(e) » и глагол движения « je suis allé(e) »."
         }
+      },
+
+      // ---- v1.1 additions (offline bank, aligned with the official task types) ----
+      {
+        id: "p_v11_1", category: "tache1",
+        fr: "Mon quartier est calme et bien desservi par les transports en commun.",
+        alt: ["Mon quartier est calme et bien desservi par les transports en commun"],
+        en: "My neighbourhood is quiet and well served by public transport.",
+        frPrompt: "Tâche 1 (Décrire un lieu) : Dire que votre quartier est calme et qu'il y a beaucoup de transports.",
+        ru: "Мой район спокойный и хорошо обеспечен общественным транспортом.",
+        hint: "Mon quartier est + adjectif + et bien desservi par...",
+        rule: { en: "*Bien desservi* (well served) is a precise B2 expression for describing a place.", fr: "« Bien desservi par » est une expression précise, typique du niveau B2, pour décrire un lieu.", ru: "« Bien desservi par » — точное выражение уровня B2 для описания места." }
+      },
+      {
+        id: "p_v11_2", category: "tache1",
+        fr: "C'est une personne souriante, sur qui on peut toujours compter.",
+        alt: ["C'est une personne souriante sur qui on peut toujours compter."],
+        en: "She/he is a cheerful person you can always count on.",
+        frPrompt: "Tâche 1 (Décrire une personne) : Dire que c'est quelqu'un de souriant et de fiable.",
+        ru: "Это улыбчивый человек, на которого всегда можно положиться.",
+        hint: "C'est une personne + adjectif, sur qui on peut...",
+        rule: { en: "*Sur qui* (relative pronoun after a preposition, for people) shows B2 grammar.", fr: "Le pronom relatif « sur qui » (préposition + qui pour une personne) montre un niveau B2.", ru: "Относительное местоимение « sur qui » (предлог + qui для людей) показывает уровень B2." }
+      },
+      {
+        id: "p_v11_3", category: "tache2",
+        fr: "Quand je suis arrivé en France, je ne parlais pas encore bien français.",
+        alt: ["Quand je suis arrivée en France, je ne parlais pas encore bien français."],
+        en: "When I arrived in France, I didn't speak French well yet.",
+        frPrompt: "Tâche 2 (Récit) : Raconter qu'à votre arrivée en France, votre niveau de français était encore faible.",
+        ru: "Когда я приехал(а) во Францию, я ещё плохо говорил(а) по-французски.",
+        hint: "Quand + passé composé (événement), + imparfait (situation)",
+        rule: { en: "Event in passé composé (*je suis arrivé*), background situation in imparfait (*je parlais*).", fr: "Événement au passé composé (« je suis arrivé ») et situation de fond à l'imparfait (« je parlais »).", ru: "Событие — в passé composé (« je suis arrivé »), фон — в imparfait (« je parlais »)." }
+      },
+      {
+        id: "p_v11_4", category: "tache3",
+        fr: "Je trouve ce lieu très agréable, d'autant plus que l'entrée est gratuite.",
+        alt: ["Je trouve ce lieu très agréable, d'autant plus que l'entrée est gratuite"],
+        en: "I find this place very pleasant, all the more so since admission is free.",
+        frPrompt: "Tâche 3 (Opinion sur un lieu) : Donner votre avis positif et ajouter un argument fort (gratuité).",
+        ru: "Я нахожу это место очень приятным, тем более что вход бесплатный.",
+        hint: "Je trouve + nom + adjectif, d'autant plus que + indicatif",
+        rule: { en: "*D'autant plus que* reinforces an argument — a strong B2 connector (+ indicative).", fr: "« D'autant plus que » renforce un argument : connecteur B2 (suivi de l'indicatif).", ru: "« D'autant plus que » усиливает аргумент — сильная связка B2 (+ indicatif)." }
+      },
+      {
+        id: "p_v11_5", category: "tache3",
+        fr: "Bien qu'il soit pratique, le smartphone peut devenir une source de distraction.",
+        alt: ["Bien qu'il soit pratique, le smartphone peut devenir une source de distraction"],
+        en: "Although it is practical, the smartphone can become a source of distraction.",
+        frPrompt: "Tâche 3 (Opinion sur un objet) : Faire une concession sur le smartphone (pratique) puis donner un inconvénient.",
+        ru: "Хотя смартфон практичен, он может стать источником отвлечения.",
+        hint: "Bien qu'il soit + adjectif (subjonctif), + inconvénient",
+        rule: { en: "*Bien que* + subjunctive: *qu'il soit*, never *qu'il est*.", fr: "« Bien que » + subjonctif : « qu'il soit », jamais « qu'il est ».", ru: "« Bien que » + subjonctif: « qu'il soit », никогда « qu'il est »." }
+      },
+      {
+        id: "p_v11_6", category: "traps",
+        fr: "Les lettres que j'ai écrites sont arrivées hier.",
+        alt: ["Les lettres que j'ai écrites sont arrivées hier"],
+        en: "The letters I wrote arrived yesterday.",
+        frPrompt: "Piège d'accord : le COD placé avant « avoir » + un verbe avec « être ».",
+        ru: "Письма, которые я написал(а), пришли вчера.",
+        hint: "Les lettres que j'ai écrit-es sont arrivé-es...",
+        rule: { en: "With *avoir*, the participle agrees with a direct object placed BEFORE it (*que* = les lettres → *écrites*); with *être* it agrees with the subject (*arrivées*).", fr: "Avec avoir, le participe s'accorde avec le COD placé avant (« que » = les lettres → écrites) ; avec être, il s'accorde avec le sujet (arrivées).", ru: "С avoir причастие согласуется с прямым дополнением, стоящим ПЕРЕД ним (que = les lettres → écrites); с être — с подлежащим (arrivées)." }
       }
     ];
 
@@ -1677,7 +1994,7 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         id: "t1_fete_voisins",
         task: "tache1",
         register: "Amical ou semi-formel (Tu / Vous)",
-        defaultMin: 40, defaultMax: 60,
+        defaultMin: 30, defaultMax: 60,
         title: {
           en: "Tâche 1 • Neighborhood Party Invitation (Fête des voisins)",
           fr: "Tâche 1 • Invitation à la fête des voisins",
@@ -1696,7 +2013,7 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         id: "t1_retard_rdv",
         task: "tache1",
         register: "Amical (Tu)",
-        defaultMin: 40, defaultMax: 60,
+        defaultMin: 30, defaultMax: 60,
         title: {
           en: "Tâche 1 • Rescheduling a Dinner with a Friend (Imprévu)",
           fr: "Tâche 1 • Annuler et reporter un dîner avec un ami",
@@ -1717,7 +2034,7 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         id: "t2_installation_france",
         task: "tache2",
         register: "Personnel / Blog ou Courriel amical",
-        defaultMin: 60, defaultMax: 90,
+        defaultMin: 40, defaultMax: 90,
         title: {
           en: "Tâche 2 • Recounting Your Arrival & Settling in France",
           fr: "Tâche 2 • Raconter votre installation dans une nouvelle ville en France",
@@ -1736,7 +2053,7 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         id: "t2_voyage_inoubliable",
         task: "tache2",
         register: "Article de blog / Témoignage",
-        defaultMin: 60, defaultMax: 90,
+        defaultMin: 40, defaultMax: 90,
         title: {
           en: "Tâche 2 • A Memorable Weekend Trip or Cultural Event",
           fr: "Tâche 2 • Raconter une sortie culturelle ou un week-end mémorable",
@@ -1757,7 +2074,7 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         id: "t3_teletravail",
         task: "tache3",
         register: "Formel / Argumentatif B2",
-        defaultMin: 90, defaultMax: 110,
+        defaultMin: 40, defaultMax: 90,
         title: {
           en: "Tâche 3 • Opinion on Remote Work (Le Télétravail — Pros & Cons)",
           fr: "Tâche 3 • Débat sur le télétravail (Avantages et limites)",
@@ -1776,7 +2093,7 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         id: "t3_transports_gratuits",
         task: "tache3",
         register: "Formel / Lettre ou Forum Citoyen B2",
-        defaultMin: 90, defaultMax: 110,
+        defaultMin: 40, defaultMax: 90,
         title: {
           en: "Tâche 3 • Free Public Transport in Cities (Écologie & Mobilité)",
           fr: "Tâche 3 • La gratuité des transports en commun en ville",
@@ -1790,6 +2107,98 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         },
         points: ["Prise de position", "Argument écologique", "Argument social / pouvoir d'achat", "Nuance sur le financement & Conclusion"],
         modelB2: "Je vous écris afin de partager mon avis concernant le projet de gratuité des transports en commun dans notre ville.\n\nTout d'abord, cette initiative permettrait de limiter l'usage de la voiture individuelle et de réduire efficacement la pollution sonore et atmosphérique. En outre, il s'agit d'une mesure sociale forte qui soutiendrait le pouvoir d'achat des familles et des étudiants.\n\nCertes, bien que cet investissement soit coûteux pour le budget municipal, les bénéfices pour la santé publique sont indéniables.\n\nC'est pourquoi je soutiens pleinement cette démarche écologique et citoyenne."
+      },
+
+      // ---- v1.1: subjects matching the OFFICIAL task types (FEI, TCF IRN) ----
+      {
+        id: "t1_decrire_appartement",
+        task: "tache1",
+        register: "Amical (Tu)",
+        defaultMin: 30, defaultMax: 60,
+        title: { en: "Tâche 1 • Describe your new flat to a friend", fr: "Tâche 1 • Décrire votre nouvel appartement", ru: "Tâche 1 • Опишите другу вашу новую квартиру" },
+        promptFr: "Votre amie Léa vous écrit : « Alors, ton nouvel appartement, il est comment ? » Vous lui répondez pour décrire votre logement (les pièces, le quartier, ce que vous aimez). (30 mots minimum/60 mots maximum)",
+        promptTrans: {
+          en: "Your friend Léa writes: “So, what is your new flat like?” Reply and describe your home (rooms, neighbourhood, what you like).",
+          fr: "Décrivez un lieu : pièces, quartier et ce que vous préférez. Message amical (tu).",
+          ru: "Ваша подруга Леа пишет: «Ну что, какая у тебя новая квартира?» Ответьте и опишите жильё (комнаты, район, что вам нравится)."
+        },
+        points: ["Salutation + réponse à la question", "Description des pièces", "Le quartier", "Ce que vous aimez + formule finale"],
+        modelB2: "Salut Léa,\n\nMerci pour ton message ! Mon nouvel appartement est lumineux et bien plus grand que l'ancien. Il y a deux chambres, un salon spacieux et une cuisine équipée. Ce que je préfère, c'est le balcon d'où l'on voit le parc. Le quartier est calme mais animé le week-end.\n\nViens quand tu veux !\nBises"
+      },
+      {
+        id: "t1_decrire_collegue",
+        task: "tache1",
+        register: "Amical (Tu)",
+        defaultMin: 30, defaultMax: 60,
+        title: { en: "Tâche 1 • Describe your new colleague", fr: "Tâche 1 • Décrire votre nouvelle collègue", ru: "Tâche 1 • Опишите вашу новую коллегу" },
+        promptFr: "Votre ami Marc vous demande par message : « Et ta nouvelle collègue, elle est comment ? » Vous lui répondez en la décrivant (physique, caractère, pourquoi vous l'appréciez). (30 mots minimum/60 mots maximum)",
+        promptTrans: {
+          en: "Your friend Marc asks: “And your new colleague, what is she like?” Reply describing her (appearance, personality, why you like her).",
+          fr: "Décrivez une personne : physique, caractère, relation avec vous.",
+          ru: "Ваш друг Марк спрашивает: «А какая твоя новая коллега?» Ответьте, описав её (внешность, характер, почему она вам нравится)."
+        },
+        points: ["Physique", "Caractère", "Pourquoi vous l'appréciez", "Formule finale"],
+        modelB2: "Coucou Marc,\n\nMa nouvelle collègue s'appelle Inès. Elle est grande, brune et toujours souriante. Elle est très organisée et elle m'aide beaucoup depuis mon arrivée. Ce que j'apprécie surtout, c'est sa patience : elle prend le temps de tout m'expliquer. Je pense qu'elle te plairait !\n\nÀ bientôt,\nSam"
+      },
+      {
+        id: "t2_premiere_semaine",
+        task: "tache2",
+        register: "Amical (Tu)",
+        defaultMin: 40, defaultMax: 90,
+        title: { en: "Tâche 2 • Your first week in a new job", fr: "Tâche 2 • Votre première semaine dans un nouveau travail", ru: "Tâche 2 • Ваша первая неделя на новой работе" },
+        promptFr: "Vous avez commencé un nouveau travail la semaine dernière. Vous écrivez un message à une amie pour lui raconter votre première semaine : vos activités, vos collègues et vos impressions. (40 mots minimum/90 mots maximum)",
+        promptTrans: {
+          en: "You started a new job last week. Write to a friend telling her about your first week: your activities, colleagues and impressions.",
+          fr: "Racontez au passé : passé composé pour les actions, imparfait pour les sentiments et le décor.",
+          ru: "На прошлой неделе вы вышли на новую работу. Напишите подруге о первой неделе: чем занимались, какие коллеги, ваши впечатления."
+        },
+        points: ["Chronologie (le premier jour, ensuite...)", "Activités (passé composé)", "Collègues / ambiance (imparfait)", "Impression finale"],
+        modelB2: "Salut Julie,\n\nLa semaine dernière, j'ai commencé mon nouveau poste dans une agence de voyages. Le premier jour, j'étais un peu stressée, mais mes collègues m'ont accueillie chaleureusement. Le mardi, j'ai suivi une formation sur le logiciel de réservation et, dès le jeudi, j'ai conseillé mes premiers clients. Vendredi soir, nous sommes allés au restaurant tous ensemble.\n\nBref, je suis ravie de ce changement !\nÀ bientôt"
+      },
+      {
+        id: "t2_dimanche",
+        task: "tache2",
+        register: "Forum / Récit personnel",
+        defaultMin: 40, defaultMax: 90,
+        title: { en: "Tâche 2 • Tell about your last Sunday", fr: "Tâche 2 • Raconter votre dimanche dernier", ru: "Tâche 2 • Расскажите о прошлом воскресенье" },
+        promptFr: "Sur un forum, des internautes racontent leur dimanche. Vous racontez ce que vous avez fait dimanche dernier, du matin au soir, et vous dites si vous avez passé une bonne journée. (40 mots minimum/90 mots maximum)",
+        promptTrans: {
+          en: "On a forum, people describe their Sunday. Tell what you did last Sunday from morning to evening and say whether you had a good day.",
+          fr: "Récit d'activités quotidiennes : organisez votre texte du matin au soir.",
+          ru: "На форуме люди рассказывают о своём воскресенье. Расскажите, что вы делали в прошлое воскресенье с утра до вечера, и понравился ли вам день."
+        },
+        points: ["Matin", "Après-midi", "Soir", "Bilan de la journée"],
+        modelB2: "Dimanche dernier, je me suis levé assez tard car j'étais fatigué après une longue semaine. Après le petit-déjeuner, je suis allé au marché avec ma femme pour acheter des légumes et du fromage. L'après-midi, comme il faisait beau, nous nous sommes promenés au bord du lac. Le soir, nous avons préparé une soupe maison et nous avons regardé un film.\n\nC'était une journée simple mais très reposante !"
+      },
+      {
+        id: "t3_mediatheque",
+        task: "tache3",
+        register: "Standard (Vous) / Site de la ville",
+        defaultMin: 40, defaultMax: 90,
+        title: { en: "Tâche 3 • Your opinion of the new media library", fr: "Tâche 3 • Votre avis sur la nouvelle médiathèque", ru: "Tâche 3 • Ваше мнение о новой медиатеке" },
+        promptFr: "Votre ville a ouvert une nouvelle médiathèque. Sur le site internet de la mairie, vous donnez votre opinion sur ce lieu : ce qui vous plaît et ce qui pourrait être amélioré. (40 mots minimum/90 mots maximum)",
+        promptTrans: {
+          en: "Your town has opened a new media library. On the town hall website, give your opinion of this place: what you like and what could be improved.",
+          fr: "Donnez votre opinion sur un lieu, justifiez-la et nuancez-la.",
+          ru: "В вашем городе открылась новая медиатека. На сайте мэрии выскажите мнение об этом месте: что нравится и что можно улучшить."
+        },
+        points: ["Opinion générale", "2 points positifs justifiés", "1 point à améliorer (nuance)", "Conclusion"],
+        modelB2: "Je suis allé plusieurs fois à la nouvelle médiathèque et je la trouve vraiment réussie. D'abord, les espaces sont modernes, lumineux et accessibles à tous. De plus, le choix de livres et de films en plusieurs langues est remarquable, ce qui facilite l'intégration des nouveaux arrivants. Cependant, bien que le lieu soit agréable, les horaires restent trop limités le week-end. En somme, c'est une excellente initiative, à condition d'ouvrir le dimanche."
+      },
+      {
+        id: "t3_smartphone_enfants",
+        task: "tache3",
+        register: "Forum de parents (Vous)",
+        defaultMin: 40, defaultMax: 90,
+        title: { en: "Tâche 3 • Smartphones for children under 12?", fr: "Tâche 3 • Un smartphone avant 12 ans ?", ru: "Tâche 3 • Смартфон для детей до 12 лет?" },
+        promptFr: "Sur un forum de parents, on demande : « Faut-il offrir un smartphone à un enfant de moins de 12 ans ? » Vous donnez votre opinion sur cet objet et vous la justifiez. (40 mots minimum/90 mots maximum)",
+        promptTrans: {
+          en: "On a parents' forum, someone asks: “Should a child under 12 be given a smartphone?” Give and justify your opinion about this object.",
+          fr: "Donnez votre opinion sur un objet avec au moins deux arguments et une concession.",
+          ru: "На родительском форуме спрашивают: «Стоит ли дарить смартфон ребёнку младше 12 лет?» Выскажите и обоснуйте своё мнение об этом предмете."
+        },
+        points: ["Prise de position claire", "Argument 1", "Argument 2", "Concession (certes... néanmoins) + conclusion"],
+        modelB2: "À mon avis, offrir un smartphone à un enfant de moins de douze ans n'est pas une bonne idée. Tout d'abord, les écrans réduisent le temps consacré au sport, à la lecture et au sommeil. Ensuite, les jeunes enfants ne savent pas encore se protéger des dangers d'Internet. Certes, le téléphone peut rassurer les parents ; néanmoins, un simple portable sans connexion suffit largement. C'est pourquoi je préfère attendre l'entrée au collège."
       }
     ];
 
@@ -1856,6 +2265,24 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
     let examTimerSeconds = 600;
     let examTimerInterval = null;
     let isExamTimerRunning = false;
+    let draftSaveTimeout = null;
+    let wordBatchChecked = false;
+    let phraseBatchChecked = false;
+    const LANG_KEY = 'tcf_irn_lang_v1';
+
+    function escapeHtml(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function nowStamp() {
+      const d = new Date();
+      return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // Translation helper: I18N[lang][key] -> EN fallback -> key
+    function t(key) {
+      return (I18N[currentLang] && I18N[currentLang][key]) || (I18N.en && I18N.en[key]) || key;
+    }
 
     // Cloud & AI state
     let supabaseClient = null;
@@ -1928,6 +2355,10 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
     }
 
     function saveAppState(skipCloud = false) {
+      // Keep each profile small (Supabase row + localStorage quota)
+      Object.values(appState.users || {}).forEach(u => {
+        if (Array.isArray(u.history) && u.history.length > 200) u.history = u.history.slice(0, 200);
+      });
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
       } catch (err) {
@@ -2039,14 +2470,14 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
 
       if (geminiKey) {
         enginePill.innerHTML = '🤖 Live Gemini AI Examiner + Local';
-        enginePill.className = 'cursor-pointer text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-indigo-500/30 text-indigo-200 border border-indigo-400/40 hover:bg-indigo-500/40 transition';
+        enginePill.className = 'hidden sm:inline cursor-pointer text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-indigo-500/30 text-indigo-200 border border-indigo-400/40 hover:bg-indigo-500/40 transition';
         if (aiBadge) {
           aiBadge.textContent = `🟢 Gemini AI Active (${geminiKey.slice(0, 6)}...)`;
           aiBadge.className = 'px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800';
         }
       } else {
         enginePill.innerHTML = '⚡ Hybrid Local Smart Engine';
-        enginePill.className = 'cursor-pointer text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30 transition';
+        enginePill.className = 'hidden sm:inline cursor-pointer text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30 transition';
         if (aiBadge) {
           aiBadge.textContent = '⚡ Local Smart Mode';
           aiBadge.className = 'px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-200 text-slate-700';
@@ -2144,15 +2575,17 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
       if (!supabaseClient) return;
       if (syncTimeout) clearTimeout(syncTimeout);
       syncTimeout = setTimeout(() => {
-        pushAllUsersToSupabase();
+        // v1.1: push ONLY the active learner. v1.0 pushed every profile on every save, so a device holding
+        // an old copy of another family member's profile could overwrite their newer progress.
+        pushAllUsersToSupabase([getActiveUser()]);
       }, 350);
     }
 
-    async function pushAllUsersToSupabase() {
+    async function pushAllUsersToSupabase(onlyUsers = null) {
       if (!supabaseClient) return;
       try {
         setCloudBadge('syncing');
-        const rows = Object.values(appState.users).map(u => ({
+        const rows = (onlyUsers || Object.values(appState.users)).filter(Boolean).map(u => ({
           id: u.id,
           name: u.name,
           data: u,
@@ -2185,53 +2618,221 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
     /*************************************************************************
      * 8. GEMINI API HELPER (SUPPORTS BOTH AQ.Ab8R... & AIza... KEYS)
      *************************************************************************/
-    async function callGeminiJson(systemPrompt, userPrompt, responseSchema = null) {
+    // v1.1: The key is sent ONCE (x-goog-api-key header only). v1.0 sent it both as ?key= AND as a header,
+    // which new "AQ." auth keys reject ("Multiple authentication credentials") -> silent fallback to local bank.
+    // v1.2: Google retires model names often ("no longer available to new users"). So the app now ASKS Google
+    // which models this key can use (ListModels), picks the best "flash" ones, and caches the list for 24 h.
+    // This static list is only a fallback if the model list can't be read.
+    const GEMINI_FALLBACK_MODELS = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-flash-latest', 'gemini-flash-lite-latest', 'gemini-2.5-flash'];
+    const GEMINI_MODELS_CACHE_KEY = 'tcf_irn_gemini_models_v1';
+    let lastAiError = '';
+    let lastAiModel = '';
+
+    function modelVersionScore(name) {
+      const m = name.match(/gemini-(\d+(?:\.\d+)?)/);
+      return m ? parseFloat(m[1]) : 0;
+    }
+
+    async function getGeminiModels(apiKey, forceRefresh = false) {
+      const cached = loadJsonLS(GEMINI_MODELS_CACHE_KEY, null);
+      if (!forceRefresh && cached && cached.models?.length && Date.now() - cached.time < 24 * 3600 * 1000) return cached.models;
+      try {
+        const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000', {
+          headers: { 'x-goog-api-key': apiKey }
+        });
+        if (!res.ok) return GEMINI_FALLBACK_MODELS;
+        const data = await res.json();
+        const names = (data.models || [])
+          .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
+          .map(m => String(m.name || '').replace(/^models\//, ''))
+          .filter(n => /^gemini-.*flash/i.test(n))
+          .filter(n => !/(image|tts|audio|live|embedding|vision|robotics|computer|native)/i.test(n));
+        if (!names.length) return GEMINI_FALLBACK_MODELS;
+        // Prefer: stable before preview/experimental, full "flash" before "lite", newest version first
+        names.sort((a, b) => {
+          const prevA = /(preview|exp)/i.test(a), prevB = /(preview|exp)/i.test(b);
+          if (prevA !== prevB) return prevA ? 1 : -1;
+          const liteA = /lite/i.test(a), liteB = /lite/i.test(b);
+          if (liteA !== liteB) return liteA ? 1 : -1;
+          return modelVersionScore(b) - modelVersionScore(a);
+        });
+        const models = [...new Set(names)].slice(0, 4);
+        try { localStorage.setItem(GEMINI_MODELS_CACHE_KEY, JSON.stringify({ time: Date.now(), models })); } catch (e) {}
+        return models;
+      } catch (e) {
+        return GEMINI_FALLBACK_MODELS;
+      }
+    }
+
+    function forgetGeminiModel(name) {
+      const cached = loadJsonLS(GEMINI_MODELS_CACHE_KEY, null);
+      if (cached && cached.models) {
+        cached.models = cached.models.filter(m => m !== name);
+        try { localStorage.setItem(GEMINI_MODELS_CACHE_KEY, JSON.stringify(cached)); } catch (e) {}
+      }
+    }
+
+    function stripJsonFences(text) {
+      return String(text || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+    }
+
+    async function callGeminiJson(systemPrompt, userPrompt, options = {}) {
       const { geminiKey } = getCloudAndAiConfig();
       const apiKey = normalizeApiKey(geminiKey);
-
-      // Try gemini-2.5-flash and gemini-3-flash-preview endpoints with both header & query param support for AQ.Ab8R... and AIza... keys
-      const models = ['gemini-2.5-flash', 'gemini-3-flash-preview'];
-
-      const payload = {
-        contents: [{ parts: [{ text: userPrompt }] }],
-        systemInstruction: { parts: [{ text: systemPrompt }] },
-        generationConfig: {
-          responseMimeType: "application/json"
-        }
-      };
-      if (responseSchema) {
-        payload.generationConfig.responseSchema = responseSchema;
+      if (!apiKey) {
+        lastAiError = 'No Gemini API key configured';
+        throw new Error(lastAiError);
       }
 
-      let lastErr = null;
-      for (const modelName of models) {
-        const baseUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
-        const apiUrl = apiKey ? `${baseUrl}?key=${encodeURIComponent(apiKey)}` : baseUrl;
-
-        const headers = { 'Content-Type': 'application/json' };
-        if (apiKey) {
-          headers['x-goog-api-key'] = apiKey;
+      const payload = {
+        contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        generationConfig: {
+          responseMimeType: 'application/json',
+          temperature: options.temperature ?? 1.0,
+          topP: 0.95
         }
+      };
+      if (options.responseSchema) payload.generationConfig.responseSchema = options.responseSchema;
 
+      let lastErr = null;
+      const errors = [];
+      const models = await getGeminiModels(apiKey, options.refreshModels);
+      for (const modelName of models) {
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
         try {
           const res = await fetch(apiUrl, {
             method: 'POST',
-            headers,
+            headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
             body: JSON.stringify(payload)
           });
           if (!res.ok) {
-            lastErr = new Error(`HTTP ${res.status}`);
-            continue;
+            let detail = '';
+            try { detail = (await res.json())?.error?.message || ''; } catch (e) {}
+            lastErr = new Error(`${modelName}: HTTP ${res.status}${detail ? ' — ' + detail : ''}`);
+            errors.push(`${modelName}: ${res.status}`);
+            // Auth / key problems will fail on every model: stop early with a clear message.
+            if (res.status === 400 && /api key|credential|auth/i.test(detail)) break;
+            if (res.status === 401 || res.status === 403) break;
+            if (res.status === 404) forgetGeminiModel(modelName);
+            continue; // 404 (model retired), 429 (quota), 5xx -> try next model
           }
           const data = await res.json();
-          const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (text) return JSON.parse(text);
+          // Newer "thinking" models can return several parts: keep the real answer, skip thought parts
+          const parts = data?.candidates?.[0]?.content?.parts || [];
+          const text = parts.filter(p => p && p.text && !p.thought).map(p => p.text).join('');
+          if (!text) {
+            lastErr = new Error(`${modelName}: empty response (${data?.candidates?.[0]?.finishReason || 'no candidates'})`);
+            continue;
+          }
+          lastAiError = '';
+          lastAiModel = modelName;
+          return JSON.parse(stripJsonFences(text));
         } catch (err) {
           lastErr = err;
         }
       }
-      throw lastErr || new Error("AI request failed");
+      // Show the most useful error: prefer a non-404 one (quota, key...) over "model retired"
+      lastAiError = (lastErr && lastErr.message) || 'AI request failed';
+      if (errors.length > 1) lastAiError += `  [tried: ${errors.join(', ')}]`;
+      if (lastErr) lastErr = new Error(lastAiError);
+      console.warn('Gemini error:', lastAiError);
+      throw lastErr || new Error(lastAiError);
     }
+
+    function aiFailToast(err) {
+      const { geminiKey } = getCloudAndAiConfig();
+      if (!geminiKey) {
+        showToast(t('aiNoKeyToast'));
+      } else {
+        showToast(`⚠️ ${t('aiErrorToast')}: ${String(err?.message || lastAiError).slice(0, 160)}`, 7000);
+      }
+    }
+
+    async function testGeminiConnection() {
+      const btn = document.getElementById('test-ai-btn');
+      const out = document.getElementById('ai-test-result');
+      // Use the key currently typed in the modal (even before saving)
+      const typed = (document.getElementById('gemini-api-key-input')?.value || '').trim();
+      const prev = localStorage.getItem(CLOUD_CONFIG_KEY);
+      try {
+        const cfg = JSON.parse(prev || '{}');
+        cfg.geminiKey = typed;
+        localStorage.setItem(CLOUD_CONFIG_KEY, JSON.stringify(cfg));
+      } catch (e) {}
+      if (btn) btn.disabled = true;
+      if (out) { out.className = 'text-xs font-semibold text-slate-600'; out.textContent = '⏳ ...'; }
+      try {
+        const res = await callGeminiJson('Reply with JSON only.', 'Return {"ok": true, "mot": "<one random French B2 word with accents>"}', { temperature: 1, refreshModels: true });
+        if (out) { out.className = 'text-xs font-bold text-emerald-700'; out.textContent = `✅ OK — ${lastAiModel}: « ${res.mot || 'ok'} »`; }
+      } catch (err) {
+        if (out) { out.className = 'text-xs font-bold text-rose-700 break-words'; out.textContent = `❌ ${err.message}`; }
+      } finally {
+        if (btn) btn.disabled = false;
+        updateEngineBadges();
+      }
+    }
+
+    /*************************************************************************
+     * 8b. AI VARIETY HELPERS + LOCAL "AI BANK" (offline bank grows with every AI batch)
+     *************************************************************************/
+    const AI_BANK_KEY = 'tcf_irn_ai_bank_v1';
+    const RECENT_KEY = 'tcf_irn_recent_items_v1';
+    const AI_TOPIC_SEEDS = [
+      'logement et voisinage', 'travail et télétravail', 'santé et médecin', 'démarches administratives (préfecture, mairie, CAF)',
+      'transports et mobilité', 'écologie et recyclage', 'école et éducation des enfants', 'loisirs et sport', 'culture, musées et cinéma',
+      'alimentation et marché', 'vacances et voyages', 'vie associative et bénévolat', 'numérique et smartphones', 'famille et fêtes',
+      'citoyenneté et valeurs de la République', 'commerce et consommation', 'météo et saisons', 'vie de quartier', 'emploi et entretien d\'embauche',
+      'banque et budget', 'services publics', 'environnement urbain et parcs'
+    ];
+    const AI_GRAMMAR_FOCI = [
+      'accents (é, è, ê, à, ç)', 'genre des noms (le/la)', 'participes passés irréguliers', 'verbes avec être au passé composé',
+      'subjonctif après bien que / il faut que', 'connecteurs logiques B2', 'pronoms relatifs (dont, où, lequel)', 'imparfait vs passé composé',
+      'accords du participe passé', 'expressions avec avoir (avoir peur, avoir lieu...)', 'conditionnel de politesse', 'gérondif (en + participe présent)'
+    ];
+
+    function pickRandom(arr, n = 1) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return n === 1 ? copy[0] : copy.slice(0, n);
+    }
+
+    function loadJsonLS(key, fallback) {
+      try { return JSON.parse(localStorage.getItem(key) || 'null') || fallback; } catch (e) { return fallback; }
+    }
+
+    function getAiBank() {
+      const b = loadJsonLS(AI_BANK_KEY, {});
+      return { words: b.words || [], phrases: b.phrases || [], themes: b.themes || [] };
+    }
+
+    function addToAiBank(kind, items, cap) {
+      const bank = getAiBank();
+      const seen = new Set(bank[kind].map(x => normalizeForCompare(x.fr || x.promptFr)));
+      items.forEach(it => {
+        const key = normalizeForCompare(it.fr || it.promptFr);
+        if (key && !seen.has(key)) { bank[kind].unshift(it); seen.add(key); }
+      });
+      bank[kind] = bank[kind].slice(0, cap);
+      try { localStorage.setItem(AI_BANK_KEY, JSON.stringify(bank)); } catch (e) {}
+    }
+
+    function rememberRecent(kind, frList) {
+      const all = loadJsonLS(RECENT_KEY, {});
+      all[kind] = [...frList, ...(all[kind] || [])].filter(Boolean).slice(0, 120);
+      try { localStorage.setItem(RECENT_KEY, JSON.stringify(all)); } catch (e) {}
+    }
+
+    function getRecent(kind, n = 60) {
+      return (loadJsonLS(RECENT_KEY, {})[kind] || []).slice(0, n);
+    }
+
+    function getAllWords() { return [...VOCAB_BANK, ...getAiBank().words]; }
+    function getAllPhrases() { return [...PHRASES_BANK, ...getAiBank().phrases]; }
+    function getAllThemes() { return [...getAiBank().themes, ...EXAM_THEMES]; }
 
     /*************************************************************************
      * 9. VIRTUAL FRENCH ACCENTS KEYBOARD WIDGET
@@ -2358,34 +2959,63 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
       let pool = [];
 
       if (category === 'mistakes') {
-        const activeMistakes = (user.mistakeBank || []).filter(m => !m.mastered);
+        const activeMistakes = (user.mistakeBank || []).filter(m => !m.mastered && m.drillable !== false);
         if (activeMistakes.length === 0) {
-          showToast(currentLang === 'ru' ? 'В вашем Банке Ошибок пока пусто! Загружаем общий набор.' : 'Your Mistake Bank is empty! Loading mixed B2 words.');
-          pool = [...VOCAB_BANK];
+          showToast(t('mistakeBankEmptyToast'));
+          pool = getAllWords();
         } else {
-          pool = activeMistakes.map((m, idx) => ({
-            id: m.id || `mb_${idx}`,
-            category: 'mistakes',
-            fr: m.fr,
-            alt: [],
-            en: m.meaning,
-            frDef: m.meaning,
-            ru: m.meaning,
-            pos: { en: "From your Mistake Bank", fr: "Depuis votre Banque d'Erreurs", ru: "Из вашего Банка Ошибок" },
-            rule: { en: m.rule || "", fr: m.rule || "", ru: m.rule || "" }
-          }));
+          pool = activeMistakes.map((m, idx) => mistakeToDrillItem(m, idx));
         }
       } else if (category === 'all') {
-        pool = [...VOCAB_BANK];
+        pool = getAllWords();
       } else {
-        pool = VOCAB_BANK.filter(w => w.category === category);
+        pool = getAllWords().filter(w => w.category === category);
       }
 
-      // Shuffle pool
-      const shuffled = [...pool].sort(() => Math.random() - 0.5);
-      currentWordBatch = shuffled.slice(0, Math.min(wordBatchSize, shuffled.length));
+      // Avoid repeating the words of the last few batches when the pool is big enough
+      const recent = new Set(getRecent('words', 40).map(normalizeForCompare));
+      const fresh = pool.filter(w => !recent.has(normalizeForCompare(w.fr)));
+      if (fresh.length >= wordBatchSize) pool = fresh;
+
+      let batch = pickRandom(pool, Math.min(wordBatchSize, pool.length));
+      if (!Array.isArray(batch)) batch = [batch];
+
+      // Spaced repetition: in normal categories, ~1/3 of the batch comes from active mistakes
+      if (category !== 'mistakes') {
+        const mistakeItems = (user.mistakeBank || [])
+          .filter(m => !m.mastered && m.drillable !== false)
+          .map(m => mistakeToDrillItem(m));
+        if (mistakeItems.length) {
+          const n = Math.min(mistakeItems.length, Math.max(1, Math.round(wordBatchSize / 3)));
+          const picked = pickRandom(mistakeItems, n);
+          const pickedArr = Array.isArray(picked) ? picked : [picked];
+          const pickedKeys = new Set(pickedArr.map(p => normalizeForCompare(p.fr)));
+          batch = [...pickedArr, ...batch.filter(b => !pickedKeys.has(normalizeForCompare(b.fr)))].slice(0, wordBatchSize);
+          batch = pickRandom(batch, batch.length);
+          if (!Array.isArray(batch)) batch = [batch];
+        }
+      }
+
+      currentWordBatch = batch.filter(Boolean);
+      wordBatchChecked = false;
+      rememberRecent('words', currentWordBatch.map(w => w.fr));
       renderWordBatch();
       document.getElementById('words-score-banner')?.classList.add('hidden');
+    }
+
+    function mistakeToDrillItem(m, idx = 0) {
+      const meaning = m.meanings || { en: m.meaning, fr: m.meaning, ru: m.meaning };
+      return {
+        id: m.id || `mb_${idx}`,
+        category: 'mistakes',
+        fr: m.fr,
+        alt: [],
+        en: meaning.en || m.meaning,
+        frDef: meaning.fr || m.meaning,
+        ru: meaning.ru || m.meaning,
+        pos: { en: '🎯 From your Mistake Bank', fr: '🎯 Depuis votre Banque d\'erreurs', ru: '🎯 Из вашего Банка ошибок' },
+        rule: { en: m.rule || '', fr: m.rule || '', ru: m.rule || '' }
+      };
     }
 
     function renderWordBatch() {
@@ -2414,7 +3044,8 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
                   type="text"
                   id="word-input-${idx}"
                   onfocus="setLastFocusedInput(this)"
-                  onkeydown="if(event.key==='Enter') checkWordBatch()"
+                  autocomplete="off" autocapitalize="off" spellcheck="false"
+                  onkeydown="if(event.key==='Enter'){event.preventDefault(); focusNextOrCheck('word', ${idx}, ${currentWordBatch.length});}"
                   placeholder="${dict.typeFrenchWordPlaceholder}"
                   class="w-full rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 px-3.5 py-2.5 text-sm sm:text-base font-semibold text-slate-900"
                 />
@@ -2491,8 +3122,21 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
       };
     }
 
-    function checkWordBatch() {
+    function focusNextOrCheck(kind, idx, total) {
+      const next = document.getElementById(`${kind}-input-${idx + 1}`);
+      if (next && idx + 1 < total) next.focus();
+      else if (kind === 'word') checkWordBatch();
+      else checkPhraseBatch();
+    }
+
+    function meaningsOf(item) {
+      return { en: item.en || '', fr: item.frDef || item.frPrompt || item.en || '', ru: item.ru || item.en || '' };
+    }
+
+    // revealed=true -> "Show Solutions": display answers, but NO score/XP and unanswered items count as mistakes
+    function checkWordBatch(revealed = false) {
       if (currentWordBatch.length === 0) return;
+      const alreadyGraded = wordBatchChecked;
       let totalScore = 0;
       let perfectCount = 0;
 
@@ -2502,23 +3146,29 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         const badgeEl = document.getElementById(`word-badge-${idx}`);
         const feedbackEl = document.getElementById(`word-feedback-${idx}`);
         const userVal = inputEl ? inputEl.value : '';
+        if (!cardEl || !badgeEl || !feedbackEl) return;
 
         const res = evaluateSingleWord(userVal, item);
         totalScore += res.score;
+        const ruleText = item.rule?.[currentLang] || item.rule?.en;
 
         if (res.status === 'perfect') {
           perfectCount++;
           cardEl.className = 'bg-emerald-50/40 rounded-2xl shadow-sm border-2 border-emerald-400 p-4 transition-all';
           badgeEl.className = 'text-xs font-extrabold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-lg';
-          recordMistakeProgress(item.fr, true);
+          if (!alreadyGraded) recordMistakeProgress(item.fr, true);
         } else if (res.status === 'accent' || res.status === 'gender') {
           cardEl.className = 'bg-amber-50/50 rounded-2xl shadow-sm border-2 border-amber-400 p-4 transition-all';
           badgeEl.className = 'text-xs font-extrabold text-amber-800 bg-amber-100 px-2.5 py-1 rounded-lg';
-          addOrUpdateMistake(item.fr, item.en, item.rule?.[currentLang] || item.rule?.en);
+          if (!alreadyGraded) addOrUpdateMistake(item.fr, meaningsOf(item), ruleText, { silent: true });
         } else {
           cardEl.className = 'bg-rose-50/40 rounded-2xl shadow-sm border-2 border-rose-300 p-4 transition-all';
           badgeEl.className = 'text-xs font-extrabold text-rose-700 bg-rose-100 px-2.5 py-1 rounded-lg';
-          addOrUpdateMistake(item.fr, item.en, item.rule?.[currentLang] || item.rule?.en);
+          if (!alreadyGraded) addOrUpdateMistake(item.fr, meaningsOf(item), ruleText, { silent: true });
+        }
+        if (revealed && inputEl && !inputEl.value.trim()) {
+          inputEl.value = item.fr;
+          inputEl.classList.add('text-slate-400', 'italic');
         }
 
         badgeEl.textContent = res.badge;
@@ -2527,16 +3177,23 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
       });
 
       const avgNote = Math.round((totalScore / currentWordBatch.length) * 10) / 10;
+      if (alreadyGraded) {
+        // Second click on "Check" only refreshes the colours: no duplicate history / XP.
+        showToast(t('alreadyGradedToast'));
+        return;
+      }
+      wordBatchChecked = true;
       const user = getActiveUser();
       user.xp = (user.xp || 0) + (perfectCount * 10);
       user.history.unshift({
         id: 'h_' + Date.now(),
-        date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        date: nowStamp(),
         mode: `Words (${currentWordBatch.length})`,
         score: avgNote,
-        summary: `${perfectCount}/${currentWordBatch.length} perfect words.`
+        summary: `${perfectCount}/${currentWordBatch.length} perfect words.${revealed ? ' (solutions shown)' : ''}`
       });
       saveAppState();
+      renderMistakesAndHistoryView();
 
       const banner = document.getElementById('words-score-banner');
       const scoreVal = document.getElementById('words-score-value');
@@ -2551,13 +3208,8 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
     }
 
     function revealWordAnswers() {
-      currentWordBatch.forEach((item, idx) => {
-        const inputEl = document.getElementById(`word-input-${idx}`);
-        if (inputEl && !inputEl.value.trim()) {
-          inputEl.value = item.fr;
-        }
-      });
-      checkWordBatch();
+      // v1.0 bug: filled the answers THEN graded them as 20/20 (free XP + "mastered" mistakes).
+      checkWordBatch(true);
     }
 
     async function generateAiWordBatch() {
@@ -2568,27 +3220,55 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
 
       try {
         const category = document.getElementById('words-category-select')?.value || 'all';
-        const sysPrompt = "You are an expert French TCF IRN B2 examiner. Generate a JSON array of high-utility French B2 vocabulary items or connectors for the TCF IRN writing exam.";
-        const userPrompt = `Generate ${wordBatchSize} fresh French B2 vocabulary items or expressions (Category focus: ${category}). For nouns, always include the definite article (le/la/l'). Return a JSON array of objects with keys: fr (string), en (string), frDef (string), ru (string), posEn (string), ruleEn (string), ruleFr (string), ruleRu (string).`;
+        const categoryDesc = {
+          all: 'mixed B2 vocabulary useful for TCF IRN writing',
+          connectors: 'B2 logical connectors (connecteurs logiques)',
+          admin: 'administration, citizenship, préfecture, naturalisation vocabulary',
+          imparfait: 'emotions and states typically used in the imparfait',
+          vandertramp: 'verbs conjugated with ÊTRE in passé composé (give the past participle form, e.g. "je suis allé(e)")',
+          participles: 'irregular past participles (give "avoir + participe", e.g. "j\'ai pris")',
+          daily: 'daily life, work, housing and environment',
+          mistakes: 'words similar to the learner\'s mistakes'
+        }[category] || category;
+        const topic = pickRandom(AI_TOPIC_SEEDS);
+        const focus = pickRandom(AI_GRAMMAR_FOCI);
+        const avoid = [...getRecent('words'), ...getAllWords().map(w => w.fr)].slice(0, 120);
+        const user = getActiveUser();
+        const weak = (user.mistakeBank || []).filter(m => !m.mastered && m.drillable !== false).slice(0, 8).map(m => m.fr);
 
-        const items = await callGeminiJson(sysPrompt, userPrompt);
-        if (Array.isArray(items) && items.length > 0) {
-          currentWordBatch = items.map((it, idx) => ({
-            id: 'ai_w_' + Date.now() + '_' + idx,
-            category,
-            fr: it.fr,
-            alt: [],
-            en: it.en,
-            frDef: it.frDef || it.en,
-            ru: it.ru || it.en,
-            pos: { en: it.posEn || 'B2 item', fr: it.posEn || 'Terme B2', ru: it.posEn || 'Лексика B2' },
-            rule: { en: it.ruleEn || '', fr: it.ruleFr || it.ruleEn || '', ru: it.ruleRu || it.ruleEn || '' }
-          }));
-          renderWordBatch();
-          showToast('✨ Generated fresh B2 words with Gemini AI!');
-        }
+        const sysPrompt = 'You are an expert French teacher and TCF IRN examiner (France Éducation international). You create spelling drills for adult learners targeting B2 written French. Accents and genders must be 100% correct. Explanations are short, concrete and pedagogical.';
+        const userPrompt = `Create ${wordBatchSize} DIFFERENT French items for a spelling drill.
+Category: ${categoryDesc}.
+Theme for this batch (for variety): ${topic}. Grammar point to favour: ${focus}.
+Prefer words with accents (é, è, ê, à, â, ç, î, ô, û, œ) or tricky gender. Mix nouns, verbs, adjectives and short expressions (B1+ to B2 level).
+For nouns ALWAYS include the article (le/la/l'/les). If the noun starts with a vowel, use "un/une" instead of l' so the gender is visible.
+${weak.length ? `The learner recently got these wrong; include 1-2 related (not identical) items: ${weak.join(', ')}.` : ''}
+Do NOT use any of these already-known items: ${avoid.join(' | ')}.
+Return a JSON array; each object has: fr (exact French answer), alt (array of other accepted spellings, may be empty), en (English prompt), frDef (short French definition WITHOUT giving the word), ru (Russian prompt), posEn (part of speech + gender, English), ruleEn, ruleFr, ruleRu (one sentence: the spelling/accent/gender rule to remember and why).`;
+
+        const items = await callGeminiJson(sysPrompt, userPrompt, { temperature: 1.1 });
+        const valid = Array.isArray(items) ? items.filter(it => it && it.fr && (it.en || it.ru)) : [];
+        if (valid.length === 0) throw new Error('AI returned no usable items');
+        currentWordBatch = valid.slice(0, wordBatchSize).map((it, idx) => ({
+          id: 'ai_w_' + Date.now() + '_' + idx,
+          category: category === 'mistakes' ? 'all' : category,
+          fr: String(it.fr).trim(),
+          alt: Array.isArray(it.alt) ? it.alt : [],
+          en: it.en || it.ru,
+          frDef: it.frDef || it.en,
+          ru: it.ru || it.en,
+          pos: { en: it.posEn || 'B2 item', fr: it.posEn || 'Terme B2', ru: it.posEn || 'Лексика B2' },
+          rule: { en: it.ruleEn || '', fr: it.ruleFr || it.ruleEn || '', ru: it.ruleRu || it.ruleEn || '' },
+          source: 'ai'
+        }));
+        wordBatchChecked = false;
+        addToAiBank('words', currentWordBatch, 600);
+        rememberRecent('words', currentWordBatch.map(w => w.fr));
+        renderWordBatch();
+        document.getElementById('words-score-banner')?.classList.add('hidden');
+        showToast(`✨ ${t('aiWordsOk')} (${topic})`);
       } catch (err) {
-        showToast('💡 Tip: Add your free Gemini API key in ☁️ Cloud & AI Settings for infinite AI generation. Shuffling built-in bank now!');
+        aiFailToast(err);
         generateWordBatch();
       } finally {
         btn.innerHTML = originalHtml;
@@ -2614,8 +3294,14 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
 
     function generatePhraseBatch() {
       const cat = document.getElementById('phrases-category-select')?.value || 'all';
-      const pool = cat === 'all' ? [...PHRASES_BANK] : PHRASES_BANK.filter(p => p.category === cat);
-      currentPhraseBatch = [...pool].sort(() => Math.random() - 0.5).slice(0, Math.min(phraseBatchSize, pool.length));
+      let pool = cat === 'all' ? getAllPhrases() : getAllPhrases().filter(p => p.category === cat);
+      const recent = new Set(getRecent('phrases', 20).map(normalizeForCompare));
+      const fresh = pool.filter(p => !recent.has(normalizeForCompare(p.fr)));
+      if (fresh.length >= phraseBatchSize) pool = fresh;
+      let batch = pickRandom(pool, Math.min(phraseBatchSize, pool.length));
+      currentPhraseBatch = (Array.isArray(batch) ? batch : [batch]).filter(Boolean);
+      phraseBatchChecked = false;
+      rememberRecent('phrases', currentPhraseBatch.map(p => p.fr));
       renderPhraseBatch();
       document.getElementById('phrases-score-banner')?.classList.add('hidden');
     }
@@ -2636,7 +3322,7 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
               </div>
               <div class="flex items-center gap-2">
                 <button type="button" onclick="document.getElementById('phrase-hint-${idx}').classList.toggle('hidden')" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-600">
-                  💡 Structure Hint
+                  💡 ${dict.structureHintBtn || 'Structure Hint'}
                 </button>
                 <span id="phrase-badge-${idx}" class="text-xs font-bold text-slate-400 font-mono">— / 20</span>
               </div>
@@ -2725,8 +3411,9 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
       };
     }
 
-    function checkPhraseBatch() {
+    function checkPhraseBatch(revealed = false) {
       if (currentPhraseBatch.length === 0) return;
+      const alreadyGraded = phraseBatchChecked;
       let total = 0;
 
       currentPhraseBatch.forEach((item, idx) => {
@@ -2735,6 +3422,7 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         const badgeEl = document.getElementById(`phrase-badge-${idx}`);
         const fbEl = document.getElementById(`phrase-feedback-${idx}`);
         const val = inputEl ? inputEl.value : '';
+        if (!cardEl || !badgeEl || !fbEl) return;
 
         const res = evaluateSinglePhrase(val, item);
         total += res.score;
@@ -2743,31 +3431,41 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
           cardEl.className = 'bg-emerald-50/40 rounded-2xl shadow-sm border-2 border-emerald-400 p-4 sm:p-5 space-y-3 transition-all';
           badgeEl.className = 'text-xs font-extrabold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-lg';
           badgeEl.textContent = `✅ 20/20`;
-          recordMistakeProgress(item.fr, true);
+          if (!alreadyGraded) recordMistakeProgress(item.fr, true);
         } else {
           cardEl.className = res.score >= 14
             ? 'bg-amber-50/40 rounded-2xl shadow-sm border-2 border-amber-400 p-4 sm:p-5 space-y-3 transition-all'
             : 'bg-rose-50/40 rounded-2xl shadow-sm border-2 border-rose-300 p-4 sm:p-5 space-y-3 transition-all';
           badgeEl.className = 'text-xs font-extrabold text-amber-900 bg-amber-100 px-2.5 py-1 rounded-lg';
           badgeEl.textContent = `${res.score}/20`;
-          addOrUpdateMistake(item.fr, item.en, item.rule?.[currentLang] || item.rule?.en);
+          if (!alreadyGraded) addOrUpdateMistake(item.fr, meaningsOf(item), item.rule?.[currentLang] || item.rule?.en, { silent: true });
+        }
+        if (revealed && inputEl && !inputEl.value.trim()) {
+          inputEl.value = item.fr;
+          inputEl.classList.add('text-slate-400', 'italic');
         }
 
         fbEl.classList.remove('hidden');
-        fbEl.innerHTML = res.diagnostics.map(d => `<div>${d}</div>`).join('');
+        fbEl.innerHTML = res.diagnostics.filter(Boolean).map(d => `<div>${d}</div>`).join('');
       });
 
       const avg = Math.round((total / currentPhraseBatch.length) * 10) / 10;
+      if (alreadyGraded) {
+        showToast(t('alreadyGradedToast'));
+        return;
+      }
+      phraseBatchChecked = true;
       const user = getActiveUser();
-      user.xp = (user.xp || 0) + Math.round(avg);
+      user.xp = (user.xp || 0) + (revealed ? 0 : Math.round(avg));
       user.history.unshift({
         id: 'h_p_' + Date.now(),
-        date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        date: nowStamp(),
         mode: `Phrases (${currentPhraseBatch.length})`,
         score: avg,
-        summary: `Scored ${avg}/20 on B2 universal sentences.`
+        summary: `Scored ${avg}/20 on B2 universal sentences.${revealed ? ' (solutions shown)' : ''}`
       });
       saveAppState();
+      renderMistakesAndHistoryView();
 
       const banner = document.getElementById('phrases-score-banner');
       const scoreVal = document.getElementById('phrases-score-value');
@@ -2782,45 +3480,83 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
     }
 
     function revealPhraseAnswers() {
-      currentPhraseBatch.forEach((item, idx) => {
-        const inputEl = document.getElementById(`phrase-input-${idx}`);
-        if (inputEl && !inputEl.value.trim()) {
-          inputEl.value = item.fr;
-        }
-      });
-      checkPhraseBatch();
+      checkPhraseBatch(true);
     }
 
     async function generateAiPhraseBatch() {
+      const btn = document.getElementById('ai-phrases-btn');
+      const originalHtml = btn ? btn.innerHTML : '';
+      if (btn) { btn.innerHTML = '<span>⏳</span> <span>...</span>'; btn.disabled = true; }
       try {
-        showToast('✨ Generating B2 phrases with Gemini AI...');
         const cat = document.getElementById('phrases-category-select')?.value || 'all';
-        const sysPrompt = "You are a French TCF IRN B2 writing coach. Return a JSON array of high-scoring French sentences for TCF IRN writing tasks.";
-        const userPrompt = `Generate ${phraseBatchSize} useful French B2 sentences for category: ${cat}. Return JSON array with keys: fr, en, frPrompt, ru, hint, ruleEn, ruleFr, ruleRu.`;
-        const data = await callGeminiJson(sysPrompt, userPrompt);
-        if (Array.isArray(data) && data.length > 0) {
-          currentPhraseBatch = data.map((d, i) => ({
-            id: 'ai_p_' + Date.now() + '_' + i,
-            category: cat,
-            fr: d.fr,
-            alt: [],
-            en: d.en,
-            frPrompt: d.frPrompt || d.en,
-            ru: d.ru || d.en,
-            hint: d.hint || d.fr.slice(0, 22) + '...',
-            rule: { en: d.ruleEn || '', fr: d.ruleFr || d.ruleEn || '', ru: d.ruleRu || d.ruleEn || '' }
-          }));
-          renderPhraseBatch();
-        }
+        const catDesc = {
+          all: 'any of the three TCF IRN writing tasks',
+          tache1: 'Tâche 1 (30-60 words): a short message replying to someone, describing a person, place or object; greetings, asking/answering, closing formulas',
+          tache2: 'Tâche 2 (40-90 words): telling daily activities or a past experience (imparfait for description + passé composé for events)',
+          tache3: 'Tâche 3 (40-90 words): giving and justifying an opinion about a place, object or person, with B2 connectors, nuance and subjunctive',
+          traps: 'classic B2 grammar traps: être vs avoir auxiliary, past participle agreement, avoir peur/besoin, subjunctive after bien que / il faut que'
+        }[cat] || cat;
+        const topic = pickRandom(AI_TOPIC_SEEDS);
+        const avoid = [...getRecent('phrases', 40), ...getAllPhrases().map(p => p.fr)].slice(0, 80);
+        const sysPrompt = 'You are a French TCF IRN writing coach (B2 target). You create reusable "plug-and-play" sentences adult learners can memorise and adapt in the exam. French must be flawless and natural (not literary).';
+        const userPrompt = `Create ${phraseBatchSize} DIFFERENT French sentences (8-20 words each) for: ${catDesc}.
+Theme for this batch: ${topic}. Each sentence must contain at least one B2 structure (connector, relative pronoun, subjunctive, conditional, gérondif, correct participle agreement...).
+Do NOT reuse these sentences: ${avoid.join(' | ')}.
+Return a JSON array; each object has: fr (the sentence), alt (array of 1-2 acceptable variants, e.g. tu/vous or masculine/feminine), en (English translation the learner will translate back), frPrompt (French instruction describing the situation WITHOUT giving the sentence), ru (Russian translation), hint (the skeleton/structure, e.g. "Bien que + subjonctif, ..."), ruleEn, ruleFr, ruleRu (one sentence: why this structure scores at B2 / the trap to avoid).`;
+        const data = await callGeminiJson(sysPrompt, userPrompt, { temperature: 1.05 });
+        const valid = Array.isArray(data) ? data.filter(d => d && d.fr && (d.en || d.ru)) : [];
+        if (valid.length === 0) throw new Error('AI returned no usable phrases');
+        currentPhraseBatch = valid.slice(0, phraseBatchSize).map((d, i) => ({
+          id: 'ai_p_' + Date.now() + '_' + i,
+          category: cat === 'all' ? 'tache3' : cat,
+          fr: String(d.fr).trim(),
+          alt: Array.isArray(d.alt) ? d.alt : [],
+          en: d.en || d.ru,
+          frPrompt: d.frPrompt || d.en,
+          ru: d.ru || d.en,
+          hint: d.hint || String(d.fr).slice(0, 22) + '...',
+          rule: { en: d.ruleEn || '', fr: d.ruleFr || d.ruleEn || '', ru: d.ruleRu || d.ruleEn || '' },
+          source: 'ai'
+        }));
+        phraseBatchChecked = false;
+        addToAiBank('phrases', currentPhraseBatch, 400);
+        rememberRecent('phrases', currentPhraseBatch.map(p => p.fr));
+        renderPhraseBatch();
+        document.getElementById('phrases-score-banner')?.classList.add('hidden');
+        showToast(`✨ ${t('aiPhrasesOk')} (${topic})`);
       } catch (e) {
+        aiFailToast(e);
         generatePhraseBatch();
+      } finally {
+        if (btn) { btn.innerHTML = originalHtml; btn.disabled = false; }
       }
     }
 
     /*************************************************************************
      * 13. MODE 3: TCF IRN EXAM SIMULATOR & HYBRID B2 ESSAY GRADER
      *************************************************************************/
-    function selectExamTask(taskKey) {
+    // OFFICIAL TCF IRN (France Éducation international, checked 2026-11-19):
+    // Expression écrite = 3 tasks in 30 minutes TOTAL.
+    // T1: 30–60 words (short message describing a person/place/object in reply to a message)
+    // T2: 40–90 words (account of daily activities / experience)
+    // T3: 40–90 words (opinion about a place, object or person)
+    // Outside the range => copy can be graded "A1 non atteint".
+    const OFFICIAL_BRACKETS = { tache1: [30, 60], tache2: [40, 90], tache3: [40, 90] };
+    const EXAM_DRAFTS_KEY = 'tcf_irn_exam_drafts_v1';
+    let fullExamMode = false;
+    let examThemeByTask = {};
+
+    function loadExamDrafts() { return loadJsonLS(EXAM_DRAFTS_KEY, {}); }
+    function saveCurrentDraft() {
+      const ta = document.getElementById('exam-essay-textarea');
+      if (!ta) return;
+      const drafts = loadExamDrafts();
+      drafts[currentExamTask] = ta.value;
+      try { localStorage.setItem(EXAM_DRAFTS_KEY, JSON.stringify(drafts)); } catch (e) {}
+    }
+
+    function selectExamTask(taskKey, opts = {}) {
+      if (!opts.skipSave) saveCurrentDraft();
       currentExamTask = taskKey;
       ['tache1', 'tache2', 'tache3'].forEach(k => {
         const btn = document.getElementById(`exam-task-${k}`);
@@ -2831,12 +3567,50 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         }
       });
 
-      // Automatically set default bracket for selected task
-      if (taskKey === 'tache1') setWordCountBracket(40, 60);
-      if (taskKey === 'tache2') setWordCountBracket(60, 90);
-      if (taskKey === 'tache3') setWordCountBracket(90, 110);
+      const [mn, mx] = OFFICIAL_BRACKETS[taskKey];
+      setWordCountBracket(mn, mx);
 
       populateExamThemeSelect();
+      if (fullExamMode && examThemeByTask[taskKey]) {
+        currentExamTheme = examThemeByTask[taskKey];
+        const sel = document.getElementById('exam-theme-select');
+        if (sel) sel.value = currentExamTheme.id;
+        renderActiveExamPrompt();
+      }
+
+      // Restore this task's draft
+      const ta = document.getElementById('exam-essay-textarea');
+      if (ta) ta.value = loadExamDrafts()[taskKey] || '';
+      updateLiveWordCount();
+
+      // Single-task practice: 10 minutes per task (= 30 min / 3). Full exam keeps one 30-min clock.
+      if (!fullExamMode && !isExamTimerRunning) resetExamTimer();
+    }
+
+    function startFullExam() {
+      if (isExamTimerRunning && !confirm(t('confirmRestartExam'))) return;
+      saveCurrentDraft();
+      fullExamMode = true;
+      examThemeByTask = {};
+      ['tache1', 'tache2', 'tache3'].forEach(k => {
+        examThemeByTask[k] = pickRandom(getAllThemes().filter(th => th.task === k));
+      });
+      try { localStorage.setItem(EXAM_DRAFTS_KEY, JSON.stringify({})); } catch (e) {}
+      document.getElementById('exam-evaluation-report')?.classList.add('hidden');
+      document.getElementById('full-exam-banner')?.classList.remove('hidden');
+      selectExamTask('tache1', { skipSave: true });
+      clearInterval(examTimerInterval);
+      isExamTimerRunning = false;
+      examTimerSeconds = 30 * 60;
+      renderTimerDisplay();
+      toggleExamTimer();
+      showToast(t('fullExamStarted'));
+    }
+
+    function exitFullExam() {
+      fullExamMode = false;
+      document.getElementById('full-exam-banner')?.classList.add('hidden');
+      resetExamTimer();
     }
 
     function setWordCountBracket(minW, maxW) {
@@ -2844,9 +3618,8 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
       currentMaxWords = maxW;
       const brackets = [
         { id: 'bracket-30-60', min: 30, max: 60 },
-        { id: 'bracket-40-60', min: 40, max: 60 },
-        { id: 'bracket-60-90', min: 60, max: 90 },
-        { id: 'bracket-90-110', min: 90, max: 110 }
+        { id: 'bracket-40-90', min: 40, max: 90 },
+        { id: 'bracket-60-90', min: 60, max: 90 }
       ];
       brackets.forEach(b => {
         const el = document.getElementById(b.id);
@@ -2866,27 +3639,31 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
     function populateExamThemeSelect() {
       const sel = document.getElementById('exam-theme-select');
       if (!sel) return;
-      const filtered = EXAM_THEMES.filter(t => t.task === currentExamTask);
-      sel.innerHTML = filtered.map(t => `<option value="${t.id}">${t.title[currentLang] || t.title.en}</option>`).join('');
+      const filtered = getAllThemes().filter(th => th.task === currentExamTask);
+      const keepId = currentExamTheme && currentExamTheme.task === currentExamTask ? currentExamTheme.id : null;
+      sel.innerHTML = filtered.map(th => `<option value="${th.id}">${th.source === 'ai' ? '✨ ' : ''}${escapeHtml(th.title[currentLang] || th.title.en)}</option>`).join('');
       if (filtered.length > 0) {
-        currentExamTheme = filtered[0];
+        currentExamTheme = filtered.find(th => th.id === keepId) || filtered[0];
+        sel.value = currentExamTheme.id;
         renderActiveExamPrompt();
       }
     }
 
     function loadSelectedExamPrompt() {
       const id = document.getElementById('exam-theme-select')?.value;
-      const found = EXAM_THEMES.find(t => t.id === id);
+      const found = getAllThemes().find(th => th.id === id);
       if (found) {
         currentExamTheme = found;
+        if (fullExamMode) examThemeByTask[currentExamTask] = found;
         renderActiveExamPrompt();
       }
     }
 
     function pickRandomExamTheme() {
-      const pool = EXAM_THEMES.filter(t => t.task === currentExamTask);
-      const random = pool[Math.floor(Math.random() * pool.length)] || EXAM_THEMES[0];
+      const pool = getAllThemes().filter(th => th.task === currentExamTask && th.id !== currentExamTheme?.id);
+      const random = pickRandom(pool) || EXAM_THEMES[0];
       currentExamTheme = random;
+      if (fullExamMode) examThemeByTask[currentExamTask] = random;
       const sel = document.getElementById('exam-theme-select');
       if (sel) sel.value = random.id;
       renderActiveExamPrompt();
@@ -2895,7 +3672,7 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
     function renderActiveExamPrompt() {
       if (!currentExamTheme) return;
       document.getElementById('prompt-task-badge').textContent = currentExamTheme.task.toUpperCase().replace('TACHE', 'TÂCHE ');
-      document.getElementById('prompt-register-badge').textContent = currentExamTheme.register;
+      document.getElementById('prompt-register-badge').textContent = currentExamTheme.register || '';
       document.getElementById('exam-prompt-fr').textContent = currentExamTheme.promptFr;
 
       const transBox = document.getElementById('exam-prompt-translated-box');
@@ -2907,13 +3684,14 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
 
       const ptsEl = document.getElementById('exam-prompt-points');
       ptsEl.innerHTML = (currentExamTheme.points || []).map(p => `
-        <span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-800 text-blue-200 border border-slate-600">✓ ${p}</span>
+        <span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-800 text-blue-200 border border-slate-600">✓ ${escapeHtml(p)}</span>
       `).join('');
 
-      // Model answer box
+      // Model answer box (hidden again on every new subject so the learner writes first)
       const modelWords = countFrenchWords(currentExamTheme.modelB2);
-      document.getElementById('exam-model-answer-text').textContent = currentExamTheme.modelB2;
+      document.getElementById('exam-model-answer-text').textContent = currentExamTheme.modelB2 || '—';
       document.getElementById('exam-model-wordcount').textContent = `${modelWords} mots (Niveau B2)`;
+      document.getElementById('exam-model-answer-box')?.classList.add('hidden');
       document.getElementById('exam-evaluation-report')?.classList.add('hidden');
     }
 
@@ -2960,6 +3738,8 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
       const dict = I18N[currentLang] || I18N.en;
 
       if (countEl) countEl.textContent = count;
+      clearTimeout(draftSaveTimeout);
+      draftSaveTimeout = setTimeout(saveCurrentDraft, 600);
       const pct = Math.min(100, Math.round((count / currentMaxWords) * 100));
       if (barEl) barEl.style.width = `${pct}%`;
 
@@ -2970,7 +3750,7 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         barEl.className = 'h-full bg-blue-500 transition-all duration-200';
       } else if (count < currentMinWords) {
         pillEl.className = 'px-3.5 py-1.5 rounded-xl font-mono text-sm font-extrabold bg-amber-100 text-amber-900 border border-amber-300';
-        statusEl.textContent = `${dict.statusUnderWords} (${currentMinWords - count} more needed)`;
+        statusEl.textContent = `${dict.statusUnderWords} (−${currentMinWords - count})`;
         statusEl.className = 'text-xs font-bold text-amber-700';
         barEl.className = 'h-full bg-amber-500 transition-all duration-200';
       } else if (count <= currentMaxWords) {
@@ -3003,7 +3783,13 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
           } else {
             clearInterval(examTimerInterval);
             isExamTimerRunning = false;
-            showToast('⏰ Time is up! Click Evaluate Text to check your B2 note.');
+            btn.textContent = dict.startTimerBtn;
+            if (fullExamMode) {
+              showToast(t('timeUpFullExam'), 6000);
+              gradeFullExam();
+            } else {
+              showToast(t('timeUpToast'));
+            }
           }
         }, 1000);
       }
@@ -3012,7 +3798,7 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
     function resetExamTimer() {
       clearInterval(examTimerInterval);
       isExamTimerRunning = false;
-      examTimerSeconds = currentExamTask === 'tache1' ? 480 : (currentExamTask === 'tache2' ? 600 : 900);
+      examTimerSeconds = fullExamMode ? 30 * 60 : 10 * 60;
       renderTimerDisplay();
       const btn = document.getElementById('exam-timer-btn');
       if (btn) btn.textContent = (I18N[currentLang] || I18N.en).startTimerBtn;
@@ -3031,7 +3817,9 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
 
     function clearExamEssay() {
       const textarea = document.getElementById('exam-essay-textarea');
+      if (textarea && textarea.value.trim() && !confirm(t('confirmClearText'))) return;
       if (textarea) textarea.value = '';
+      saveCurrentDraft();
       updateLiveWordCount();
       document.getElementById('exam-evaluation-report')?.classList.add('hidden');
     }
@@ -3054,7 +3842,8 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
           }
         },
         {
-          regex: /\b(j'ai|tu as|il a|elle a|nous avons|vous avez)\s+(allé|allée|allés|venu|venue|parti|partie|arrivé|arrivée|resté|restée|tombé|retourné|rentré)\b/gi,
+          // NB: \b does not work after accented letters in JS (é is a "non-word" char) -> use a letter lookahead
+          regex: /\b(j'ai|j’ai|tu as|il a|elle a|on a|nous avons|vous avez|ils ont|elles ont)\s+(allée?s?|venue?s?|partie?s?|arrivée?s?|restée?s?|tombée?s?|retournée?s?|rentrée?s?|née?s?|morte?s?|devenue?s?|sortie?s?|entrée?s?|montée?s?|descendue?s?)(?![a-zà-ÿœ])/gi,
           wrong: (m) => m,
           correct: "je suis allé(e) / arrivé(e) / parti(e)",
           explain: {
@@ -3064,7 +3853,7 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
           }
         },
         {
-          regex: /\b(j'étais|je suis|il était)\s+peur\b/gi,
+          regex: /(?<![a-zà-ÿœ])(j'étais|j’étais|je suis|il était|elle était|il est|elle est)\s+peur\b/gi,
           wrong: (m) => m,
           correct: "j'avais peur / j'ai eu peur",
           explain: {
@@ -3098,9 +3887,11 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
           checkPass: true
         },
         {
-          regex: /\b(tres|deja|apres|meme|probleme|premiere|ecole|etait|ete|prefecture|teletravail|bientot|desole)\b/gi,
+          regex: /(?<![a-zà-ÿœ])(tres|deja|apres|meme|probleme|premiere|ecole|etait|ete|prefecture|teletravail|bientot|desole|desolee|interessant|evenement|francais|ca va)(?![a-zà-ÿœ])/gi,
           wrong: (m) => m,
-          correct: "très / déjà / après / même / problème / première / était / été / télétravail / bientôt / désolé",
+          correct: "très / déjà / après / même / problème / première / école / était / été / préfecture / télétravail / bientôt / désolé(e) / intéressant / événement / français / ça va",
+          // exact correction per word -> these become real spelling drills in the Mistake Bank
+          map: { tres: 'très', deja: 'déjà', apres: 'après', meme: 'même', probleme: 'problème', premiere: 'première', ecole: 'école', etait: 'était', ete: 'été', prefecture: 'préfecture', teletravail: 'télétravail', bientot: 'bientôt', desole: 'désolé', desolee: 'désolée', interessant: 'intéressant', evenement: 'événement', francais: 'français', 'ca va': 'ça va' },
           explain: {
             en: "Missing French accent detected! Use the 🎹 French Accents bar to add é, è, ê.",
             fr: "Oubli d'accent détecté ! Utilisez le clavier d'accents 🎹 pour ajouter é, è, ê.",
@@ -3114,10 +3905,12 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         const matches = text.match(r.regex);
         if (matches) {
           matches.forEach(m => {
+            const exact = r.map && r.map[m.toLowerCase().replace(/\s+/g, ' ')];
             issues.push({
               wrong: m,
-              correct: r.correct,
-              explanation: r.explain[currentLang] || r.explain.en
+              correct: exact || r.correct,
+              explanation: r.explain[currentLang] || r.explain.en,
+              drillable: !!exact
             });
           });
         }
@@ -3134,21 +3927,22 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
       const usedConnectors = b2Connectors.filter(c => lowerText.includes(c));
 
       // 3. Calculate rubric score out of 20
-      let wordScore = 5; // out of 5
-      if (wordCount < currentMinWords) {
-        wordScore = Math.max(1, Math.round((wordCount / currentMinWords) * 4));
-      } else if (wordCount > currentMaxWords + 10) {
-        wordScore = 3.5;
-      }
+      const wordCountOk = wordCount >= currentMinWords && wordCount <= currentMaxWords;
+      let wordScore = wordCountOk ? 5 : 0; // out of 5
 
       let connectorScore = Math.min(5, 2 + usedConnectors.length * 1.2); // out of 5
       let grammarScore = Math.max(2, 10 - issues.length * 1.5); // out of 10
-      const totalScore = Math.min(20, Math.round((wordScore + connectorScore + grammarScore) * 10) / 10);
+      let totalScore = Math.min(20, Math.round((wordScore + connectorScore + grammarScore) * 10) / 10);
 
       let cefr = "A2";
       if (totalScore >= 16) cefr = "B2+ (Excellent)";
       else if (totalScore >= 13) cefr = "B2 (Validé)";
       else if (totalScore >= 10) cefr = "B1";
+      // Official rule: wrong word count => "A1 non atteint"
+      if (!wordCountOk) {
+        totalScore = Math.min(totalScore, 4);
+        cefr = 'A1 non atteint';
+      }
 
       return {
         score: totalScore,
@@ -3162,125 +3956,198 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
       };
     }
 
+    // Grades one text. Returns a report object; does NOT touch the DOM.
+    async function gradeEssayText(text, theme, minW, maxW) {
+      const prevMin = currentMinWords, prevMax = currentMaxWords;
+      currentMinWords = minW; currentMaxWords = maxW;
+      const report = runLocalFrenchEssayAnalyzer(text);
+      currentMinWords = prevMin; currentMaxWords = prevMax;
+      report.minW = minW; report.maxW = maxW; report.source = 'local';
+      report.taskLabel = theme.task.toUpperCase().replace('TACHE', 'TÂCHE ');
+
+      const { geminiKey } = getCloudAndAiConfig();
+      if (!geminiKey) return report;
+      try {
+        const langName = currentLang === 'ru' ? 'Russian' : (currentLang === 'fr' ? 'French' : 'English');
+        const taskSpec = {
+          tache1: 'Tâche 1 — short message (30-60 words) replying to someone: describe a person, place or object, give the requested information, adapted register (tu/vous), greeting and closing.',
+          tache2: 'Tâche 2 — account of daily activities or a past experience (40-90 words): clear chronology, imparfait for description/feelings + passé composé for events, connectors of time.',
+          tache3: 'Tâche 3 — opinion about a place, object or person (40-90 words): clear position, at least two justified arguments, nuance/concession, conclusion, B2 connectors.'
+        }[theme.task];
+        const sysPrompt = `You are a certified TCF IRN examiner (France Éducation international). Grade strictly and realistically like the real exam, targeting CEFR B2.
+Official rules: ${taskSpec} If the word count is outside the range, the copy can be graded "A1 non atteint" — say so clearly and cap the score at 4/20. Off-topic => same.
+Criteria: task completion & requested information, coherence/cohesion (connectors), lexical range & precision, grammatical accuracy (agreements, tenses, auxiliaries, subjunctive), spelling & accents, register.
+Give ALL explanations in ${langName}. Be specific: quote the learner's exact words. Keep each explanation to 1-2 sentences and say WHY the correction is better.
+Return JSON: { "score": number 0-20 (one decimal), "cefr": "A1 non atteint"|"A2"|"B1"|"B2"|"C1", "criteria": {"task": 0-5, "coherence": 0-5, "lexis": 0-5, "grammar": 0-5}, "strengths": string, "toImprove": string (2-3 concrete tips to reach B2), "issues": [{"wrong": exact learner fragment, "correct": corrected fragment (short, French), "explanation": string, "type": "accent"|"grammar"|"vocabulary"|"register"|"structure"}], "correctedVersion": the learner's text corrected and slightly improved to B2 while keeping their ideas and staying within ${minW}-${maxW} words }`;
+        const userPrompt = `Subject (French): ${theme.promptFr}
+Required points: ${(theme.points || []).join('; ')}
+Word range: ${minW}-${maxW} words (learner wrote ${report.wordCount}).
+Learner's text:
+"""${text}"""`;
+        const aiRes = await callGeminiJson(sysPrompt, userPrompt, { temperature: 0.3 });
+        if (aiRes && typeof aiRes.score === 'number') {
+          report.score = Math.max(0, Math.min(20, Math.round(aiRes.score * 10) / 10));
+          report.cefr = aiRes.cefr || report.cefr;
+          report.strengths = aiRes.strengths || report.strengths;
+          report.toImprove = aiRes.toImprove || '';
+          report.criteria = aiRes.criteria || null;
+          report.aiCorrected = aiRes.correctedVersion || null;
+          if (Array.isArray(aiRes.issues)) {
+            report.issues = aiRes.issues.filter(i => i && i.wrong && i.correct).map(i => ({ ...i, drillable: true }));
+          }
+          report.source = 'ai';
+        }
+      } catch (err) {
+        report.aiError = err.message;
+      }
+      return report;
+    }
+
+    function saveEssayResult(report, theme) {
+      const user = getActiveUser();
+      user.xp = (user.xp || 0) + 50;
+      user.history.unshift({
+        id: 'h_exam_' + Date.now() + '_' + theme.task,
+        date: nowStamp(),
+        mode: `${report.taskLabel} (${report.wordCount} words)`,
+        score: report.score,
+        summary: `${report.cefr} — ${theme.title?.en || ''}${report.source === 'ai' ? ' • AI' : ''}`
+      });
+      (report.issues || []).forEach(iss => {
+        if (iss.correct && iss.wrong) {
+          // Local-analyzer corrections are generic rules ("j'ai / j'étais / j'espère") -> saved as notes, not as spelling drills.
+          addOrUpdateMistake(iss.correct, { en: `« ${iss.wrong} »`, fr: `« ${iss.wrong} »`, ru: `« ${iss.wrong} »` }, iss.explanation,
+            { silent: true, drillable: !!iss.drillable && String(iss.correct).length <= 60 });
+        }
+      });
+      saveAppState();
+    }
+
     async function evaluateExamEssay() {
       const textarea = document.getElementById('exam-essay-textarea');
       const text = textarea ? textarea.value.trim() : '';
       if (!text) {
-        showToast(currentLang === 'ru' ? 'Сначала напишите текст для проверки!' : 'Please write your French text first before grading!');
+        showToast(t('writeFirstToast'));
         return;
       }
-
       const btn = document.getElementById('grade-essay-btn');
       const originalHtml = btn.innerHTML;
-      btn.innerHTML = '<span>⏳</span> <span>Analyzing B2 Grammar & Structure...</span>';
+      btn.innerHTML = `<span>⏳</span> <span>${t('analyzingLabel')}</span>`;
       btn.disabled = true;
-
-      const { geminiKey } = getCloudAndAiConfig();
-      let report = runLocalFrenchEssayAnalyzer(text);
-
-      // If Gemini API key is configured, enrich with deep AI Examiner grading
-      if (geminiKey) {
-        try {
-          const langName = currentLang === 'ru' ? 'Russian' : (currentLang === 'fr' ? 'French' : 'English');
-          const sysPrompt = `You are an official French TCF IRN B2 examiner. Evaluate the user's French essay strictly for the TCF IRN exam. Provide all explanations in ${langName}. Return JSON with keys: score (number 0-20), cefr (string like 'B1' or 'B2'), strengths (string in ${langName}), correctedVersion (string in French B2), issues (array of objects with wrong, correct, explanation in ${langName}).`;
-          const userPrompt = `Task: ${currentExamTheme.promptFr}\nTarget Word Count: ${currentMinWords}-${currentMaxWords} words (Actual: ${report.wordCount} words).\nStudent Text:\n${text}`;
-          const aiRes = await callGeminiJson(sysPrompt, userPrompt);
-          if (aiRes && typeof aiRes.score === 'number') {
-            report.score = aiRes.score;
-            report.cefr = aiRes.cefr || report.cefr;
-            report.strengths = aiRes.strengths || report.strengths;
-            report.aiCorrected = aiRes.correctedVersion || null;
-            if (Array.isArray(aiRes.issues)) {
-              report.issues = aiRes.issues;
-            }
-          }
-        } catch (err) {
-          console.warn('Fallback to local hybrid grader:', err);
-        }
+      try {
+        const report = await gradeEssayText(text, currentExamTheme, currentMinWords, currentMaxWords);
+        const container = document.getElementById('exam-evaluation-report');
+        container.innerHTML = renderEssayReportHtml(report);
+        container.classList.remove('hidden');
+        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (report.aiError) aiFailToast(new Error(report.aiError));
+        saveEssayResult(report, currentExamTheme);
+      } finally {
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
       }
-
-      renderEssayEvaluationReport(report);
-
-      // Save to active user's history & XP
-      const user = getActiveUser();
-      user.xp = (user.xp || 0) + 50;
-      user.history.unshift({
-        id: 'h_exam_' + Date.now(),
-        date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        mode: `${currentExamTheme.task.toUpperCase()} (${report.wordCount} words)`,
-        score: report.score,
-        summary: `${report.cefr} — ${ currentExamTheme.title.en }`
-      });
-      // Also auto-save detected mistakes into user's Mistake Bank
-      (report.issues || []).forEach(iss => {
-        if (iss.correct && iss.wrong) {
-          addOrUpdateMistake(iss.correct, `Correction for "${iss.wrong}"`, iss.explanation);
-        }
-      });
-      saveAppState();
-
-      btn.innerHTML = originalHtml;
-      btn.disabled = false;
     }
 
-    function renderEssayEvaluationReport(report) {
+    async function gradeFullExam() {
+      saveCurrentDraft();
+      const drafts = loadExamDrafts();
+      const tasks = ['tache1', 'tache2', 'tache3'];
+      if (!tasks.some(k => (drafts[k] || '').trim())) { showToast(t('writeFirstToast')); return; }
+      clearInterval(examTimerInterval);
+      isExamTimerRunning = false;
+      const btn = document.getElementById('grade-full-exam-btn');
+      if (btn) { btn.disabled = true; btn.textContent = '⏳ ' + t('analyzingLabel'); }
       const container = document.getElementById('exam-evaluation-report');
-      if (!container) return;
-      container.classList.remove('hidden');
-
-      const wordOk = report.wordCount >= currentMinWords && report.wordCount <= currentMaxWords;
-      const wordBadge = wordOk
-        ? `<span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 font-bold text-xs">✅ ${report.wordCount} words (Target: ${currentMinWords}–${currentMaxWords})</span>`
-        : `<span class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 font-bold text-xs">⚠️ ${report.wordCount} words (Target: ${currentMinWords}–${currentMaxWords})</span>`;
-
-      const issuesHtml = (report.issues && report.issues.length > 0)
-        ? report.issues.map(iss => `
-            <div class="p-3 rounded-xl bg-rose-50/70 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div class="space-y-1 text-xs sm:text-sm">
-                <div>
-                  <del class="text-rose-600 font-semibold mr-1.5">${iss.wrong}</del>
-                  <span>➔</span>
-                  <strong class="text-emerald-700 font-mono ml-1.5">${iss.correct}</strong>
-                </div>
-                <div class="text-slate-700">${iss.explanation}</div>
-              </div>
-              <span class="text-[11px] font-bold text-rose-700 bg-rose-100 px-2 py-0.5 rounded-md whitespace-nowrap self-start sm:self-center">📌 Saved to Bank</span>
-            </div>
-          `).join('')
-        : `<div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm font-semibold">
-            🎉 No major grammar, auxiliary, or accent errors detected!
-           </div>`;
-
+      const reports = [];
+      for (const k of tasks) {
+        const theme = examThemeByTask[k] || getAllThemes().find(th => th.task === k);
+        const text = (drafts[k] || '').trim();
+        const [mn, mx] = OFFICIAL_BRACKETS[k];
+        let rep;
+        if (!text) {
+          rep = { score: 0, cefr: 'A1 non atteint', wordCount: 0, issues: [], strengths: t('taskNotDone'), minW: mn, maxW: mx, taskLabel: k.toUpperCase().replace('TACHE', 'TÂCHE ') };
+        } else {
+          rep = await gradeEssayText(text, theme, mn, mx);
+          saveEssayResult(rep, theme);
+        }
+        reports.push(rep);
+      }
+      const avg = Math.round(reports.reduce((a, r) => a + (Number(r.score) || 0), 0) / 3 * 10) / 10;
+      const anyFail = reports.some(r => r.wordCount < r.minW || r.wordCount > r.maxW);
       container.innerHTML = `
+        <div class="bg-gradient-to-r from-blue-700 to-indigo-700 text-white px-5 py-4">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-blue-200">${t('fullExamResultTitle')}</div>
+          <div class="text-2xl font-extrabold">${avg} / 20</div>
+          ${anyFail ? `<div class="mt-1 text-xs font-bold text-amber-200">⚠️ ${t('wordRuleWarning')}</div>` : ''}
+        </div>
+        ${reports.map(r => renderEssayReportHtml(r)).join('<div class="h-2 bg-slate-100"></div>')}`;
+      container.classList.remove('hidden');
+      container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (btn) { btn.disabled = false; btn.textContent = '🏁 ' + t('gradeFullExamBtn'); }
+      if (reports.some(r => r.aiError)) aiFailToast(new Error(reports.find(r => r.aiError).aiError));
+      exitFullExam();
+    }
+
+    function renderEssayReportHtml(report) {
+      const minW = report.minW ?? currentMinWords, maxW = report.maxW ?? currentMaxWords;
+      const wordOk = report.wordCount >= minW && report.wordCount <= maxW;
+      const wordBadge = wordOk
+        ? `<span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 font-bold text-xs">✅ ${report.wordCount} ${t('wordsUnit')} (${minW}–${maxW})</span>`
+        : `<span class="px-2.5 py-1 rounded-lg bg-rose-100 text-rose-800 font-bold text-xs">⛔ ${report.wordCount} ${t('wordsUnit')} (${minW}–${maxW})</span>`;
+      const issues = report.issues || [];
+      const issuesHtml = issues.length > 0
+        ? issues.map(iss => `
+            <div class="p-3 rounded-xl bg-rose-50/70 border border-rose-200 space-y-1 text-xs sm:text-sm">
+              <div>
+                <del class="text-rose-600 font-semibold mr-1.5">${escapeHtml(iss.wrong)}</del>
+                <span>➔</span>
+                <strong class="text-emerald-700 ml-1.5">${escapeHtml(iss.correct)}</strong>
+                ${iss.type ? `<span class="ml-2 text-[10px] uppercase font-bold text-slate-400">${escapeHtml(iss.type)}</span>` : ''}
+              </div>
+              <div class="text-slate-700">${escapeHtml(iss.explanation || '')}</div>
+            </div>`).join('')
+        : `<div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm font-semibold">🎉 ${t('noErrorsFound')}</div>`;
+      const crit = report.criteria;
+      const critHtml = crit ? `
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          ${[['task', t('critTask')], ['coherence', t('critCoherence')], ['lexis', t('critLexis')], ['grammar', t('critGrammar')]].map(([k, label]) => `
+            <div class="rounded-xl bg-slate-50 border border-slate-200 p-2 text-center">
+              <div class="text-[10px] font-bold uppercase text-slate-400">${label}</div>
+              <div class="text-base font-extrabold text-slate-800">${crit[k] ?? '—'}/5</div>
+            </div>`).join('')}
+        </div>` : '';
+      const sourceBadge = report.source === 'ai'
+        ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-500/30 text-indigo-100">🤖 Gemini</span>`
+        : `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-700 text-slate-200" title="${escapeHtml(t('localGraderHint'))}">⚡ ${t('localGraderLabel')}</span>`;
+
+      return `
         <div class="bg-slate-900 text-white px-5 py-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <div class="text-[11px] font-bold uppercase tracking-wider text-blue-300">TCF IRN B2 Official Diagnostic Report</div>
-            <h3 class="text-lg font-extrabold">Overall Exam Score: <span class="text-emerald-400">${report.score} / 20</span></h3>
+            <div class="text-[11px] font-bold uppercase tracking-wider text-blue-300 flex items-center gap-2">${report.taskLabel || ''} · ${t('reportTitle')} ${sourceBadge}</div>
+            <h3 class="text-lg font-extrabold">${t('reportScore')}: <span class="text-emerald-400">${report.score} / 20</span></h3>
           </div>
-          <div class="flex items-center gap-2">
-            <span class="px-3 py-1 rounded-xl text-xs font-extrabold bg-blue-600 text-white">Level: ${report.cefr}</span>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="px-3 py-1 rounded-xl text-xs font-extrabold bg-blue-600 text-white">${t('reportLevel')}: ${escapeHtml(report.cefr)}</span>
             ${wordBadge}
           </div>
         </div>
-
         <div class="p-5 space-y-4">
+          ${!wordOk ? `<div class="p-3 rounded-xl bg-rose-50 border border-rose-300 text-rose-900 text-xs sm:text-sm font-semibold">⛔ ${t('wordRuleWarning')}</div>` : ''}
+          ${critHtml}
           <div class="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200 text-xs sm:text-sm text-blue-950">
-            <strong>💡 Examiner Feedback:</strong> ${report.strengths}
+            <strong>💡 ${t('reportFeedback')}:</strong> ${escapeHtml(report.strengths || '')}
+            ${report.toImprove ? `<div class="mt-2"><strong>🎯 ${t('reportToImprove')}:</strong> ${escapeHtml(report.toImprove)}</div>` : ''}
           </div>
-
           <div class="space-y-2">
-            <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-500">Detected Mistakes & Explanations (${report.issues.length})</h4>
+            <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-500">${t('reportMistakes')} (${issues.length}) · 📌 ${t('savedToBank')}</h4>
             <div class="space-y-2">${issuesHtml}</div>
           </div>
-
           ${report.aiCorrected ? `
             <div class="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200 space-y-1">
-              <div class="text-xs font-extrabold uppercase text-emerald-800">✨ AI Examiner Corrected B2 Version of Your Text:</div>
-              <p class="text-xs sm:text-sm text-slate-800 whitespace-pre-line leading-relaxed">${report.aiCorrected}</p>
-            </div>
-          ` : ''}
-        </div>
-      `;
+              <div class="text-xs font-extrabold uppercase text-emerald-800">✨ ${t('reportCorrected')} (${countFrenchWords(report.aiCorrected)} ${t('wordsUnit')})</div>
+              <p class="text-xs sm:text-sm text-slate-800 whitespace-pre-line leading-relaxed">${escapeHtml(report.aiCorrected)}</p>
+            </div>` : ''}
+        </div>`;
     }
 
     async function generateAiExamTheme() {
@@ -3290,29 +4157,42 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
       btn.disabled = true;
 
       try {
-        const sysPrompt = "You are a French TCF IRN exam creator. Create a realistic TCF IRN writing prompt.";
-        const userPrompt = `Create 1 realistic French TCF IRN writing prompt for ${currentExamTask} (word target: ${currentMinWords}-${currentMaxWords} words). Return JSON with keys: titleEn, titleFr, titleRu, register, promptFr, promptEn, promptRu, points (array of 3 short strings), modelB2 (a model French B2 text strictly between ${currentMinWords} and ${currentMaxWords} words).`;
-        const data = await callGeminiJson(sysPrompt, userPrompt);
-        if (data && data.promptFr) {
-          const newTheme = {
-            id: 'ai_t_' + Date.now(),
-            task: currentExamTask,
-            register: data.register || 'Standard B2',
-            defaultMin: currentMinWords,
-            defaultMax: currentMaxWords,
-            title: { en: data.titleEn || 'AI Theme', fr: data.titleFr || 'Sujet IA', ru: data.titleRu || 'ИИ Тема' },
-            promptFr: data.promptFr,
-            promptTrans: { en: data.promptEn || '', fr: data.promptFr, ru: data.promptRu || '' },
-            points: data.points || ['Argument 1', 'Argument 2', 'Conclusion'],
-            modelB2: data.modelB2 || ''
-          };
-          EXAM_THEMES.unshift(newTheme);
-          populateExamThemeSelect();
-          showToast('✨ Created new custom TCF IRN exam theme!');
-        }
+        const [mn, mx] = OFFICIAL_BRACKETS[currentExamTask];
+        const taskSpec = {
+          tache1: 'Tâche 1: the candidate receives (or is asked) a short message and must REPLY in a short message describing a person, a group of people, a place or an object. Example situations: a friend asks what your new flat looks like; a colleague asks you to describe the restaurant you recommend.',
+          tache2: 'Tâche 2: the candidate writes an account of daily activities or of an experience (compte rendu / récit) for one or several readers: e.g. tell a friend about your first week at a new job, describe your Sunday routine on a forum, report on a neighbourhood event.',
+          tache3: 'Tâche 3: the candidate gives and justifies an OPINION about a place, an object, or a person/group (e.g. on a forum or in an email): e.g. your opinion of the new médiathèque, of smartphones for children, of a public figure\'s initiative.'
+        }[currentExamTask];
+        const topic = pickRandom(AI_TOPIC_SEEDS);
+        const recentPrompts = getAllThemes().filter(th => th.task === currentExamTask).slice(0, 25).map(th => th.title.fr || th.title.en);
+        const sysPrompt = 'You write realistic subjects for the TCF IRN (Intégration, Résidence, Nationalité) written test of France Éducation international. Subjects are concrete everyday situations in France, simple to understand (A2/B1 wording) but allowing a B2 answer.';
+        const userPrompt = `${taskSpec}
+Official word range: ${mn}-${mx} words. Theme area for variety: ${topic}.
+Do NOT repeat these existing subjects: ${recentPrompts.join(' | ')}.
+Return JSON: { "titleEn", "titleFr", "titleRu" (short titles starting with "Tâche ${currentExamTask.slice(-1)} • "), "register" (e.g. "Amical (Tu)" or "Formel (Vous)"), "promptFr" (the official-style consigne, 2-3 sentences, ending with the word range like "(${mn} mots minimum/${mx} mots maximum)"), "promptEn", "promptRu" (translations), "points" (3-4 short French strings: elements the answer must contain), "modelB2" (a model answer at solid B2 level, natural French, STRICTLY between ${mn + 5} and ${mx - 5} words, using \\n for paragraphs) }`;
+        const data = await callGeminiJson(sysPrompt, userPrompt, { temperature: 1.0 });
+        if (!data || !data.promptFr) throw new Error('AI returned no subject');
+        const newTheme = {
+          id: 'ai_t_' + Date.now(),
+          task: currentExamTask,
+          register: data.register || 'Standard',
+          defaultMin: mn,
+          defaultMax: mx,
+          title: { en: data.titleEn || 'AI Theme', fr: data.titleFr || 'Sujet IA', ru: data.titleRu || 'ИИ Тема' },
+          promptFr: data.promptFr,
+          promptTrans: { en: data.promptEn || '', fr: data.promptFr, ru: data.promptRu || '' },
+          points: Array.isArray(data.points) ? data.points : [],
+          modelB2: data.modelB2 || '',
+          source: 'ai'
+        };
+        addToAiBank('themes', [newTheme], 150);
+        currentExamTheme = newTheme;
+        if (fullExamMode) examThemeByTask[currentExamTask] = newTheme;
+        populateExamThemeSelect();
+        showToast(`✨ ${t('aiThemeOk')}`);
       } catch (e) {
+        aiFailToast(e);
         pickRandomExamTheme();
-        showToast('🎲 Switched to a random theme (Add a Gemini API key in ☁️ Settings for infinite AI themes).');
       } finally {
         btn.innerHTML = oldText;
         btn.disabled = false;
@@ -3322,28 +4202,40 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
     /*************************************************************************
      * 14. MODE 4: PERSONAL MISTAKE BANK & USER PROGRESS MANAGEMENT
      *************************************************************************/
-    function addOrUpdateMistake(fr, meaning, rule) {
+    // meaning: string OR {en, fr, ru}. opts: { silent: skip save/render (caller saves), drillable: false for rule notes }
+    function addOrUpdateMistake(fr, meaning, rule, opts = {}) {
       if (!fr) return;
       const user = getActiveUser();
       if (!user.mistakeBank) user.mistakeBank = [];
       const norm = normalizeForCompare(fr);
+      const meanings = (meaning && typeof meaning === 'object') ? meaning : null;
+      const meaningStr = meanings ? (meanings[currentLang] || meanings.en || fr) : (meaning || fr);
       const existing = user.mistakeBank.find(m => normalizeForCompare(m.fr) === norm);
       if (existing) {
         existing.streak = 0;
         existing.mastered = false;
+        existing.errors = (existing.errors || 1) + 1;
+        existing.lastSeen = Date.now();
         if (rule) existing.rule = rule;
+        if (meanings && !existing.meanings) existing.meanings = meanings;
       } else {
         user.mistakeBank.unshift({
           id: 'mb_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
-          fr: fr.trim(),
-          meaning: meaning || fr,
+          fr: String(fr).trim(),
+          meaning: meaningStr,
+          meanings: meanings || undefined,
           rule: rule || 'Mind exact spelling and accents.',
           streak: 0,
+          errors: 1,
+          lastSeen: Date.now(),
+          drillable: opts.drillable === false ? false : true,
           mastered: false
         });
       }
-      saveAppState();
-      renderMistakesAndHistoryView();
+      if (!opts.silent) {
+        saveAppState();
+        renderMistakesAndHistoryView();
+      }
     }
 
     function recordMistakeProgress(fr, isCorrect) {
@@ -3359,11 +4251,12 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
           found.streak = 0;
           found.mastered = false;
         }
-        saveAppState();
+        found.lastSeen = Date.now();
       }
     }
 
     function deleteMistakeItem(id) {
+      if (!confirm(t('confirmDeleteMistake'))) return;
       const user = getActiveUser();
       user.mistakeBank = (user.mistakeBank || []).filter(m => m.id !== id);
       saveAppState();
@@ -3372,9 +4265,9 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
 
     function PracticeMistakesInWordsMode() {
       const user = getActiveUser();
-      const active = (user.mistakeBank || []).filter(m => !m.mastered);
+      const active = (user.mistakeBank || []).filter(m => !m.mastered && m.drillable !== false);
       if (active.length === 0) {
-        showToast(currentLang === 'ru' ? 'У вас нет активных ошибок для отработки!' : 'You have no active mistakes left to master!');
+        showToast(t('noActiveMistakes'));
         return;
       }
       switchTab('words');
@@ -3395,31 +4288,38 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
       document.getElementById('stats-user-target').textContent = `Target: TCF IRN ${user.targetLevel || 'B2'}`;
       document.getElementById('stats-xp-val').textContent = `${user.xp || 0} XP`;
       document.getElementById('stats-mistakes-val').textContent = activeMistakes.length;
-      document.getElementById(' stats-history-count');
 
-      const avg = history.length > 0
-        ? (Math.round((history.reduce((acc, h) => acc + (Number(h.score) || 0), 0) / history.length) * 10) / 10) + ' / 20'
+      // Average of exam essays only (word/phrase drills inflate the average)
+      const examHist = history.filter(h => String(h.mode || '').startsWith('T'));
+      const avgBase = examHist.length ? examHist : history;
+      const avg = avgBase.length > 0
+        ? (Math.round((avgBase.reduce((acc, h) => acc + (Number(h.score) || 0), 0) / avgBase.length) * 10) / 10) + ' / 20'
         : '— / 20';
       document.getElementById('stats-avg-val').textContent = avg;
-      document.getElementById('stats-history-count').textContent = `${history.length} sessions completed`;
+      document.getElementById('stats-history-count').textContent = `${history.length} ${t('sessionsCompleted')}`;
 
       const listEl = document.getElementById('mistake-bank-list');
       if (listEl) {
         if (mistakes.length === 0) {
-          listEl.innerHTML = `<div class="p-6 text-center text-slate-400 text-sm">No mistakes saved yet! Any word or phrase you miss in Modes 1–3 will automatically appear here.</div>`;
+          listEl.innerHTML = `<div class="p-6 text-center text-slate-400 text-sm">${t('mistakeBankEmpty')}</div>`;
         } else {
-          listEl.innerHTML = mistakes.map(m => `
+          // Active first (most errors first), mastered at the bottom
+          const sorted = [...mistakes].sort((a, b) => (a.mastered - b.mastered) || ((b.errors || 1) - (a.errors || 1)));
+          listEl.innerHTML = sorted.map(m => `
             <div class="p-3.5 rounded-xl border ${m.mastered ? 'bg-emerald-50/40 border-emerald-200' : 'bg-slate-50 border-slate-200'} flex items-start justify-between gap-3">
-              <div class="space-y-1">
-                <div class="flex items-center gap-2">
-                  <span class="font-mono font-extrabold text-sm text-blue-700">${m.fr}</span>
-                  <span class="text-xs text-slate-500">— ${m.meaning}</span>
+              <div class="space-y-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="font-mono font-extrabold text-sm text-blue-700 break-words">${escapeHtml(m.fr)}</span>
+                  <span class="text-xs text-slate-500">— ${escapeHtml(m.meanings?.[currentLang] || m.meaning || '')}</span>
                   ${m.mastered
-                    ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">✅ Mastered</span>'
-                    : `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">Streak: ${m.streak || 0}/2</span>`
+                    ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">✅ ${t('masteredLabel')}</span>`
+                    : (m.drillable === false
+                      ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700" title="${escapeHtml(t('ruleNoteHint'))}">📝 ${t('ruleNoteLabel')}</span>`
+                      : `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">${t('streakLabel')}: ${m.streak || 0}/2</span>`)
                   }
+                  ${(m.errors || 1) > 1 ? `<span class="text-[10px] font-bold text-rose-600">×${m.errors}</span>` : ''}
                 </div>
-                <div class="text-xs text-slate-600">${m.rule || ''}</div>
+                <div class="text-xs text-slate-600">${escapeHtml(m.rule || '')}</div>
               </div>
               <button onclick="deleteMistakeItem('${m.id}')" class="text-xs text-slate-400 hover:text-rose-600 font-bold px-1.5">✕</button>
             </div>
@@ -3430,13 +4330,13 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
       const histEl = document.getElementById('user-history-list');
       if (histEl) {
         if (history.length === 0) {
-          histEl.innerHTML = `<div class="p-6 text-center text-slate-400 text-sm">Complete a word drill, phrase batch, or timed essay to see your notes here.</div>`;
+          histEl.innerHTML = `<div class="p-6 text-center text-slate-400 text-sm">${t('historyEmpty')}</div>`;
         } else {
-          histEl.innerHTML = history.slice(0, 25).map(h => `
+          histEl.innerHTML = history.slice(0, 40).map(h => `
             <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3">
               <div>
-                <div class="text-xs font-extrabold text-slate-800">${h.mode} <span class="text-slate-400 font-normal ml-1">• ${h.date}</span></div>
-                <div class="text-xs text-slate-600 mt-0.5">${h.summary || ''}</div>
+                <div class="text-xs font-extrabold text-slate-800">${escapeHtml(h.mode)} <span class="text-slate-400 font-normal ml-1">• ${escapeHtml(h.date)}</span></div>
+                <div class="text-xs text-slate-600 mt-0.5">${escapeHtml(h.summary || '')}</div>
               </div>
               <div class="px-2.5 py-1 rounded-lg font-mono text-xs font-extrabold ${h.score >= 14 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900'}">
                 ${h.score}/20
@@ -3541,6 +4441,9 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
       document.getElementById('sb-url-input').value = sbUrl;
       document.getElementById('sb-key-input').value = sbKey;
       document.getElementById('gemini-api-key-input').value = geminiKey;
+      const bank = getAiBank();
+      const statsEl = document.getElementById('ai-bank-stats');
+      if (statsEl) statsEl.textContent = `📦 Offline bank: ${getAllWords().length} words (${bank.words.length} from AI) · ${getAllPhrases().length} phrases (${bank.phrases.length} AI) · ${getAllThemes().length} exam subjects (${bank.themes.length} AI)${lastAiError ? ' · last AI error: ' + lastAiError : ''}`;
       updateEngineBadges();
       document.getElementById('cloud-modal')?.classList.remove('hidden');
     }
@@ -3629,6 +4532,8 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
     function setLanguage(lang) {
       if (!I18N[lang]) return;
       currentLang = lang;
+      document.documentElement.lang = lang;
+      try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
 
       ['en', 'fr', 'ru'].forEach(l => {
         const btn = document.getElementById(`lang-btn-${l}`);
@@ -3645,11 +4550,23 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         if (dict[key]) el.textContent = dict[key];
       });
 
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (dict[key]) el.placeholder = dict[key];
+      });
+
       updateEngineBadges();
+      // Re-render drills but keep what the learner already typed
+      const typedWords = currentWordBatch.map((_, i) => document.getElementById(`word-input-${i}`)?.value || '');
+      const typedPhrases = currentPhraseBatch.map((_, i) => document.getElementById(`phrase-input-${i}`)?.value || '');
       renderWordBatch();
       renderPhraseBatch();
+      typedWords.forEach((v, i) => { const el = document.getElementById(`word-input-${i}`); if (el) el.value = v; });
+      typedPhrases.forEach((v, i) => { const el = document.getElementById(`phrase-input-${i}`); if (el) el.value = v; });
+      wordBatchChecked = false; phraseBatchChecked = false;
       populateExamThemeSelect();
-      updateLiveWordCount();
+      setWordCountBracket(currentMinWords, currentMaxWords);
+      renderMistakesAndHistoryView();
     }
 
     function switchTab(tabId) {
@@ -3674,17 +4591,18 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
       }
     }
 
-    function showToast(msg) {
+    function showToast(msg, duration = 3200) {
       const container = document.getElementById('toast-container');
       if (!container) return;
       const toast = document.createElement('div');
-      toast.className = 'bg-slate-900 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 transition-all duration-300';
+      toast.className = 'max-w-sm bg-slate-900 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 transition-all duration-300 break-words';
+      toast.setAttribute('role', 'status');
       toast.textContent = msg;
       container.appendChild(toast);
       setTimeout(() => {
         toast.classList.add('opacity-0');
         setTimeout(() => toast.remove(), 300);
-      }, 3200);
+      }, duration);
     }
 
     function renderAllActiveViews() {
@@ -3699,9 +4617,18 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
     window.addEventListener('DOMContentLoaded', () => {
       ingestUrlParamsIntoConfig();
       renderAccentKeyboard();
+      let savedLang = 'en';
+      try { savedLang = localStorage.getItem(LANG_KEY) || 'en'; } catch (e) {}
+      if (!I18N[savedLang]) savedLang = 'en';
+      currentLang = savedLang;
       renderAllActiveViews();
-      setLanguage('en');
+      selectExamTask('tache1', { skipSave: true });
+      setLanguage(savedLang);
       initSupabaseConnection();
+      // Save the exam draft if the tab is closed
+      window.addEventListener('beforeunload', saveCurrentDraft);
+      // Phones: start with the accent bar folded (phones already have long-press accents; the 🎹 button opens it)
+      if (window.innerWidth < 640) toggleAccentKeyboard();
     });
   </script>
 </body>
