@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TCF IRN B2 — Expression Écrite Studio</title>
-  <!-- APP VERSION: v1.2 (2026-11-19) — see PROJECT_NOTES.md for the changelog -->
+  <!-- APP VERSION: v1.3 (2026-11-21) — see PROJECT_NOTES.md for the changelog -->
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231e3a8a'/%3E%3Crect x='6' y='6' width='17' height='52' rx='8' fill='%232563eb'/%3E%3Crect x='23' y='6' width='18' height='52' fill='%23ffffff'/%3E%3Crect x='41' y='6' width='17' height='52' rx='8' fill='%23ef4444'/%3E%3Ccircle cx='32' cy='32' r='14' fill='%231e293b'/%3E%3Ctext x='32' y='37' font-family='Arial,sans-serif' font-size='13' font-weight='bold' fill='%23ffffff' text-anchor='middle'%3EB2%3C/text%3E%3C/svg%3E" />
 
@@ -319,7 +319,7 @@
       <!-- Phrases Footer -->
       <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4">
         <div class="flex items-center gap-3">
-          <button onclick="checkPhraseBatch()" class="px-6 py-3 rounded-xl text-sm font-extrabold bg-blue-600 hover:bg-blue-500 text-white shadow-md transition flex items-center gap-2">
+          <button onclick="checkPhraseBatch()" id="check-phrases-btn" class="px-6 py-3 rounded-xl text-sm font-extrabold bg-blue-600 hover:bg-blue-500 text-white shadow-md transition flex items-center gap-2">
             <span>✅</span> <span data-i18n="checkPhrasesBtn">Check Phrases & Explain Mistakes</span>
           </button>
           <button onclick="revealPhraseAnswers()" class="px-4 py-3 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
@@ -991,6 +991,25 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         timeUpToast: "⏰ Time is up! Click Evaluate to get your note.",
         writeFirstToast: "Please write your French text first!",
         analyzingLabel: "Analyzing...",
+        aiTooSlow: "The AI was too slow, so the offline checker result is shown",
+        resultsTitle: "Your results",
+        resetResultsBtn: "Reset results",
+        resultsHint: "Click T1 / T2 / T3 (or the task buttons) to see each text and its correction. Results stay until you press Reset.",
+        resultsResetToast: "Results cleared.",
+        resultOtherSubject: "This task was graded on another subject. Choose that subject again to see its correction, or grade this text.",
+        noResultForTask: "No result for this task yet: write your text and grade it.",
+        aiCheckingSynonyms: "AI is checking your other wordings...",
+        aiAnswerCorrect: "Your answer is correct too",
+        expectedLabel: "Expected answer",
+        aiAnswerWorks: "Your answer works",
+        betterChoiceLabel: "Better choice",
+        wordsScoreGood: "Excellent B2 accuracy! Any missed accents were added to your Mistake Bank.",
+        wordsScoreSaved: "Words with errors have been saved to your Mistake Bank for targeted practice.",
+        phrasesScoreGood: "Great mastery of B2 sentence skeletons!",
+        phrasesScoreSaved: "Phrases with errors have been added to your Mistake Bank so you can drill them again.",
+        offlineSynonymHint: "Offline check compares with one model sentence. If you used synonyms or another correct structure, your sentence may still be right (add a Gemini key for a smart check).",
+        modelB2Label: "Model B2 phrase",
+        yourSentenceFixed: "Your sentence, corrected",
         taskNotDone: "Task not done — in the real exam a missing task means “A1 non atteint”.",
         fullExamResultTitle: "Full exam result (average of 3 tasks)",
         wordRuleWarning: "Word count outside the official range: in the real TCF IRN this copy can be graded “A1 non atteint”.",
@@ -1137,6 +1156,25 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         timeUpToast: "⏰ Temps écoulé ! Cliquez sur Évaluer pour obtenir votre note.",
         writeFirstToast: "Écrivez d'abord votre texte en français !",
         analyzingLabel: "Analyse en cours...",
+        aiTooSlow: "L'IA a été trop lente : le résultat du correcteur hors ligne est affiché",
+        resultsTitle: "Vos résultats",
+        resetResultsBtn: "Effacer les résultats",
+        resultsHint: "Cliquez sur T1 / T2 / T3 (ou les boutons de tâche) pour revoir chaque texte et sa correction. Les résultats restent jusqu'à ce que vous les effaciez.",
+        resultsResetToast: "Résultats effacés.",
+        resultOtherSubject: "Cette tâche a été corrigée sur un autre sujet. Choisissez de nouveau ce sujet pour revoir la correction, ou faites corriger ce texte.",
+        noResultForTask: "Pas encore de résultat pour cette tâche : écrivez votre texte et faites-le corriger.",
+        aiCheckingSynonyms: "L'IA vérifie vos autres formulations...",
+        aiAnswerCorrect: "Votre réponse est correcte aussi",
+        expectedLabel: "Réponse attendue",
+        aiAnswerWorks: "Votre réponse fonctionne",
+        betterChoiceLabel: "Meilleur choix",
+        wordsScoreGood: "Excellente précision B2 ! Les accents oubliés ont été ajoutés à votre Banque d'erreurs.",
+        wordsScoreSaved: "Les mots avec des erreurs ont été enregistrés dans votre Banque d'erreurs pour les retravailler.",
+        phrasesScoreGood: "Très bonne maîtrise des squelettes de phrases B2 !",
+        phrasesScoreSaved: "Les phrases avec des erreurs ont été ajoutées à votre Banque d'erreurs pour les retravailler.",
+        offlineSynonymHint: "Le correcteur hors ligne compare avec une seule phrase modèle. Si vous avez utilisé des synonymes ou une autre structure correcte, votre phrase peut être juste (ajoutez une clé Gemini pour une vérification intelligente).",
+        modelB2Label: "Phrase modèle B2",
+        yourSentenceFixed: "Votre phrase corrigée",
         taskNotDone: "Tâche non réalisée — à l'examen, une tâche manquante = « A1 non atteint ».",
         fullExamResultTitle: "Résultat de l'examen complet (moyenne des 3 tâches)",
         wordRuleWarning: "Nombre de mots hors de la fourchette officielle : au vrai TCF IRN, cette copie peut être notée « A1 non atteint ».",
@@ -1283,6 +1321,25 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         timeUpToast: "⏰ Время вышло! Нажмите «Проверить», чтобы получить оценку.",
         writeFirstToast: "Сначала напишите текст по-французски!",
         analyzingLabel: "Анализ...",
+        aiTooSlow: "ИИ отвечал слишком долго, поэтому показан результат офлайн-проверки",
+        resultsTitle: "Ваши результаты",
+        resetResultsBtn: "Сбросить результаты",
+        resultsHint: "Нажмите T1 / T2 / T3 (или кнопки заданий), чтобы посмотреть каждый текст и его разбор. Результаты остаются, пока вы их не сбросите.",
+        resultsResetToast: "Результаты сброшены.",
+        resultOtherSubject: "Это задание проверено по другой теме. Выберите ту тему снова, чтобы увидеть разбор, или проверьте этот текст.",
+        noResultForTask: "Для этого задания пока нет результата: напишите текст и отправьте на проверку.",
+        aiCheckingSynonyms: "ИИ проверяет ваши варианты...",
+        aiAnswerCorrect: "Ваш ответ тоже правильный",
+        expectedLabel: "Ожидаемый ответ",
+        aiAnswerWorks: "Ваш вариант подходит",
+        betterChoiceLabel: "Лучше так",
+        wordsScoreGood: "Отличный результат уровня B2! Все неточности сохранены в Банк ошибок.",
+        wordsScoreSaved: "Все слова с ошибками добавлены в ваш Банк ошибок для повторной тренировки.",
+        phrasesScoreGood: "Отличное владение шаблонами фраз B2!",
+        phrasesScoreSaved: "Фразы с ошибками добавлены в Банк ошибок для повторной тренировки.",
+        offlineSynonymHint: "Офлайн-проверка сравнивает только с одной эталонной фразой. Если вы использовали синонимы или другую правильную конструкцию, ваша фраза может быть верной (добавьте ключ Gemini для умной проверки).",
+        modelB2Label: "Эталон B2",
+        yourSentenceFixed: "Ваша фраза с исправлениями",
         taskNotDone: "Задание не выполнено — на экзамене пропущенное задание = «A1 non atteint».",
         fullExamResultTitle: "Результат полного экзамена (среднее за 3 задания)",
         wordRuleWarning: "Количество слов вне официального диапазона: на настоящем TCF IRN работу могут оценить как «A1 non atteint».",
@@ -1719,10 +1776,10 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
       },
       {
         id: "w_v11_8", category: "connectors",
-        fr: "en revanche", alt: ["par contre"],
-        en: "on the other hand / however", frDef: "Connecteur qui introduit une opposition", ru: "зато / с другой стороны",
-        pos: { en: "B2 opposition connector", fr: "connecteur d'opposition B2", ru: "связка противопоставления B2" },
-        rule: { en: "*En revanche* is more elegant than *par contre* in a written exam.", fr: "« En revanche » est plus soutenu que « par contre » à l'écrit.", ru: "« En revanche » звучит изящнее, чем « par contre », в письменной части." }
+        fr: "à cause de", alt: ["en raison de"],
+        en: "because of (negative cause)", frDef: "Connecteur de cause, souvent pour un problème", ru: "из-за",
+        pos: { en: "cause connector (negative)", fr: "connecteur de cause (négative)", ru: "связка причины (отрицательной)" },
+        rule: { en: "Grave accent on *à*; for a positive cause use *grâce à*.", fr: "Accent grave sur « à » ; pour une cause positive : « grâce à ».", ru: "Accent grave на « à »; для положительной причины — « grâce à »." }
       },
       {
         id: "w_v11_9", category: "connectors",
@@ -1733,10 +1790,10 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
       },
       {
         id: "w_v11_10", category: "connectors",
-        fr: "c'est pourquoi", alt: ["c'est la raison pour laquelle"],
-        en: "that is why", frDef: "Connecteur qui introduit une conséquence", ru: "вот почему / поэтому",
+        fr: "par conséquent", alt: ["en conséquence"],
+        en: "consequently / as a result", frDef: "Connecteur qui introduit une conséquence logique", ru: "следовательно / в результате",
         pos: { en: "consequence connector", fr: "connecteur de conséquence", ru: "связка следствия" },
-        rule: { en: "Written in one word: *pourquoi*. Perfect to introduce your conclusion in Tâche 3.", fr: "« Pourquoi » en un seul mot. Idéal pour conclure en Tâche 3.", ru: "« Pourquoi » пишется слитно. Отлично подходит для вывода в Tâche 3." }
+        rule: { en: "Acute accent in *conséquent*; ends in *-ent*.", fr: "Accent aigu dans « conséquent » ; finale en « -ent ».", ru: "Accent aigu в « conséquent »; окончание « -ent »." }
       },
       {
         id: "w_v11_11", category: "imparfait",
@@ -2202,6 +2259,376 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
       }
     ];
 
+    // ---- v1.3 additions: +72 words (compact format, expanded below) ----
+    // [category, fr, alt, en, frDef, ru, posCode, ruleEn, ruleFr, ruleRu]
+    const POS_LABELS = {
+      conn: { en: "connector", fr: "connecteur logique", ru: "связка" },
+      nm:   { en: "masculine noun", fr: "nom masculin", ru: "сущ. муж. рода" },
+      nf:   { en: "feminine noun", fr: "nom féminin", ru: "сущ. жен. рода" },
+      npl:  { en: "plural noun", fr: "nom pluriel", ru: "сущ. во мн. числе" },
+      imp:  { en: "imparfait (description / feeling)", fr: "imparfait (description / sentiment)", ru: "imparfait (описание / чувство)" },
+      etre: { en: "passé composé with ÊTRE", fr: "passé composé avec ÊTRE", ru: "passé composé с ÊTRE" },
+      part: { en: "passé composé, irregular participle", fr: "passé composé, participe irrégulier", ru: "passé composé, неправильное причастие" }
+    };
+    const V13_WORDS = [
+      // Connectors
+      ["connectors", "d'une part", [], "on the one hand", "Connecteur qui annonce un premier argument (suivi de « d'autre part »)", "с одной стороны", "conn",
+        "Apostrophe in *d'une*; it always announces a second point with *d'autre part*.", "Apostrophe dans « d'une » ; toujours suivi plus loin de « d'autre part ».", "Апостроф в « d'une »; дальше обязательно « d'autre part »."],
+      ["connectors", "d'autre part", [], "on the other hand (second point)", "Connecteur qui ajoute un deuxième argument après « d'une part »", "с другой стороны", "conn",
+        "Adds a second argument; it does not mean opposition (that's *en revanche*).", "Ajoute un deuxième argument ; ce n'est pas une opposition (≠ « en revanche »).", "Добавляет второй аргумент, а не противопоставление (это « en revanche »)."],
+      ["connectors", "en effet", [], "indeed (introduces a justification)", "Connecteur qui introduit une explication ou une preuve", "действительно / ведь", "conn",
+        "*En effet* justifies what you just said; don't confuse it with *en fait* (actually).", "« En effet » justifie l'idée précédente ; à ne pas confondre avec « en fait ».", "« En effet » подтверждает сказанное; не путайте с « en fait » (на самом деле)."],
+      ["connectors", "pourtant", ["toutefois"], "yet / and yet", "Connecteur d'opposition : malgré cela", "однако / тем не менее", "conn",
+        "One word, no accent: *pourtant*.", "Un seul mot, sans accent : « pourtant ».", "Пишется слитно и без акцентов: « pourtant »."],
+      ["connectors", "en conclusion", ["pour conclure", "en somme"], "in conclusion", "Expression pour terminer un texte argumentatif", "в заключение", "conn",
+        "Perfect last sentence starter for Tâche 3.", "Idéal pour la dernière phrase de la Tâche 3.", "Идеальное начало последней фразы в Tâche 3."],
+      ["connectors", "afin de", ["dans le but de"], "in order to (+ infinitive)", "Locution de but, plus soutenue que « pour », suivie d'un infinitif", "чтобы / с целью (+ инфинитив)", "conn",
+        "*Afin de* + infinitive; *afin que* + subjunctive. Two f's.", "« Afin de » + infinitif ; « afin que » + subjonctif. Deux f.", "« Afin de » + инфинитив; « afin que » + subjonctif. Две f."],
+      ["connectors", "à mon avis", ["selon moi", "d'après moi"], "in my opinion", "Expression pour donner son opinion", "по моему мнению", "conn",
+        "Grave accent on *à*. Don't write *à mon avis, je pense que* (repetition).", "Accent grave sur « à ». Évitez « à mon avis, je pense que » (répétition).", "Accent grave на « à ». Не пишите « à mon avis, je pense que » (повтор)."],
+      ["connectors", "c'est-à-dire", [], "that is to say", "Expression pour reformuler ou préciser une idée", "то есть", "conn",
+        "Two hyphens and a grave accent: *c'est-à-dire*.", "Deux traits d'union et un accent grave : « c'est-à-dire ».", "Два дефиса и accent grave: « c'est-à-dire »."],
+      ["connectors", "puisque", ["étant donné que"], "since (a known cause)", "Conjonction de cause, quand la raison est évidente", "поскольку / раз уж", "conn",
+        "Before *il/elle/on* it becomes *puisqu'il*.", "Devant « il, elle, on » : « puisqu'il ».", "Перед « il, elle, on » — « puisqu'il »."],
+      ["connectors", "tandis que", ["alors que"], "whereas / while", "Conjonction qui oppose deux faits simultanés", "тогда как / в то время как", "conn",
+        "No accent; final *s* in *tandis* is silent.", "Pas d'accent ; le « s » de « tandis » ne se prononce pas.", "Без акцентов; « s » в « tandis » не читается."],
+
+      // Administration & citizenship
+      ["admin", "la préfecture", ["une préfecture"], "the prefecture (government office)", "Administration de l'État où l'on fait les démarches de séjour", "префектура", "nf",
+        "Acute accent on the first e: *pré-fecture*.", "Accent aigu : « pré-fecture ».", "Accent aigu на первой e: « pré-fecture »."],
+      ["admin", "la naturalisation", ["une naturalisation"], "naturalisation", "Fait de devenir citoyen français", "натурализация / получение гражданства", "nf",
+        "Words in *-tion* are feminine.", "Les mots en « -tion » sont féminins.", "Слова на « -tion » — женского рода."],
+      ["admin", "le dossier", ["un dossier"], "the application file", "Ensemble des documents à fournir pour une démarche", "досье / пакет документов", "nm",
+        "Double s: *dossier*.", "Deux s : « dossier ».", "Двойная s: « dossier »."],
+      ["admin", "la pièce d'identité", ["une pièce d'identité"], "ID document", "Document officiel qui prouve qui vous êtes", "удостоверение личности", "nf",
+        "Grave accent in *pièce*, acute accents in *identité*.", "Accent grave dans « pièce », accents aigus dans « identité ».", "Accent grave в « pièce », accent aigu в « identité »."],
+      ["admin", "un acte de naissance", ["l'acte de naissance"], "a birth certificate", "Document officiel qui indique la date et le lieu où l'on est né", "свидетельство о рождении", "nm",
+        "*Acte* is masculine: *un acte*. Double s in *naissance*.", "« Acte » est masculin : un acte. Deux s dans « naissance ».", "« Acte » мужского рода: un acte. Двойная s в « naissance »."],
+      ["admin", "la carte Vitale", ["une carte Vitale"], "the French health insurance card", "Carte verte de l'Assurance maladie", "медицинская карта Vitale", "nf",
+        "*Vitale* takes a capital letter (brand name) and ends in *-e*.", "« Vitale » prend une majuscule et finit par « -e ».", "« Vitale » с большой буквы и с « -e » на конце."],
+      ["admin", "la sécurité sociale", ["la Sécurité sociale"], "social security", "Système public d'assurance maladie et de protection sociale", "социальное обеспечение", "nf",
+        "Two acute accents in *sécurité*.", "Deux accents aigus dans « sécurité ».", "Два accent aigu в « sécurité »."],
+      ["admin", "un entretien", ["l'entretien"], "an interview", "Rencontre pour parler avec un agent ou un employeur", "собеседование", "nm",
+        "*Entretien* is masculine; ends in *-ien*.", "« Entretien » est masculin ; finit en « -ien ».", "« Entretien » мужского рода, окончание « -ien »."],
+      ["admin", "le délai", ["un délai", "les délais"], "the time limit / waiting time", "Temps accordé ou nécessaire pour faire quelque chose", "срок", "nm",
+        "Acute accent and *-ai* ending: *délai* (not *délais* in the singular).", "Accent aigu et finale « -ai » : « délai ».", "Accent aigu и окончание « -ai »: « délai »."],
+      ["admin", "la nationalité", ["une nationalité"], "nationality", "Lien juridique entre une personne et un État", "гражданство / национальность", "nf",
+        "Nouns in *-té* are feminine: *la nationalité*.", "Les noms en « -té » sont féminins.", "Слова на « -té » — женского рода."],
+
+      // Emotions & imparfait
+      ["imparfait", "j'étais fatigué", ["j'étais fatiguée"], "I was tired", "Décrire son état physique dans le passé", "я был(а) уставшим(ей)", "imp",
+        "State in the past → imparfait; add *-e* if you are a woman.", "État passé → imparfait ; « -e » au féminin.", "Состояние в прошлом → imparfait; для женщин « -e »."],
+      ["imparfait", "nous étions contents", ["nous étions contentes"], "we were happy", "Décrire un sentiment de groupe dans le passé", "мы были довольны", "imp",
+        "*Étions* (-ions) and the adjective agrees in the plural.", "« Étions » et accord de l'adjectif au pluriel.", "« Étions » и согласование прилагательного во мн. числе."],
+      ["imparfait", "il pleuvait", [], "it was raining", "Décrire la météo dans un récit au passé", "шёл дождь", "imp",
+        "Weather = background → imparfait (*il pleuvait*, not *il a plu*).", "La météo est un décor → imparfait.", "Погода — фон рассказа → imparfait."],
+      ["imparfait", "j'avais envie de", [], "I felt like / I wanted to", "Exprimer un désir dans le passé", "мне хотелось", "imp",
+        "*Avoir envie de*: use avoir, never *j'étais envie*.", "« Avoir envie de » : avec avoir, jamais « j'étais envie ».", "« Avoir envie de » — с avoir, никогда « j'étais envie »."],
+      ["imparfait", "elle était inquiète", [], "she was worried", "Décrire l'inquiétude d'une femme dans le passé", "она была обеспокоена", "imp",
+        "Feminine of *inquiet* is *inquiète* (grave accent).", "Le féminin de « inquiet » est « inquiète » (accent grave).", "Женский род от « inquiet » — « inquiète » (accent grave)."],
+      ["imparfait", "je me sentais seul", ["je me sentais seule"], "I felt lonely", "Exprimer la solitude dans le passé", "я чувствовал(а) себя одиноко", "imp",
+        "*Se sentir* + adjective; agree *seul(e)*.", "« Se sentir » + adjectif ; accord « seul(e) ».", "« Se sentir » + прилагательное; согласуйте « seul(e) »."],
+      ["imparfait", "on s'amusait bien", ["nous nous amusions bien"], "we were having fun", "Décrire une ambiance agréable dans le passé", "нам было весело", "imp",
+        "*On* takes the 3rd person singular: *on s'amusait*.", "« On » + 3e personne du singulier : « on s'amusait ».", "« On » + 3-е лицо ед. числа: « on s'amusait »."],
+      ["imparfait", "il y avait du monde", ["il y avait beaucoup de monde"], "it was crowded", "Dire qu'un lieu était plein de gens", "было много народу", "imp",
+        "*Du monde* = many people (singular).", "« Du monde » = beaucoup de gens (au singulier).", "« Du monde » = много людей (в ед. числе)."],
+      ["imparfait", "je ne connaissais personne", [], "I didn't know anyone", "Dire qu'on était seul dans un nouveau lieu", "я никого не знал(а)", "imp",
+        "*Ne... personne*: no *pas*. Double n and *-ss-* in *connaissais*.", "« Ne... personne » sans « pas ». Deux n et « ss ».", "« Ne... personne » без « pas ». Двойные n и ss."],
+      ["imparfait", "j'avais besoin de", [], "I needed", "Exprimer une nécessité dans le passé", "мне было нужно", "imp",
+        "*Avoir besoin de*: avoir, never *j'étais besoin*.", "« Avoir besoin de » : jamais « j'étais besoin ».", "« Avoir besoin de » — никогда « j'étais besoin »."],
+      ["imparfait", "c'était génial", ["c'était super"], "it was great", "Donner une impression positive sur un moment passé", "это было здорово", "imp",
+        "*C'était* (imparfait of *c'est*), never *c'été*.", "« C'était », jamais « c'été ».", "« C'était », никогда « c'été »."],
+      ["imparfait", "je travaillais", [], "I was working / I used to work", "Décrire une habitude passée liée au travail", "я работал(а)", "imp",
+        "Imparfait ending *-ais* for *je*.", "Terminaison « -ais » avec « je ».", "Окончание « -ais » для « je »."],
+
+      // Passé composé with ÊTRE
+      ["vandertramp", "elle est arrivée", [], "she arrived", "Passé composé du verbe arriver, sujet féminin", "она приехала", "etre",
+        "With *être*, the participle agrees: *arrivée*.", "Avec « être », accord du participe : « arrivée ».", "С « être » причастие согласуется: « arrivée »."],
+      ["vandertramp", "nous sommes restés", ["nous sommes restées"], "we stayed", "Passé composé du verbe rester", "мы остались", "etre",
+        "*Rester* takes *être* + plural agreement.", "« Rester » se conjugue avec être + accord au pluriel.", "« Rester » с être + мн. число."],
+      ["vandertramp", "je suis venu", ["je suis venue"], "I came", "Passé composé du verbe venir", "я пришёл / пришла", "etre",
+        "Irregular participle *venu*; *être* auxiliary.", "Participe irrégulier « venu » ; auxiliaire être.", "Неправильное причастие « venu »; вспомогательный être."],
+      ["vandertramp", "il est tombé", [], "he fell", "Passé composé du verbe tomber", "он упал", "etre",
+        "*Tomber* takes *être*: never *il a tombé*.", "Jamais « il a tombé ».", "Никогда « il a tombé »."],
+      ["vandertramp", "je suis rentré", ["je suis rentrée"], "I came back home", "Passé composé du verbe rentrer", "я вернулся / вернулась домой", "etre",
+        "Movement verb → *être* + agreement.", "Verbe de mouvement → être + accord.", "Глагол движения → être + согласование."],
+      ["vandertramp", "elles sont sorties", [], "they (women) went out", "Passé composé du verbe sortir, sujet féminin pluriel", "они (жен.) вышли", "etre",
+        "Feminine plural: *sorties* (-ies).", "Féminin pluriel : « sorties ».", "Жен. род мн. число: « sorties »."],
+      ["vandertramp", "je suis descendu", ["je suis descendue"], "I went down / I got off", "Passé composé du verbe descendre", "я спустился / вышел (из транспорта)", "etre",
+        "Participle *descendu* (-u), with *être*.", "Participe « descendu », avec être.", "Причастие « descendu », с être."],
+      ["vandertramp", "il est devenu", [], "he became", "Passé composé du verbe devenir", "он стал", "etre",
+        "*Devenir* (like *venir*) takes *être*.", "« Devenir » (comme « venir ») prend être.", "« Devenir » (как « venir ») — с être."],
+      ["vandertramp", "je suis monté", ["je suis montée"], "I went up / I got on (the bus)", "Passé composé du verbe monter", "я поднялся / сел (в транспорт)", "etre",
+        "*Monter dans le bus* → *je suis monté(e)*.", "« Monter dans le bus » → « je suis monté(e) ».", "« Monter dans le bus » → « je suis monté(e) »."],
+      ["vandertramp", "nous nous sommes rencontrés", ["nous nous sommes rencontrées"], "we met (each other)", "Passé composé du verbe pronominal se rencontrer", "мы познакомились / встретились", "etre",
+        "All pronominal verbs take *être*: *nous nous sommes...*", "Tous les verbes pronominaux prennent être.", "Все возвратные глаголы — с être."],
+      ["vandertramp", "je me suis réveillé", ["je me suis réveillée"], "I woke up", "Passé composé du verbe pronominal se réveiller", "я проснулся / проснулась", "etre",
+        "Pronominal → *être*; accent on *réveillé*.", "Pronominal → être ; accent sur « réveillé ».", "Возвратный → être; акцент в « réveillé »."],
+      ["vandertramp", "je suis passé", ["je suis passée"], "I dropped by", "Passé composé du verbe passer (aller chez quelqu'un)", "я зашёл / зашла", "etre",
+        "*Passer chez quelqu'un* (movement) → *être*.", "« Passer chez quelqu'un » → être.", "« Passer chez quelqu'un » (движение) → être."],
+
+      // Irregular past participles
+      ["participles", "j'ai fait", [], "I did / I made", "Passé composé du verbe faire", "я сделал(а)", "part",
+        "Participle of *faire* is *fait*.", "Participe de « faire » : « fait ».", "Причастие от « faire » — « fait »."],
+      ["participles", "j'ai vu", [], "I saw", "Passé composé du verbe voir", "я увидел(а)", "part",
+        "Participle of *voir* is *vu*.", "Participe de « voir » : « vu ».", "Причастие от « voir » — « vu »."],
+      ["participles", "j'ai dit", [], "I said", "Passé composé du verbe dire", "я сказал(а)", "part",
+        "Participle of *dire* is *dit* (silent t).", "Participe de « dire » : « dit ».", "Причастие от « dire » — « dit »."],
+      ["participles", "j'ai écrit", [], "I wrote", "Passé composé du verbe écrire", "я написал(а)", "part",
+        "Participle *écrit*, with a final silent t.", "Participe « écrit », avec un t final.", "Причастие « écrit » с немой t."],
+      ["participles", "j'ai lu", [], "I read (past)", "Passé composé du verbe lire", "я прочитал(а)", "part",
+        "Participle of *lire* is *lu*.", "Participe de « lire » : « lu ».", "Причастие от « lire » — « lu »."],
+      ["participles", "j'ai mis", [], "I put", "Passé composé du verbe mettre", "я положил(а) / надел(а)", "part",
+        "Participle of *mettre* is *mis*.", "Participe de « mettre » : « mis ».", "Причастие от « mettre » — « mis »."],
+      ["participles", "j'ai ouvert", [], "I opened", "Passé composé du verbe ouvrir", "я открыл(а)", "part",
+        "Participle of *ouvrir* is *ouvert*.", "Participe de « ouvrir » : « ouvert ».", "Причастие от « ouvrir » — « ouvert »."],
+      ["participles", "j'ai offert", [], "I gave (as a gift)", "Passé composé du verbe offrir", "я подарил(а)", "part",
+        "Participle of *offrir* is *offert*.", "Participe de « offrir » : « offert ».", "Причастие от « offrir » — « offert »."],
+      ["participles", "j'ai connu", [], "I knew / I experienced", "Passé composé du verbe connaître", "я узнал(а) / познакомился", "part",
+        "Participle of *connaître* is *connu* (no circumflex).", "Participe de « connaître » : « connu ».", "Причастие от « connaître » — « connu »."],
+      ["participles", "j'ai voulu", [], "I wanted (and tried)", "Passé composé du verbe vouloir", "я захотел(а)", "part",
+        "Participle of *vouloir* is *voulu*.", "Participe de « vouloir » : « voulu ».", "Причастие от « vouloir » — « voulu »."],
+      ["participles", "j'ai su", [], "I found out", "Passé composé du verbe savoir", "я узнал(а)", "part",
+        "Participle of *savoir* is *su*.", "Participe de « savoir » : « su ».", "Причастие от « savoir » — « su »."],
+      ["participles", "j'ai vécu", [], "I lived (an experience)", "Passé composé du verbe vivre", "я прожил(а) / пережил(а)", "part",
+        "Participle of *vivre* is *vécu* (acute accent).", "Participe de « vivre » : « vécu » (accent aigu).", "Причастие от « vivre » — « vécu » (accent aigu)."],
+
+      // Daily life, work & environment
+      ["daily", "le logement", ["un logement"], "housing / accommodation", "Endroit où l'on habite", "жильё", "nm",
+        "Nouns in *-ment* are usually masculine.", "Les noms en « -ment » sont en général masculins.", "Слова на « -ment » обычно мужского рода."],
+      ["daily", "les transports en commun", [], "public transport", "Bus, métro, tramway, train", "общественный транспорт", "npl",
+        "Plural *transports*, and *en commun* (two m).", "« Transports » au pluriel, « commun » avec deux m.", "« Transports » во мн. числе, « commun » с двумя m."],
+      ["daily", "un embouteillage", ["l'embouteillage", "les embouteillages"], "a traffic jam", "Beaucoup de voitures bloquées sur la route", "пробка", "nm",
+        "*Embouteillage* is masculine (*-age*).", "Les mots en « -age » sont souvent masculins.", "Слова на « -age » обычно мужского рода."],
+      ["daily", "la santé", [], "health", "État du corps et de l'esprit", "здоровье", "nf",
+        "Feminine (*-té*), acute accent.", "Féminin (« -té »), accent aigu.", "Женский род (« -té »), accent aigu."],
+      ["daily", "le médecin", ["un médecin"], "the doctor", "Personne qui soigne les malades", "врач", "nm",
+        "Acute accent; *le médecin* even for a woman (or *la médecin*).", "Accent aigu ; « le médecin » même pour une femme.", "Accent aigu; « le médecin » даже о женщине."],
+      ["daily", "le bénévolat", [], "volunteering", "Travail non payé pour une association", "волонтёрство", "nm",
+        "Acute accent, ends in *-at*.", "Accent aigu, finale « -at ».", "Accent aigu, окончание « -at »."],
+      ["daily", "une association", ["l'association"], "an association / non-profit", "Groupe de personnes réunies pour un projet commun", "ассоциация / некоммерческая организация", "nf",
+        "Double s; feminine (*-tion*).", "Deux s ; féminin (« -tion »).", "Двойная s; женский род (« -tion »)."],
+      ["daily", "le marché", ["un marché"], "the market", "Lieu où l'on achète des fruits et légumes en plein air", "рынок", "nm",
+        "Acute accent at the end: *marché*.", "Accent aigu final : « marché ».", "Accent aigu в конце: « marché »."],
+      ["daily", "la crèche", ["une crèche"], "the nursery (childcare)", "Lieu qui accueille les bébés pendant que les parents travaillent", "ясли", "nf",
+        "Grave accent: *crèche*.", "Accent grave : « crèche ».", "Accent grave: « crèche »."],
+      ["daily", "le collège", ["un collège"], "secondary school (ages 11-15)", "École pour les élèves de 11 à 15 ans", "коллеж (средняя школа)", "nm",
+        "Masculine despite the *-e*; grave accent.", "Masculin malgré le « -e » final ; accent grave.", "Мужской род, несмотря на « -e »; accent grave."],
+      ["daily", "un appartement", ["l'appartement"], "a flat / an apartment", "Logement dans un immeuble", "квартира", "nm",
+        "Double p and one t: *appartement*.", "Deux p et un seul t.", "Две p и одна t."],
+      ["daily", "la fête", ["une fête"], "the party / celebration", "Moment où l'on célèbre quelque chose ensemble", "праздник", "nf",
+        "Circumflex on *ê* (old *feste*).", "Accent circonflexe (ancien « feste »).", "Accent circonflexe (раньше « feste »)."],
+      ["daily", "le congé", ["un congé", "les congés"], "leave / time off work", "Période où l'on ne travaille pas", "отпуск", "nm",
+        "Masculine, acute accent at the end.", "Masculin, accent aigu final.", "Мужской род, accent aigu в конце."],
+      ["daily", "la randonnée", ["une randonnée"], "the hike", "Longue promenade à pied dans la nature", "поход", "nf",
+        "Double n and *-ée*.", "Deux n et « -ée ».", "Двойная n и « -ée »."],
+      ["daily", "un écran", ["l'écran", "les écrans"], "a screen", "Surface d'un téléphone, d'un ordinateur ou d'une télévision", "экран", "nm",
+        "Masculine; acute accent on the first é.", "Masculin ; accent aigu initial.", "Мужской род; accent aigu в начале."],
+      ["daily", "les courses", [], "the groceries / shopping", "Achats de nourriture et de produits de la maison", "покупки (продукты)", "npl",
+        "*Faire les courses*: always plural.", "« Faire les courses » : toujours au pluriel.", "« Faire les courses » — всегда во мн. числе."]
+    ];
+    V13_WORDS.forEach((w, i) => {
+      const [category, fr, alt, en, frDef, ru, posCode, ruleEn, ruleFr, ruleRu] = w;
+      VOCAB_BANK.push({ id: `w_v13_${i + 1}`, category, fr, alt, en, frDef, ru, pos: POS_LABELS[posCode], rule: { en: ruleEn, fr: ruleFr, ru: ruleRu } });
+    });
+
+    // ---- v1.3 additions: +36 phrases ----
+    // [category, fr, alt, en, frPrompt, ru, hint, ruleEn, ruleFr, ruleRu]
+    const V13_PHRASES = [
+      // Tâche 1 — reply, describe a person / place / object
+      ["tache1", "Merci pour ton message, je suis ravi d'avoir de tes nouvelles.", ["Merci pour ton message, je suis ravie d'avoir de tes nouvelles."],
+        "Thanks for your message, I'm delighted to hear from you.", "Tâche 1 (Ouverture) : Remercier un ami pour son message et dire que vous êtes content d'avoir de ses nouvelles.", "Спасибо за сообщение, я очень рад(а) получить от тебя весточку.",
+        "Merci pour ton message, je suis ravi(e) de + infinitif", "*Ravi de* + infinitive; add *-e* if you are a woman.", "« Ravi de » + infinitif ; accord au féminin : « ravie ».", "« Ravi de » + инфинитив; для женщин — « ravie »."],
+      ["tache1", "Mon appartement se trouve au troisième étage d'un immeuble ancien.", [],
+        "My flat is on the third floor of an old building.", "Tâche 1 (Décrire un lieu) : Dire à quel étage est votre appartement et que l'immeuble est vieux.", "Моя квартира находится на третьем этаже старого дома.",
+        "Mon appartement se trouve + lieu", "*Se trouver* is more precise than *être*; grave accent in *troisième*.", "« Se trouver » est plus précis que « être » ; accent grave dans « troisième ».", "« Se trouver » точнее, чем « être »; accent grave в « troisième »."],
+      ["tache1", "Il s'agit d'un restaurant familial où l'on mange très bien.", ["Il s'agit d'un restaurant familial où on mange très bien."],
+        "It's a family restaurant where you eat very well.", "Tâche 1 (Décrire un lieu) : Présenter un restaurant familial où la cuisine est très bonne.", "Это семейный ресторан, где очень вкусно кормят.",
+        "Il s'agit de + nom ; où (pour un lieu)", "*Il s'agit de* is impersonal (always *il*); *où* introduces a place.", "« Il s'agit de » est impersonnel (toujours « il ») ; « où » pour un lieu.", "« Il s'agit de » — безличная форма (всегда « il »); « où » для места."],
+      ["tache1", "Ma collègue est une femme dynamique qui a toujours de bonnes idées.", [],
+        "My colleague is a dynamic woman who always has good ideas.", "Tâche 1 (Décrire une personne) : Dire que votre collègue est énergique et créative.", "Моя коллега — энергичная женщина, у которой всегда хорошие идеи.",
+        "C'est une femme + adjectif + qui...", "*De bonnes idées*: *des* becomes *de* before a plural adjective.", "« De bonnes idées » : « des » devient « de » devant un adjectif pluriel.", "« De bonnes idées »: « des » → « de » перед прилагательным во мн. числе."],
+      ["tache1", "Le salon est lumineux et la cuisine est entièrement équipée.", [],
+        "The living room is bright and the kitchen is fully equipped.", "Tâche 1 (Décrire un logement) : Dire que le salon a beaucoup de lumière et que la cuisine a tout l'équipement.", "Гостиная светлая, а кухня полностью оборудована.",
+        "Le salon est + adj. et la cuisine est + adj.", "*Équipée* agrees with *la cuisine*; grave accent in *entièrement*.", "« Équipée » s'accorde avec « la cuisine » ; accent grave dans « entièrement ».", "« Équipée » согласуется с « la cuisine »; accent grave в « entièrement »."],
+      ["tache1", "Je te conseille vivement ce parc, surtout au printemps.", ["Je vous conseille vivement ce parc, surtout au printemps."],
+        "I strongly recommend this park, especially in spring.", "Tâche 1 (Recommander un lieu) : Recommander fortement un parc, en particulier pendant une saison.", "Очень советую тебе этот парк, особенно весной.",
+        "Je te conseille vivement + nom", "*Au printemps*, but *en été, en automne, en hiver*.", "« Au printemps », mais « en été, en automne, en hiver ».", "« Au printemps », но « en été, en automne, en hiver »."],
+      ["tache1", "N'hésite pas à m'appeler si tu as besoin d'autres informations.", ["N'hésitez pas à m'appeler si vous avez besoin d'autres informations."],
+        "Don't hesitate to call me if you need more information.", "Tâche 1 (Clôture) : Proposer à votre ami de vous téléphoner s'il a d'autres questions.", "Не стесняйся звонить, если тебе нужна ещё информация.",
+        "N'hésite pas à + infinitif", "*Hésiter à* + infinitive: a perfect closing formula.", "« Hésiter à » + infinitif : formule de clôture idéale.", "« Hésiter à » + инфинитив — идеальная заключительная фраза."],
+      ["tache1", "Ce vélo est léger, solide et il ne coûte pas très cher.", [],
+        "This bike is light, sturdy and doesn't cost much.", "Tâche 1 (Décrire un objet) : Décrire un vélo léger, résistant et bon marché.", "Этот велосипед лёгкий, прочный и не очень дорогой.",
+        "Cet objet est + adj., + adj. et il...", "In *coûter cher*, *cher* is an adverb: it never agrees.", "Dans « coûter cher », « cher » est un adverbe : il ne s'accorde pas.", "В « coûter cher » слово « cher » — наречие и не согласуется."],
+      ["tache1", "Elle a les cheveux bruns et elle porte souvent des lunettes.", [],
+        "She has brown hair and often wears glasses.", "Tâche 1 (Décrire une personne) : Décrire la couleur des cheveux d'une femme et dire qu'elle a souvent des lunettes.", "У неё каштановые волосы, и она часто носит очки.",
+        "Elle a les cheveux + couleur", "*Avoir les cheveux* + colour (plural agreement: *bruns*).", "« Avoir les cheveux » + couleur au pluriel (« bruns »).", "« Avoir les cheveux » + цвет во мн. числе (« bruns »)."],
+
+      // Tâche 2 — account of a day / an experience
+      ["tache2", "Ce matin-là, je me suis réveillé plus tôt que d'habitude.", ["Ce matin-là, je me suis réveillée plus tôt que d'habitude."],
+        "That morning, I woke up earlier than usual.", "Tâche 2 (Récit) : Dire que ce jour-là, vous vous êtes levé(e) plus tôt que normalement.", "В то утро я проснулся (проснулась) раньше обычного.",
+        "Ce matin-là, je me suis + participe passé", "In a past story: *ce matin-là* (that morning), not *ce matin* (this morning).", "Dans un récit passé : « ce matin-là », pas « ce matin ».", "В рассказе о прошлом: « ce matin-là », а не « ce matin »."],
+      ["tache2", "Pendant que je préparais le repas, mes enfants faisaient leurs devoirs.", [],
+        "While I was preparing the meal, my children were doing their homework.", "Tâche 2 (Habitudes) : Dire que vous cuisiniez pendant que vos enfants travaillaient pour l'école.", "Пока я готовил(а) еду, дети делали уроки.",
+        "Pendant que + imparfait, imparfait", "Two actions in progress at the same time → both in the imparfait.", "Deux actions en cours en même temps → deux imparfaits.", "Два одновременных длительных действия → оба в imparfait."],
+      ["tache2", "Tout à coup, mon téléphone a sonné et j'ai appris une excellente nouvelle.", [],
+        "Suddenly, my phone rang and I heard some excellent news.", "Tâche 2 (Événement) : Raconter qu'un appel soudain vous a apporté une très bonne nouvelle.", "Вдруг зазвонил телефон, и я узнал(а) отличную новость.",
+        "Tout à coup + passé composé", "A sudden event → passé composé (*a sonné*).", "Un événement soudain → passé composé (« a sonné »).", "Внезапное событие → passé composé (« a sonné »)."],
+      ["tache2", "Après avoir déjeuné, nous avons visité le vieux centre-ville.", [],
+        "After having lunch, we visited the old town centre.", "Tâche 2 (Chronologie) : Dire que vous avez visité la vieille ville après le repas de midi.", "Пообедав, мы осмотрели старый центр города.",
+        "Après avoir + participe passé, ...", "*Après avoir* + past participle (infinitif passé) is a strong B2 structure.", "« Après avoir » + participe passé (infinitif passé) : structure B2.", "« Après avoir » + причастие (infinitif passé) — сильная конструкция B2."],
+      ["tache2", "D'habitude, je prends le bus, mais ce jour-là, j'ai marché.", [],
+        "Usually I take the bus, but that day I walked.", "Tâche 2 (Habitude vs exception) : Opposer votre habitude (le bus) à ce que vous avez fait ce jour-là.", "Обычно я езжу на автобусе, но в тот день я пошёл (пошла) пешком.",
+        "D'habitude + présent, mais ce jour-là + passé composé", "Habit (present) vs one-off event (passé composé).", "Habitude (présent) vs événement unique (passé composé).", "Привычка (présent) vs единичное событие (passé composé)."],
+      ["tache2", "Le soir, nous étions épuisés, mais très heureux de notre journée.", ["Le soir, nous étions épuisées, mais très heureuses de notre journée."],
+        "In the evening we were exhausted, but very happy with our day.", "Tâche 2 (Bilan) : Dire que le soir vous étiez très fatigués mais contents de la journée.", "Вечером мы были без сил, но очень довольны днём.",
+        "Nous étions + adjectif, mais...", "Feelings in the past → imparfait; the adjectives agree in the plural.", "Sentiments passés → imparfait ; accord au pluriel.", "Чувства в прошлом → imparfait; прилагательные во мн. числе."],
+      ["tache2", "Il y a deux semaines, j'ai participé à une journée de bénévolat.", [],
+        "Two weeks ago, I took part in a volunteering day.", "Tâche 2 (Expérience) : Dire que vous avez fait du bénévolat pendant une journée, il y a deux semaines.", "Две недели назад я участвовал(а) в дне волонтёрства.",
+        "Il y a + durée (= ago), passé composé", "*Il y a* + duration = *ago*; *participer à*.", "« Il y a » + durée = moment passé ; « participer à ».", "« Il y a » + срок = « назад »; « participer à »."],
+      ["tache2", "En arrivant à la gare, je me suis rendu compte que j'avais oublié mon billet.", [],
+        "When I got to the station, I realised I had forgotten my ticket.", "Tâche 2 (Imprévu) : Raconter qu'à la gare, vous avez découvert que vous n'aviez pas votre billet.", "Приехав на вокзал, я понял(а), что забыл(а) билет.",
+        "En + participe présent, je me suis rendu compte que + plus-que-parfait", "*Se rendre compte*: *rendu* never agrees (even for a woman). Earlier action → plus-que-parfait.", "« Se rendre compte » : « rendu » reste invariable. Action antérieure → plus-que-parfait.", "В « se rendre compte » причастие « rendu » не согласуется. Предшествующее действие → plus-que-parfait."],
+      ["tache2", "Finalement, cette journée s'est beaucoup mieux passée que prévu.", [],
+        "In the end, the day went much better than expected.", "Tâche 2 (Conclusion) : Dire que la journée a été bien meilleure que ce que vous pensiez.", "В итоге этот день прошёл гораздо лучше, чем ожидалось.",
+        "... s'est mieux passé(e) que prévu", "*Se passer* agrees with the subject: *la journée s'est passée*.", "« Se passer » s'accorde avec le sujet : « la journée s'est passée ».", "« Se passer » согласуется с подлежащим: « la journée s'est passée »."],
+
+      // Tâche 3 — opinion
+      ["tache3", "Selon moi, ce nouveau parc est une véritable réussite pour le quartier.", ["À mon avis, ce nouveau parc est une véritable réussite pour le quartier."],
+        "In my view, this new park is a real success for the neighbourhood.", "Tâche 3 (Opinion) : Dire que le nouveau parc est un grand succès pour le quartier.", "По-моему, этот новый парк — настоящий успех для района.",
+        "Selon moi, + sujet + est une véritable...", "*Véritable* + noun is more precise (B2) than *vrai*.", "« Véritable » est plus précis que « vrai » (B2).", "« Véritable » точнее, чем « vrai » (B2)."],
+      ["tache3", "D'un côté, c'est pratique ; de l'autre, cela coûte assez cher.", ["D'un côté, c'est pratique, de l'autre, cela coûte assez cher."],
+        "On the one hand it's practical; on the other, it's rather expensive.", "Tâche 3 (Nuance) : Présenter un avantage (pratique) et un inconvénient (le prix).", "С одной стороны, это удобно; с другой — довольно дорого.",
+        "D'un côté, ... ; de l'autre, ...", "Balanced argument = nuance, a key B2 criterion.", "Un argument équilibré montre la nuance attendue au B2.", "Взвешенный аргумент показывает нюансы, нужные для B2."],
+      ["tache3", "Il me semble indispensable que chaque enfant puisse faire du sport.", [],
+        "It seems essential to me that every child can do sport.", "Tâche 3 (Opinion forte) : Dire qu'il est nécessaire que tous les enfants aient accès au sport.", "Мне кажется необходимым, чтобы каждый ребёнок мог заниматься спортом.",
+        "Il me semble indispensable que + subjonctif", "*Indispensable que* + subjunctive: *puisse* (pouvoir).", "« Indispensable que » + subjonctif : « puisse ».", "« Indispensable que » + subjonctif: « puisse »."],
+      ["tache3", "Je suis convaincu que ce projet améliorera la vie des habitants.", ["Je suis convaincue que ce projet améliorera la vie des habitants."],
+        "I am convinced that this project will improve residents' lives.", "Tâche 3 (Certitude) : Dire que vous êtes sûr(e) que le projet rendra la vie des habitants meilleure.", "Я убеждён (убеждена), что этот проект улучшит жизнь жителей.",
+        "Je suis convaincu(e) que + indicatif (futur)", "Certainty (*je suis convaincu que*) → indicative, not subjunctive.", "La certitude → indicatif, pas subjonctif.", "Уверенность → indicatif, а не subjonctif."],
+      ["tache3", "Certes, ce lieu est un peu bruyant, mais il reste très convivial.", [],
+        "Admittedly, this place is a bit noisy, but it remains very friendly.", "Tâche 3 (Concession) : Reconnaître un défaut (le bruit) puis défendre le lieu (l'ambiance).", "Конечно, здесь немного шумно, но атмосфера остаётся очень дружелюбной.",
+        "Certes, ..., mais ...", "*Certes... mais* = concession, valued at B2.", "« Certes... mais » = concession, très appréciée au B2.", "« Certes... mais » — уступка, ценится на B2."],
+      ["tache3", "Je regrette que la médiathèque ferme si tôt le dimanche.", [],
+        "I'm sorry that the media library closes so early on Sundays.", "Tâche 3 (Critique) : Dire que vous n'êtes pas content des horaires du dimanche de la médiathèque.", "Мне жаль, что медиатека так рано закрывается по воскресеньям.",
+        "Je regrette que + subjonctif", "Feeling + *que* → subjunctive (*ferme* looks like the present for -er verbs).", "Sentiment + « que » → subjonctif (« ferme » a la même forme pour les verbes en -er).", "Чувство + « que » → subjonctif (у глаголов на -er форма « ferme » совпадает)."],
+      ["tache3", "Ce qui me plaît le plus, c'est l'ambiance chaleureuse de ce café.", ["Ce qui me plait le plus, c'est l'ambiance chaleureuse de ce café."],
+        "What I like most is the warm atmosphere of this café.", "Tâche 3 (Point fort) : Dire que l'ambiance du café est ce que vous préférez.", "Больше всего мне нравится тёплая атмосфера этого кафе.",
+        "Ce qui me plaît le plus, c'est...", "Highlighting structure *ce qui..., c'est...*; *plaît* (circumflex) or *plait* (1990 spelling).", "Mise en relief « ce qui..., c'est... » ; « plaît » ou « plait » (orthographe 1990).", "Выделение « ce qui..., c'est... »; « plaît » или « plait » (реформа 1990)."],
+      ["tache3", "Pour toutes ces raisons, je recommande vivement ce lieu à tout le monde.", [],
+        "For all these reasons, I strongly recommend this place to everyone.", "Tâche 3 (Conclusion) : Conclure en recommandant fortement le lieu à tous.", "По всем этим причинам я очень рекомендую это место всем.",
+        "Pour toutes ces raisons, je recommande vivement...", "A clear final sentence closes your argument.", "Une phrase finale claire conclut votre argumentation.", "Чёткая последняя фраза завершает аргументацию."],
+      ["tache3", "Il serait souhaitable que la mairie organise davantage d'activités pour les jeunes.", [],
+        "It would be desirable for the town hall to organise more activities for young people.", "Tâche 3 (Proposition) : Proposer poliment que la mairie fasse plus d'activités pour les jeunes.", "Было бы желательно, чтобы мэрия организовывала больше мероприятий для молодёжи.",
+        "Il serait souhaitable que + subjonctif", "Conditional + *que* + subjunctive; *davantage de* = more.", "Conditionnel + « que » + subjonctif ; « davantage de » = plus de.", "Условное наклонение + « que » + subjonctif; « davantage de » = больше."],
+
+      // Traps
+      ["traps", "Elle s'est levée tôt pour aller travailler.", [],
+        "She got up early to go to work.", "Piège : Dire qu'une femme s'est réveillée et levée tôt pour aller au travail.", "Она встала рано, чтобы пойти на работу.",
+        "Elle s'est + participe accordé", "Pronominal verb → *être* + agreement: *levée*.", "Verbe pronominal → être + accord : « levée ».", "Возвратный глагол → être + согласование: « levée »."],
+      ["traps", "Les photos que j'ai prises sont magnifiques.", [],
+        "The photos I took are magnificent.", "Piège d'accord : Dire que les photos que vous avez faites sont très belles.", "Фотографии, которые я сделал(а), великолепны.",
+        "Les + nom fém. pl. que j'ai + participe accordé", "Direct object placed before *avoir* → agreement: *prises*.", "COD placé avant « avoir » → accord : « prises ».", "Прямое дополнение перед « avoir » → согласование: « prises »."],
+      ["traps", "Il faut que tu viennes me voir cet été.", ["Il faut que vous veniez me voir cet été."],
+        "You must come and see me this summer.", "Piège du subjonctif : Dire à un ami qu'il doit absolument venir vous voir l'été prochain.", "Ты обязательно должен(на) приехать ко мне этим летом.",
+        "Il faut que + subjonctif", "*Il faut que* + subjunctive: *que tu viennes* (venir).", "« Il faut que » + subjonctif : « que tu viennes ».", "« Il faut que » + subjonctif: « que tu viennes »."],
+      ["traps", "J'ai très faim, mais je n'ai pas le temps de manger.", [],
+        "I'm very hungry, but I don't have time to eat.", "Piège : Dire que vous avez très faim mais pas le temps de manger.", "Я очень голоден (голодна), но у меня нет времени поесть.",
+        "J'ai faim / j'ai le temps de + infinitif", "*Avoir faim* (never *je suis faim*), like *avoir soif, peur, froid*.", "« Avoir faim » (jamais « je suis faim »), comme avoir soif, peur, froid.", "« Avoir faim » (никогда « je suis faim »), как avoir soif, peur, froid."],
+      ["traps", "Ils se sont rencontrés à l'université il y a dix ans.", [],
+        "They met at university ten years ago.", "Piège : Dire que deux personnes ont fait connaissance à la fac il y a dix ans.", "Они познакомились в университете десять лет назад.",
+        "Ils se sont + participe accordé + il y a...", "Reciprocal pronominal → *être* + plural agreement.", "Pronominal réciproque → être + accord au pluriel.", "Взаимно-возвратный глагол → être + мн. число."],
+      ["traps", "C'est la ville dont je t'ai parlé.", ["C'est la ville dont je vous ai parlé."],
+        "It's the city I told you about.", "Piège du relatif : Présenter la ville que vous avez mentionnée avant (parler de).", "Это тот город, о котором я тебе рассказывал(а).",
+        "C'est + nom + dont (parler de)", "*Parler de* → *dont* (not *que*).", "« Parler de » → « dont » (pas « que »).", "« Parler de » → « dont » (не « que »)."],
+      ["traps", "Je suis sorti avec des amis, puis je suis rentré à minuit.", ["Je suis sortie avec des amies, puis je suis rentrée à minuit.", "Je suis sortie avec des amis, puis je suis rentrée à minuit."],
+        "I went out with friends, then came home at midnight.", "Piège de l'auxiliaire : Raconter votre sortie avec des amis et votre retour à minuit.", "Я ходил(а) гулять с друзьями, потом вернулся (вернулась) в полночь.",
+        "Je suis sorti(e)..., puis je suis rentré(e)...", "*Sortir* and *rentrer* (movement) take *être*.", "« Sortir » et « rentrer » se conjuguent avec être.", "« Sortir » и « rentrer » спрягаются с être."],
+      ["traps", "Bien qu'il fasse froid, nous allons nous promener.", [],
+        "Although it's cold, we are going to go for a walk.", "Piège du subjonctif : Dire que vous allez vous promener malgré le froid.", "Хотя холодно, мы пойдём гулять.",
+        "Bien que + subjonctif, ...", "*Bien que* + subjunctive: *il fasse* (faire), never *il fait*.", "« Bien que » + subjonctif : « il fasse », jamais « il fait ».", "« Bien que » + subjonctif: « il fasse », никогда « il fait »."]
+    ];
+    V13_PHRASES.forEach((p, i) => {
+      const [category, fr, alt, en, frPrompt, ru, hint, ruleEn, ruleFr, ruleRu] = p;
+      PHRASES_BANK.push({ id: `p_v13_${i + 1}`, category, fr, alt, en, frPrompt, ru, hint, rule: { en: ruleEn, fr: ruleFr, ru: ruleRu } });
+    });
+
+    // ---- v1.3 additions: +6 exam subjects (2 per task) ----
+    EXAM_THEMES.push(
+      {
+        id: "t1_decrire_ville", task: "tache1", register: "Amical (Tu)", defaultMin: 30, defaultMax: 60,
+        title: { en: "Tâche 1 • Describe your town to a friend", fr: "Tâche 1 • Décrire votre ville à un ami", ru: "Tâche 1 • Опишите свой город другу" },
+        promptFr: "Votre ami Marc va venir vous rendre visite pour la première fois. Il vous demande comment est votre ville. Vous lui répondez et vous décrivez votre ville. (30 mots minimum/60 mots maximum)",
+        promptTrans: {
+          en: "Your friend Marc is coming to visit you for the first time. He asks what your town is like. Reply and describe your town.",
+          fr: "Décrivez la ville (situation, lieux intéressants, ambiance) avec des adjectifs précis.",
+          ru: "Ваш друг Марк впервые приезжает к вам в гости и спрашивает, какой у вас город. Ответьте ему и опишите свой город."
+        },
+        points: ["Situation / taille de la ville", "Lieux à visiter", "Ambiance / habitants", "Formule de fin"],
+        modelB2: "Salut Marc,\n\nMa ville est petite mais très agréable. Elle se trouve au bord d'une rivière, à une heure de Lyon. Le centre historique est charmant, avec ses ruelles et son grand marché du samedi. Les habitants sont accueillants et il y a beaucoup de parcs.\n\nTu vas adorer ! À bientôt,\nSophie"
+      },
+      {
+        id: "t1_objet_perdu", task: "tache1", register: "Formel (Vous)", defaultMin: 30, defaultMax: 60,
+        title: { en: "Tâche 1 • Describe a bag lost on the train", fr: "Tâche 1 • Décrire un sac perdu dans le train", ru: "Tâche 1 • Опишите сумку, забытую в поезде" },
+        promptFr: "Vous avez oublié votre sac dans le train. Vous écrivez un message au service des objets trouvés pour décrire votre sac et son contenu. (30 mots minimum/60 mots maximum)",
+        promptTrans: {
+          en: "You left your bag on the train. Write a message to the lost property office describing the bag and what is inside.",
+          fr: "Message formel : quand et où, description précise de l'objet (couleur, taille, matière), contenu, formule de politesse.",
+          ru: "Вы забыли сумку в поезде. Напишите в бюро находок: опишите сумку и её содержимое."
+        },
+        points: ["Quand et où", "Description (taille, couleur, matière)", "Contenu", "Formule de politesse"],
+        modelB2: "Madame, Monsieur,\n\nHier soir, j'ai oublié mon sac à dos dans le TGV Paris-Marseille de 18 heures. C'est un sac noir en tissu, de taille moyenne, avec une poche avant rouge. Il contient un ordinateur portable et un livre. Pourriez-vous me contacter si vous le retrouvez ?\n\nCordialement,\nKarim Benali"
+      },
+      {
+        id: "t2_demenagement", task: "tache2", register: "Amical (Tu)", defaultMin: 40, defaultMax: 90,
+        title: { en: "Tâche 2 • Your moving day", fr: "Tâche 2 • Votre jour de déménagement", ru: "Tâche 2 • День вашего переезда" },
+        promptFr: "Le week-end dernier, vous avez déménagé. Vous écrivez un message à une amie pour lui raconter cette journée : qui vous a aidé, comment cela s'est passé et ce que vous avez ressenti. (40 mots minimum/90 mots maximum)",
+        promptTrans: {
+          en: "Last weekend you moved house. Write to a friend telling her about the day: who helped you, how it went and how you felt.",
+          fr: "Racontez au passé : passé composé pour les actions, imparfait pour la météo, les difficultés et les sentiments.",
+          ru: "В прошлые выходные вы переехали. Напишите подруге, как прошёл этот день: кто помогал, что происходило и что вы чувствовали."
+        },
+        points: ["Chronologie de la journée", "Personnes qui ont aidé", "Difficulté / imprévu", "Sentiment final"],
+        modelB2: "Salut Léa,\n\nSamedi dernier, j'ai enfin déménagé ! Le matin, mes amis sont arrivés à huit heures pour m'aider. Il pleuvait, donc nous avons dû protéger les cartons. Vers midi, nous avons fait une pause pizza. Malheureusement, le canapé ne passait pas dans l'escalier et nous l'avons monté par le balcon ! Le soir, j'étais épuisée mais très contente.\n\nBises,\nNadia"
+      },
+      {
+        id: "t2_journee_benevolat", task: "tache2", register: "Semi-formel (Vous)", defaultMin: 40, defaultMax: 90,
+        title: { en: "Tâche 2 • A neighbourhood clean-up day", fr: "Tâche 2 • Une journée de nettoyage du quartier", ru: "Tâche 2 • День уборки района" },
+        promptFr: "Vous avez participé à une journée de nettoyage organisée par une association de votre quartier. Sur le site de l'association, vous racontez cette expérience : les activités, l'ambiance et votre bilan. (40 mots minimum/90 mots maximum)",
+        promptTrans: {
+          en: "You took part in a clean-up day organised by a local association. On the association's website, tell about the experience: activities, atmosphere and what you got out of it.",
+          fr: "Compte rendu d'une expérience : contexte, déroulement chronologique, ambiance, bilan personnel.",
+          ru: "Вы участвовали в дне уборки, организованном ассоциацией вашего района. На сайте ассоциации расскажите об этом: что делали, какая была атмосфера, ваши выводы."
+        },
+        points: ["Contexte (quand, qui)", "Activités de la journée", "Ambiance / rencontres", "Bilan"],
+        modelB2: "Bonjour à tous,\n\nDimanche dernier, j'ai participé à la journée de nettoyage organisée par l'association de notre quartier. Nous étions une trentaine de bénévoles. Le matin, nous avons ramassé les déchets dans le parc et au bord du canal. L'ambiance était très conviviale et j'ai rencontré plusieurs voisins. À midi, nous avons partagé un pique-nique. C'était une expérience enrichissante que je referai avec plaisir !"
+      },
+      {
+        id: "t3_voitures_centre_ville", task: "tache3", register: "Standard (Forum)", defaultMin: 40, defaultMax: 90,
+        title: { en: "Tâche 3 • Ban cars from the town centre?", fr: "Tâche 3 • Interdire les voitures en centre-ville ?", ru: "Tâche 3 • Запретить машины в центре города?" },
+        promptFr: "Votre mairie propose d'interdire les voitures dans le centre-ville. Sur le forum de la ville, vous donnez votre opinion sur ce projet et vous la justifiez. (40 mots minimum/90 mots maximum)",
+        promptTrans: {
+          en: "Your town hall wants to ban cars from the town centre. On the town forum, give and justify your opinion on this project.",
+          fr: "Prenez position, donnez au moins deux arguments, une nuance (certes... mais) et une conclusion.",
+          ru: "Мэрия предлагает запретить машины в центре города. На форуме города выскажите своё мнение об этом проекте и обоснуйте его."
+        },
+        points: ["Position claire", "Argument 1", "Argument 2 / nuance", "Conclusion"],
+        modelB2: "À mon avis, interdire les voitures dans le centre-ville est une excellente idée. Tout d'abord, l'air serait moins pollué et les rues deviendraient plus calmes. Ensuite, les piétons et les cyclistes pourraient circuler en toute sécurité. Certes, cette mesure peut gêner les commerçants et les personnes âgées ; c'est pourquoi il faudrait développer les transports en commun. En conclusion, je soutiens ce projet."
+      },
+      {
+        id: "t3_personne_admiree", task: "tache3", register: "Standard (Forum)", defaultMin: 40, defaultMax: 90,
+        title: { en: "Tâche 3 • A person you admire", fr: "Tâche 3 • Une personne que vous admirez", ru: "Tâche 3 • Человек, которым вы восхищаетесь" },
+        promptFr: "Sur un forum, on demande : « Quelle personne admirez-vous le plus ? » Vous présentez une personne (célèbre ou de votre entourage) et vous expliquez pourquoi vous l'admirez. (40 mots minimum/90 mots maximum)",
+        promptTrans: {
+          en: "On a forum, someone asks: “Who do you admire most?” Present a person (famous or someone you know) and explain why you admire them.",
+          fr: "Donnez votre opinion sur une personne : qualités justifiées, exemple concret, conclusion.",
+          ru: "На форуме спрашивают: «Кем вы больше всего восхищаетесь?» Расскажите о человеке (известном или из вашего окружения) и объясните, почему вы им восхищаетесь."
+        },
+        points: ["Présenter la personne", "Qualités justifiées", "Exemple concret", "Conclusion"],
+        modelB2: "J'admire beaucoup ma grand-mère. Selon moi, c'est une femme exceptionnelle. En effet, elle a élevé quatre enfants tout en travaillant à l'hôpital. De plus, elle reste toujours généreuse et patiente, bien que sa vie n'ait pas été facile. Par exemple, elle aide encore les voisins âgés de son immeuble. C'est pourquoi elle est un véritable modèle pour moi."
+      }
+    );
+
     /*************************************************************************
      * 5. B2 CLICK-TO-INSERT TOOLKIT CHIPS (MODE 3 SIDEBAR)
      *************************************************************************/
@@ -2637,9 +3064,9 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
       const cached = loadJsonLS(GEMINI_MODELS_CACHE_KEY, null);
       if (!forceRefresh && cached && cached.models?.length && Date.now() - cached.time < 24 * 3600 * 1000) return cached.models;
       try {
-        const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000', {
+        const res = await fetchWithTimeout('https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000', {
           headers: { 'x-goog-api-key': apiKey }
-        });
+        }, 10000);
         if (!res.ok) return GEMINI_FALLBACK_MODELS;
         const data = await res.json();
         const names = (data.models || [])
@@ -2676,6 +3103,31 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
       return String(text || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
     }
 
+    // fetch with a hard time limit (Google can keep a busy request open for minutes)
+    async function fetchWithTimeout(url, init, ms) {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), ms);
+      try {
+        return await fetch(url, { ...init, signal: ctrl.signal });
+      } catch (err) {
+        if (err && err.name === 'AbortError') throw new Error(`timeout after ${Math.round(ms / 1000)}s`);
+        throw err;
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    // Limit the "thinking" of newer models: grading a 90-word text does not need minutes of reasoning.
+    function thinkingConfigFor(modelName, level) {
+      if (!level) return null;
+      const v = modelVersionScore(modelName);
+      if (v >= 3) return { thinkingLevel: level };                     // Gemini 3.x
+      if (/2\.5/.test(modelName)) return { thinkingBudget: level === 'low' ? 1024 : 4096 }; // Gemini 2.5
+      return null;                                                     // "-latest" aliases: unknown, leave default
+    }
+
+    // options: { temperature, responseSchema, refreshModels, timeoutMs (per attempt, default 45 s),
+    //            maxTotalMs (whole call, default 120 s), thinking ('low'|'high'|undefined), onAttempt(modelName) }
     async function callGeminiJson(systemPrompt, userPrompt, options = {}) {
       const { geminiKey } = getCloudAndAiConfig();
       const apiKey = normalizeApiKey(geminiKey);
@@ -2683,8 +3135,10 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         lastAiError = 'No Gemini API key configured';
         throw new Error(lastAiError);
       }
+      const timeoutMs = options.timeoutMs || 45000;
+      const deadline = Date.now() + (options.maxTotalMs || 120000);
 
-      const payload = {
+      const basePayload = {
         contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
         systemInstruction: { parts: [{ text: systemPrompt }] },
         generationConfig: {
@@ -2693,51 +3147,63 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
           topP: 0.95
         }
       };
-      if (options.responseSchema) payload.generationConfig.responseSchema = options.responseSchema;
+      if (options.responseSchema) basePayload.generationConfig.responseSchema = options.responseSchema;
 
       let lastErr = null;
       const errors = [];
       const models = await getGeminiModels(apiKey, options.refreshModels);
       for (const modelName of models) {
+        const left = deadline - Date.now();
+        if (left < 5000) { errors.push('time limit'); break; }
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
-        try {
-          const res = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
-            body: JSON.stringify(payload)
-          });
-          if (!res.ok) {
-            let detail = '';
-            try { detail = (await res.json())?.error?.message || ''; } catch (e) {}
-            lastErr = new Error(`${modelName}: HTTP ${res.status}${detail ? ' — ' + detail : ''}`);
-            errors.push(`${modelName}: ${res.status}`);
-            // Auth / key problems will fail on every model: stop early with a clear message.
-            if (res.status === 400 && /api key|credential|auth/i.test(detail)) break;
-            if (res.status === 401 || res.status === 403) break;
-            if (res.status === 404) forgetGeminiModel(modelName);
-            continue; // 404 (model retired), 429 (quota), 5xx -> try next model
+        let thinking = thinkingConfigFor(modelName, options.thinking);
+        for (let attempt = 0; attempt < 2; attempt++) {
+          const payload = JSON.parse(JSON.stringify(basePayload));
+          if (thinking) payload.generationConfig.thinkingConfig = thinking;
+          try {
+            if (options.onAttempt) options.onAttempt(modelName);
+            const res = await fetchWithTimeout(apiUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+              body: JSON.stringify(payload)
+            }, Math.min(timeoutMs, Math.max(5000, deadline - Date.now())));
+            if (!res.ok) {
+              let detail = '';
+              try { detail = (await res.json())?.error?.message || ''; } catch (e) {}
+              // This model does not accept our thinking setting: retry the same model once without it
+              if (res.status === 400 && thinking && /think/i.test(detail)) { thinking = null; continue; }
+              lastErr = new Error(`${modelName}: HTTP ${res.status}${detail ? ' — ' + detail : ''}`);
+              lastErr.status = res.status;
+              errors.push(`${modelName}: ${res.status}`);
+              if (res.status === 404) forgetGeminiModel(modelName);
+              break;
+            }
+            const data = await res.json();
+            // Newer "thinking" models can return several parts: keep the real answer, skip thought parts
+            const parts = data?.candidates?.[0]?.content?.parts || [];
+            const text = parts.filter(p => p && p.text && !p.thought).map(p => p.text).join('');
+            if (!text) {
+              lastErr = new Error(`${modelName}: empty response (${data?.candidates?.[0]?.finishReason || 'no candidates'})`);
+              errors.push(`${modelName}: empty`);
+              break;
+            }
+            lastAiError = '';
+            lastAiModel = modelName;
+            return JSON.parse(stripJsonFences(text));
+          } catch (err) {
+            lastErr = new Error(`${modelName}: ${err.message}`);
+            errors.push(`${modelName}: ${/timeout/.test(err.message) ? 'timeout' : 'error'}`);
+            break;
           }
-          const data = await res.json();
-          // Newer "thinking" models can return several parts: keep the real answer, skip thought parts
-          const parts = data?.candidates?.[0]?.content?.parts || [];
-          const text = parts.filter(p => p && p.text && !p.thought).map(p => p.text).join('');
-          if (!text) {
-            lastErr = new Error(`${modelName}: empty response (${data?.candidates?.[0]?.finishReason || 'no candidates'})`);
-            continue;
-          }
-          lastAiError = '';
-          lastAiModel = modelName;
-          return JSON.parse(stripJsonFences(text));
-        } catch (err) {
-          lastErr = err;
         }
+        // Auth / key problems fail on every model: stop early with a clear message.
+        if (lastErr && (lastErr.status === 401 || lastErr.status === 403 ||
+            (lastErr.status === 400 && /api key|credential|auth/i.test(lastErr.message)))) break;
       }
-      // Show the most useful error: prefer a non-404 one (quota, key...) over "model retired"
       lastAiError = (lastErr && lastErr.message) || 'AI request failed';
       if (errors.length > 1) lastAiError += `  [tried: ${errors.join(', ')}]`;
-      if (lastErr) lastErr = new Error(lastAiError);
       console.warn('Gemini error:', lastAiError);
-      throw lastErr || new Error(lastAiError);
+      throw new Error(lastAiError);
     }
 
     function aiFailToast(err) {
@@ -2953,13 +3419,34 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
       generateWordBatch();
     }
 
+    const WORD_CATEGORIES = ['connectors', 'admin', 'imparfait', 'vandertramp', 'participles', 'daily'];
+
+    // v1.3: what a saved mistake is (word / phrase / essay correction) and which word category it belongs to.
+    // Old mistakes (v1.0–v1.2) have no "kind": we find it by looking the text up in the banks.
+    function mistakeKind(m) {
+      if (m.kind) return m.kind;
+      const n = normalizeForCompare(m.fr);
+      if (getAllWords().some(w => normalizeForCompare(w.fr) === n)) return 'word';
+      if (getAllPhrases().some(ph => normalizeForCompare(ph.fr) === n)) return 'phrase';
+      return countFrenchWords(m.fr) <= 4 ? 'word' : 'phrase';
+    }
+    function mistakeCategory(m) {
+      if (m.category) return m.category;
+      const n = normalizeForCompare(m.fr);
+      const w = getAllWords().find(x => normalizeForCompare(x.fr) === n);
+      return w ? w.category : null;
+    }
+    function activeDrillMistakes() {
+      const user = getActiveUser();
+      return (user.mistakeBank || []).filter(m => !m.mastered && m.drillable !== false);
+    }
+
     function generateWordBatch() {
       const category = document.getElementById('words-category-select')?.value || 'all';
-      const user = getActiveUser();
       let pool = [];
 
       if (category === 'mistakes') {
-        const activeMistakes = (user.mistakeBank || []).filter(m => !m.mastered && m.drillable !== false);
+        const activeMistakes = activeDrillMistakes().filter(m => mistakeKind(m) !== 'phrase');
         if (activeMistakes.length === 0) {
           showToast(t('mistakeBankEmptyToast'));
           pool = getAllWords();
@@ -2980,10 +3467,11 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
       let batch = pickRandom(pool, Math.min(wordBatchSize, pool.length));
       if (!Array.isArray(batch)) batch = [batch];
 
-      // Spaced repetition: in normal categories, ~1/3 of the batch comes from active mistakes
+      // Spaced repetition: ~1/3 of the batch comes from active mistakes — but ONLY words of the chosen
+      // category (v1.2 mixed in every mistake, even whole phrases, whatever the category).
       if (category !== 'mistakes') {
-        const mistakeItems = (user.mistakeBank || [])
-          .filter(m => !m.mastered && m.drillable !== false)
+        const mistakeItems = activeDrillMistakes()
+          .filter(m => mistakeKind(m) === 'word' && (category === 'all' || mistakeCategory(m) === category))
           .map(m => mistakeToDrillItem(m));
         if (mistakeItems.length) {
           const n = Math.min(mistakeItems.length, Math.max(1, Math.round(wordBatchSize / 3)));
@@ -3004,10 +3492,17 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
     }
 
     function mistakeToDrillItem(m, idx = 0) {
+      // If the word still exists in a bank, drill the full original card (prompt, synonyms, rule)
+      const n = normalizeForCompare(m.fr);
+      const orig = getAllWords().find(w => normalizeForCompare(w.fr) === n);
+      if (orig) {
+        const p = orig.pos || {};
+        return { ...orig, pos: { en: '🎯 ' + (p.en || ''), fr: '🎯 ' + (p.fr || p.en || ''), ru: '🎯 ' + (p.ru || p.en || '') } };
+      }
       const meaning = m.meanings || { en: m.meaning, fr: m.meaning, ru: m.meaning };
       return {
         id: m.id || `mb_${idx}`,
-        category: 'mistakes',
+        category: m.category || 'mistakes',
         fr: m.fr,
         alt: [],
         en: meaning.en || m.meaning,
@@ -3064,11 +3559,16 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
       }).join('');
     }
 
+    // Rules are written with *italic* and `code` marks: show them as real formatting
+    function fmtRule(text) {
+      return escapeHtml(String(text || '')).replace(/\*([^*]+)\*/g, '<em class="font-semibold">$1</em>').replace(/`([^`]+)`/g, '<code class="font-mono">$1</code>');
+    }
+
     function evaluateSingleWord(userRaw, item) {
       const userNorm = normalizeForCompare(userRaw);
       const targets = [item.fr, ...(item.alt || [])].map(normalizeForCompare);
       const dict = I18N[currentLang] || I18N.en;
-      const ruleText = item.rule?.[currentLang] || item.rule?.en || '';
+      const ruleText = fmtRule(item.rule?.[currentLang] || item.rule?.en || "");
 
       if (!userNorm) {
         return {
@@ -3097,7 +3597,7 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
           score: 15,
           status: 'accent',
           badge: dict.accentWarnBadge,
-          explanation: `${currentLang === 'ru' ? 'Почти верно! Проверьте акценты или апостроф' : (currentLang === 'fr' ? 'Presque ! Attention aux accents ou à l\'apostrophe' : 'Almost! Watch your accents or apostrophe')}: <del class="text-rose-600 mr-1">${userRaw}</del> ➔ <strong class="text-emerald-700 font-mono">${item.fr}</strong>. ${ruleText}`
+          explanation: `${currentLang === 'ru' ? 'Почти верно! Проверьте акценты или апостроф' : (currentLang === 'fr' ? 'Presque ! Attention aux accents ou à l\'apostrophe' : 'Almost! Watch your accents or apostrophe')}: <del class="text-rose-600 mr-1">${escapeHtml(userRaw)}</del> ➔ <strong class="text-emerald-700 font-mono">${item.fr}</strong>. ${ruleText}`
         };
       }
 
@@ -3109,7 +3609,7 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
           score: 14,
           status: 'gender',
           badge: dict.genderWarnBadge,
-          explanation: `${currentLang === 'ru' ? 'Ловушка рода/артикля!' : (currentLang === 'fr' ? 'Attention au genre / à l\'article !' : 'Gender / Article check!')}: <del class="text-amber-700 mr-1">${userRaw}</del> ➔ <strong class="text-emerald-700 font-mono">${item.fr}</strong>. ${ruleText}`
+          explanation: `${currentLang === 'ru' ? 'Ловушка рода/артикля!' : (currentLang === 'fr' ? 'Attention au genre / à l\'article !' : 'Gender / Article check!')}: <del class="text-amber-700 mr-1">${escapeHtml(userRaw)}</del> ➔ <strong class="text-emerald-700 font-mono">${item.fr}</strong>. ${ruleText}`
         };
       }
 
@@ -3118,7 +3618,7 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         score: 0,
         status: 'wrong',
         badge: dict.wrongBadge,
-        explanation: `${currentLang === 'ru' ? 'Вы написали' : (currentLang === 'fr' ? 'Vous avez écrit' : 'You wrote')}: <del class="text-rose-600 mr-1">${userRaw}</del> ➔ ${currentLang === 'ru' ? 'Правильно' : (currentLang === 'fr' ? 'Correct' : 'Correct')}: <strong class="text-emerald-700 font-mono">${item.fr}</strong>. ${ruleText}`
+        explanation: `${currentLang === 'ru' ? 'Вы написали' : (currentLang === 'fr' ? 'Vous avez écrit' : 'You wrote')}: <del class="text-rose-600 mr-1">${escapeHtml(userRaw)}</del> ➔ ${currentLang === 'ru' ? 'Правильно' : (currentLang === 'fr' ? 'Correct' : 'Correct')}: <strong class="text-emerald-700 font-mono">${item.fr}</strong>. ${ruleText}`
       };
     }
 
@@ -3133,64 +3633,118 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
       return { en: item.en || '', fr: item.frDef || item.frPrompt || item.en || '', ru: item.ru || item.en || '' };
     }
 
+    // v1.3: the offline checker only knows the expected answer (+ a few variants). When a Gemini key is set,
+    // answers that look wrong are sent to the AI once per batch: a correct synonym is accepted
+    // ("works, but X is better") instead of being counted as a mistake. Never blocks: 25 s limit, then offline result.
+    async function aiReviewAnswers(kind, entries) {
+      const { geminiKey } = getCloudAndAiConfig();
+      if (!geminiKey || !entries.length) return null;
+      const langName = currentLang === 'ru' ? 'Russian' : (currentLang === 'fr' ? 'French' : 'English');
+      const sys = 'You are a precise but encouraging French teacher preparing adults for the TCF IRN writing test (target B2). You review answers from a translation drill.';
+      const usr = `The learner had to write the French for each prompt. An expected answer exists, but other answers can also be correct (synonyms, other word order, tu/vous, another correct structure).
+For each item choose a verdict:
+- "correct": the learner's French is fully correct (spelling, accents, gender, agreement, grammar) and means the same thing; as good as the expected answer.
+- "acceptable": correct French that works in this context, but the expected answer is more precise, more natural or more B2.
+- "wrong": different meaning, or it contains spelling / accent / gender / grammar mistakes.
+Be strict about accents and agreements: a synonym written with a missing accent is "wrong".
+${kind === 'phrase' ? 'Also give "score" (0-20: 20 perfect; acceptable 15-18; remove points for each error) and "corrected": the learner\'s own sentence with only the errors fixed.' : ''}
+Write "note" in ${langName}: one short sentence (why it works / what is better / what is wrong). Quote French words exactly.
+Items: ${JSON.stringify(entries)}
+Return a JSON array: [{"i": number, "verdict": "correct"|"acceptable"|"wrong", "note": string${kind === 'phrase' ? ', "score": number, "corrected": string' : ''}}]`;
+      try {
+        const res = await callGeminiJson(sys, usr, { temperature: 0.2, thinking: 'low', timeoutMs: 25000, maxTotalMs: 40000 });
+        const map = {};
+        (Array.isArray(res) ? res : []).forEach(r => { if (r && typeof r.i === 'number' && r.verdict) map[r.i] = r; });
+        return map;
+      } catch (e) {
+        console.warn('AI review skipped:', e.message);
+        return null;
+      }
+    }
+
+    function setBusy(btnId, busy, label) {
+      const btn = document.getElementById(btnId);
+      if (!btn) return;
+      if (busy) { btn.dataset.html = btn.innerHTML; btn.innerHTML = `<span>🤖</span> <span>${label}</span>`; btn.disabled = true; }
+      else if (btn.dataset.html) { btn.innerHTML = btn.dataset.html; btn.disabled = false; }
+    }
+
     // revealed=true -> "Show Solutions": display answers, but NO score/XP and unanswered items count as mistakes
-    function checkWordBatch(revealed = false) {
+    async function checkWordBatch(revealed = false) {
       if (currentWordBatch.length === 0) return;
-      const alreadyGraded = wordBatchChecked;
+      if (wordBatchChecked) { showToast(t('alreadyGradedToast')); return; }
+      wordBatchChecked = true; // lock at once: Enter / double click cannot grade twice
+      const batch = currentWordBatch;
+      const values = batch.map((_, idx) => document.getElementById(`word-input-${idx}`)?.value || '');
+      const results = batch.map((item, idx) => evaluateSingleWord(values[idx], item));
+
+      // Ask the AI only about real "wrong" answers the learner typed (accent / gender slips are clear errors)
+      if (!revealed) {
+        const entries = [];
+        results.forEach((r, idx) => {
+          if (r.status === 'wrong' && values[idx].trim()) {
+            const it = batch[idx];
+            entries.push({ i: idx, prompt: it.en || it.frDef, expected: it.fr, learner: values[idx].trim() });
+          }
+        });
+        if (entries.length && getCloudAndAiConfig().geminiKey) {
+          setBusy('check-words-btn', true, t('aiCheckingSynonyms'));
+          const review = await aiReviewAnswers('word', entries);
+          setBusy('check-words-btn', false);
+          if (batch !== currentWordBatch) return; // a new set was loaded meanwhile
+          if (review) entries.forEach(e => applyWordReview(results, e.i, review[e.i], values[e.i], batch[e.i]));
+        }
+      }
+
       let totalScore = 0;
       let perfectCount = 0;
-
-      currentWordBatch.forEach((item, idx) => {
+      batch.forEach((item, idx) => {
         const inputEl = document.getElementById(`word-input-${idx}`);
         const cardEl = document.getElementById(`word-card-${idx}`);
         const badgeEl = document.getElementById(`word-badge-${idx}`);
         const feedbackEl = document.getElementById(`word-feedback-${idx}`);
-        const userVal = inputEl ? inputEl.value : '';
         if (!cardEl || !badgeEl || !feedbackEl) return;
-
-        const res = evaluateSingleWord(userVal, item);
+        const res = results[idx];
         totalScore += res.score;
         const ruleText = item.rule?.[currentLang] || item.rule?.en;
+        const mistakeOpts = { silent: true, kind: 'word', category: WORD_CATEGORIES.includes(item.category) ? item.category : undefined };
 
         if (res.status === 'perfect') {
           perfectCount++;
           cardEl.className = 'bg-emerald-50/40 rounded-2xl shadow-sm border-2 border-emerald-400 p-4 transition-all';
           badgeEl.className = 'text-xs font-extrabold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-lg';
-          if (!alreadyGraded) recordMistakeProgress(item.fr, true);
+          recordMistakeProgress(item.fr, true);
+        } else if (res.status === 'synonym') {
+          // Correct French, just not the best word: no mistake saved
+          cardEl.className = 'bg-sky-50/50 rounded-2xl shadow-sm border-2 border-sky-400 p-4 transition-all';
+          badgeEl.className = 'text-xs font-extrabold text-sky-800 bg-sky-100 px-2.5 py-1 rounded-lg';
         } else if (res.status === 'accent' || res.status === 'gender') {
           cardEl.className = 'bg-amber-50/50 rounded-2xl shadow-sm border-2 border-amber-400 p-4 transition-all';
           badgeEl.className = 'text-xs font-extrabold text-amber-800 bg-amber-100 px-2.5 py-1 rounded-lg';
-          if (!alreadyGraded) addOrUpdateMistake(item.fr, meaningsOf(item), ruleText, { silent: true });
+          addOrUpdateMistake(item.fr, meaningsOf(item), ruleText, mistakeOpts);
         } else {
           cardEl.className = 'bg-rose-50/40 rounded-2xl shadow-sm border-2 border-rose-300 p-4 transition-all';
           badgeEl.className = 'text-xs font-extrabold text-rose-700 bg-rose-100 px-2.5 py-1 rounded-lg';
-          if (!alreadyGraded) addOrUpdateMistake(item.fr, meaningsOf(item), ruleText, { silent: true });
+          addOrUpdateMistake(item.fr, meaningsOf(item), ruleText, mistakeOpts);
         }
         if (revealed && inputEl && !inputEl.value.trim()) {
           inputEl.value = item.fr;
           inputEl.classList.add('text-slate-400', 'italic');
         }
-
         badgeEl.textContent = res.badge;
         feedbackEl.classList.remove('hidden');
         feedbackEl.innerHTML = res.explanation;
       });
 
-      const avgNote = Math.round((totalScore / currentWordBatch.length) * 10) / 10;
-      if (alreadyGraded) {
-        // Second click on "Check" only refreshes the colours: no duplicate history / XP.
-        showToast(t('alreadyGradedToast'));
-        return;
-      }
-      wordBatchChecked = true;
+      const avgNote = Math.round((totalScore / batch.length) * 10) / 10;
       const user = getActiveUser();
-      user.xp = (user.xp || 0) + (perfectCount * 10);
+      user.xp = (user.xp || 0) + (revealed ? 0 : perfectCount * 10);
       user.history.unshift({
         id: 'h_' + Date.now(),
         date: nowStamp(),
-        mode: `Words (${currentWordBatch.length})`,
+        mode: `Words (${batch.length})`,
         score: avgNote,
-        summary: `${perfectCount}/${currentWordBatch.length} perfect words.${revealed ? ' (solutions shown)' : ''}`
+        summary: `${perfectCount}/${batch.length} perfect words.${revealed ? ' (solutions shown)' : ''}`
       });
       saveAppState();
       renderMistakesAndHistoryView();
@@ -3201,9 +3755,22 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
       if (banner && scoreVal && scoreFb) {
         banner.classList.remove('hidden');
         scoreVal.textContent = `${avgNote} / 20`;
-        scoreFb.textContent = avgNote >= 16
-          ? (currentLang === 'ru' ? 'Отличный результат уровня B2! Все неточности сохранены в Банк Ошибок.' : 'Excellent B2 accuracy! Any missed accents were added to your Mistake Bank.')
-          : (currentLang === 'ru' ? 'Все слова с ошибками добавлены в ваш Банк Ошибок для повторной тренировки.' : 'Words with errors have been saved to your Mistake Bank for targeted practice.');
+        scoreFb.textContent = avgNote >= 16 ? t('wordsScoreGood') : t('wordsScoreSaved');
+      }
+    }
+
+    function applyWordReview(results, idx, r, userRaw, item) {
+      if (!r) return;
+      const note = r.note ? ` — ${escapeHtml(r.note)}` : '';
+      const u = escapeHtml(userRaw.trim());
+      if (r.verdict === 'correct') {
+        results[idx] = { score: 20, status: 'perfect', badge: '✅ 20/20',
+          explanation: `🤖 ${t('aiAnswerCorrect')}: <strong class="text-emerald-700">${u}</strong>. ${t('expectedLabel')}: <strong class="font-mono">${escapeHtml(item.fr)}</strong>${note}` };
+      } else if (r.verdict === 'acceptable') {
+        results[idx] = { score: 17, status: 'synonym', badge: '👍 17/20',
+          explanation: `🤖 ${t('aiAnswerWorks')}: <strong class="text-sky-800">${u}</strong> ➔ ${t('betterChoiceLabel')}: <strong class="text-emerald-700 font-mono">${escapeHtml(item.fr)}</strong>${note}` };
+      } else if (r.note) {
+        results[idx].explanation += `<div class="mt-1 text-indigo-700">🤖 ${escapeHtml(r.note)}</div>`;
       }
     }
 
@@ -3244,14 +3811,15 @@ Prefer words with accents (é, è, ê, à, â, ç, î, ô, û, œ) or tricky gen
 For nouns ALWAYS include the article (le/la/l'/les). If the noun starts with a vowel, use "un/une" instead of l' so the gender is visible.
 ${weak.length ? `The learner recently got these wrong; include 1-2 related (not identical) items: ${weak.join(', ')}.` : ''}
 Do NOT use any of these already-known items: ${avoid.join(' | ')}.
-Return a JSON array; each object has: fr (exact French answer), alt (array of other accepted spellings, may be empty), en (English prompt), frDef (short French definition WITHOUT giving the word), ru (Russian prompt), posEn (part of speech + gender, English), ruleEn, ruleFr, ruleRu (one sentence: the spelling/accent/gender rule to remember and why).`;
+Return a JSON array; each object has: category (one of: connectors, admin, imparfait, vandertramp, participles, daily), fr (exact French answer), alt (array of other accepted answers: spelling variants AND close synonyms that are equally correct, may be empty), en (English prompt), frDef (short French definition WITHOUT giving the word), ru (Russian prompt), posEn (part of speech + gender, English), ruleEn, ruleFr, ruleRu (one sentence: the spelling/accent/gender rule to remember and why).`;
 
         const items = await callGeminiJson(sysPrompt, userPrompt, { temperature: 1.1 });
         const valid = Array.isArray(items) ? items.filter(it => it && it.fr && (it.en || it.ru)) : [];
         if (valid.length === 0) throw new Error('AI returned no usable items');
         currentWordBatch = valid.slice(0, wordBatchSize).map((it, idx) => ({
           id: 'ai_w_' + Date.now() + '_' + idx,
-          category: category === 'mistakes' ? 'all' : category,
+          category: (category === 'mistakes' || category === 'all')
+            ? (WORD_CATEGORIES.includes(it.category) ? it.category : 'daily') : category,
           fr: String(it.fr).trim(),
           alt: Array.isArray(it.alt) ? it.alt : [],
           en: it.en || it.ru,
@@ -3297,8 +3865,16 @@ Return a JSON array; each object has: fr (exact French answer), alt (array of ot
       let pool = cat === 'all' ? getAllPhrases() : getAllPhrases().filter(p => p.category === cat);
       const recent = new Set(getRecent('phrases', 20).map(normalizeForCompare));
       const fresh = pool.filter(p => !recent.has(normalizeForCompare(p.fr)));
-      if (fresh.length >= phraseBatchSize) pool = fresh;
-      let batch = pickRandom(pool, Math.min(phraseBatchSize, pool.length));
+      // Phrases you got wrong come back (max 1/3 of the batch), but only from the chosen category
+      const wrongSet = new Set(activeDrillMistakes().filter(m => mistakeKind(m) === 'phrase').map(m => normalizeForCompare(m.fr)));
+      const review = pool.filter(p => wrongSet.has(normalizeForCompare(p.fr)));
+      let picked = pickRandom(review, Math.min(review.length, Math.max(1, Math.round(phraseBatchSize / 3))));
+      picked = (Array.isArray(picked) ? picked : [picked]).filter(Boolean);
+      const pickedKeys = new Set(picked.map(p => normalizeForCompare(p.fr)));
+      let rest = (fresh.length >= phraseBatchSize ? fresh : pool).filter(p => !pickedKeys.has(normalizeForCompare(p.fr)));
+      let others = pickRandom(rest, Math.min(phraseBatchSize - picked.length, rest.length));
+      others = (Array.isArray(others) ? others : [others]).filter(Boolean);
+      let batch = pickRandom([...picked, ...others], picked.length + others.length);
       currentPhraseBatch = (Array.isArray(batch) ? batch : [batch]).filter(Boolean);
       phraseBatchChecked = false;
       rememberRecent('phrases', currentPhraseBatch.map(p => p.fr));
@@ -3349,7 +3925,7 @@ Return a JSON array; each object has: fr (exact French answer), alt (array of ot
     function evaluateSinglePhrase(userRaw, item) {
       const userNorm = normalizeForCompare(userRaw);
       const validTargets = [item.fr, ...(item.alt || [])].map(normalizeForCompare);
-      const ruleText = item.rule?.[currentLang] || item.rule?.en || '';
+      const ruleText = fmtRule(item.rule?.[currentLang] || item.rule?.en || "");
 
       if (!userNorm) {
         return {
@@ -3373,6 +3949,7 @@ Return a JSON array; each object has: fr (exact French answer), alt (array of ot
         return {
           score: 16,
           status: 'accent',
+          accentOnly: true,
           diagnostics: [
             `⚠️ ${currentLang === 'ru' ? 'Структура верная, но проверьте акценты' : 'Sentence structure is right, but check your accents'}: <strong class="text-emerald-700">${item.fr}</strong>`,
             ruleText
@@ -3404,63 +3981,86 @@ Return a JSON array; each object has: fr (exact French answer), alt (array of ot
         status: partialScore >= 12 ? 'accent' : 'wrong',
         diagnostics: [
           ...trapsFound,
-          `${currentLang === 'ru' ? 'Ваш вариант' : 'Your sentence'}: <del class="text-rose-600">${userRaw}</del>`,
+          `${currentLang === 'ru' ? 'Ваш вариант' : (currentLang === 'fr' ? 'Votre phrase' : 'Your sentence')}: <del class="text-rose-600">${escapeHtml(userRaw)}</del>`,
           `${currentLang === 'ru' ? 'Эталон B2' : 'Model B2 phrase'}: <strong class="text-emerald-700">${item.fr}</strong>`,
           ruleText
         ]
       };
     }
 
-    function checkPhraseBatch(revealed = false) {
+    async function checkPhraseBatch(revealed = false) {
       if (currentPhraseBatch.length === 0) return;
-      const alreadyGraded = phraseBatchChecked;
-      let total = 0;
+      if (phraseBatchChecked) { showToast(t('alreadyGradedToast')); return; }
+      phraseBatchChecked = true;
+      const batch = currentPhraseBatch;
+      const values = batch.map((_, idx) => document.getElementById(`phrase-input-${idx}`)?.value || '');
+      const results = batch.map((item, idx) => evaluateSinglePhrase(values[idx], item));
 
-      currentPhraseBatch.forEach((item, idx) => {
+      // Sentences that are not an exact match may still be correct French (synonyms, other structure): ask the AI.
+      let aiUsed = false;
+      if (!revealed) {
+        const entries = [];
+        results.forEach((r, idx) => {
+          if (r.status !== 'perfect' && !r.accentOnly && values[idx].trim()) {
+            const it = batch[idx];
+            entries.push({ i: idx, prompt: it.en || it.frPrompt, expected: it.fr, learner: values[idx].trim() });
+          }
+        });
+        if (entries.length && getCloudAndAiConfig().geminiKey) {
+          setBusy('check-phrases-btn', true, t('aiCheckingSynonyms'));
+          const review = await aiReviewAnswers('phrase', entries);
+          setBusy('check-phrases-btn', false);
+          if (batch !== currentPhraseBatch) return;
+          if (review) { aiUsed = true; entries.forEach(e => applyPhraseReview(results, e.i, review[e.i], batch[e.i])); }
+        }
+      }
+
+      let total = 0;
+      batch.forEach((item, idx) => {
         const inputEl = document.getElementById(`phrase-input-${idx}`);
         const cardEl = document.getElementById(`phrase-card-${idx}`);
         const badgeEl = document.getElementById(`phrase-badge-${idx}`);
         const fbEl = document.getElementById(`phrase-feedback-${idx}`);
-        const val = inputEl ? inputEl.value : '';
         if (!cardEl || !badgeEl || !fbEl) return;
-
-        const res = evaluateSinglePhrase(val, item);
+        const res = results[idx];
         total += res.score;
+        const base = 'rounded-2xl shadow-sm border-2 p-4 sm:p-5 space-y-3 transition-all';
 
         if (res.status === 'perfect') {
-          cardEl.className = 'bg-emerald-50/40 rounded-2xl shadow-sm border-2 border-emerald-400 p-4 sm:p-5 space-y-3 transition-all';
+          cardEl.className = `bg-emerald-50/40 border-emerald-400 ${base}`;
           badgeEl.className = 'text-xs font-extrabold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-lg';
-          badgeEl.textContent = `✅ 20/20`;
-          if (!alreadyGraded) recordMistakeProgress(item.fr, true);
+          badgeEl.textContent = `✅ ${res.score}/20`;
+          recordMistakeProgress(item.fr, true);
+        } else if (res.status === 'synonym') {
+          cardEl.className = `bg-sky-50/50 border-sky-400 ${base}`;
+          badgeEl.className = 'text-xs font-extrabold text-sky-800 bg-sky-100 px-2.5 py-1 rounded-lg';
+          badgeEl.textContent = `👍 ${res.score}/20`;
         } else {
-          cardEl.className = res.score >= 14
-            ? 'bg-amber-50/40 rounded-2xl shadow-sm border-2 border-amber-400 p-4 sm:p-5 space-y-3 transition-all'
-            : 'bg-rose-50/40 rounded-2xl shadow-sm border-2 border-rose-300 p-4 sm:p-5 space-y-3 transition-all';
+          cardEl.className = res.score >= 14 ? `bg-amber-50/40 border-amber-400 ${base}` : `bg-rose-50/40 border-rose-300 ${base}`;
           badgeEl.className = 'text-xs font-extrabold text-amber-900 bg-amber-100 px-2.5 py-1 rounded-lg';
           badgeEl.textContent = `${res.score}/20`;
-          if (!alreadyGraded) addOrUpdateMistake(item.fr, meaningsOf(item), item.rule?.[currentLang] || item.rule?.en, { silent: true });
+          addOrUpdateMistake(item.fr, meaningsOf(item), item.rule?.[currentLang] || item.rule?.en,
+            { silent: true, kind: 'phrase', category: item.category });
         }
         if (revealed && inputEl && !inputEl.value.trim()) {
           inputEl.value = item.fr;
           inputEl.classList.add('text-slate-400', 'italic');
         }
-
+        // Offline only: remind that a different wording can still be right
+        if (!aiUsed && !revealed && res.status !== 'perfect' && !res.accentOnly && values[idx].trim()) {
+          res.diagnostics.push(`<span class="text-slate-500">ℹ️ ${t('offlineSynonymHint')}</span>`);
+        }
         fbEl.classList.remove('hidden');
         fbEl.innerHTML = res.diagnostics.filter(Boolean).map(d => `<div>${d}</div>`).join('');
       });
 
-      const avg = Math.round((total / currentPhraseBatch.length) * 10) / 10;
-      if (alreadyGraded) {
-        showToast(t('alreadyGradedToast'));
-        return;
-      }
-      phraseBatchChecked = true;
+      const avg = Math.round((total / batch.length) * 10) / 10;
       const user = getActiveUser();
       user.xp = (user.xp || 0) + (revealed ? 0 : Math.round(avg));
       user.history.unshift({
         id: 'h_p_' + Date.now(),
         date: nowStamp(),
-        mode: `Phrases (${currentPhraseBatch.length})`,
+        mode: `Phrases (${batch.length})`,
         score: avg,
         summary: `Scored ${avg}/20 on B2 universal sentences.${revealed ? ' (solutions shown)' : ''}`
       });
@@ -3473,9 +4073,25 @@ Return a JSON array; each object has: fr (exact French answer), alt (array of ot
       if (banner && scoreVal && scoreFb) {
         banner.classList.remove('hidden');
         scoreVal.textContent = `${avg} / 20`;
-        scoreFb.textContent = avg >= 16
-          ? 'Great mastery of B2 sentence skeletons!'
-          : 'Any tricky phrases have been added to your Mistake Bank so you can drill them again.';
+        scoreFb.textContent = avg >= 16 ? t('phrasesScoreGood') : t('phrasesScoreSaved');
+      }
+    }
+
+    function applyPhraseReview(results, idx, r, item) {
+      if (!r) return;
+      const clamp = (v, lo, hi, def) => (typeof v === 'number' && isFinite(v)) ? Math.max(lo, Math.min(hi, Math.round(v))) : def;
+      const note = r.note ? `🤖 ${escapeHtml(r.note)}` : '';
+      const model = `${t('modelB2Label')}: <strong class="text-emerald-700">${escapeHtml(item.fr)}</strong>`;
+      if (r.verdict === 'correct') {
+        results[idx] = { score: 20, status: 'perfect', diagnostics: [`<span class="text-emerald-700 font-bold">✅ ${t('aiAnswerCorrect')}</span> ${note}`, model] };
+      } else if (r.verdict === 'acceptable') {
+        results[idx] = { score: clamp(r.score, 15, 19, 17), status: 'synonym', diagnostics: [`<span class="text-sky-800 font-bold">👍 ${t('aiAnswerWorks')}</span> ${note}`, `${t('betterChoiceLabel')}: <strong class="text-emerald-700">${escapeHtml(item.fr)}</strong>`] };
+      } else {
+        const old = results[idx];
+        old.score = clamp(r.score, 0, 14, old.score);
+        old.status = old.score >= 12 ? 'accent' : 'wrong';
+        if (r.corrected) old.diagnostics.splice(1, 0, `🛠️ ${t('yourSentenceFixed')}: <strong class="text-indigo-800">${escapeHtml(r.corrected)}</strong>`);
+        if (note) old.diagnostics.unshift(note);
       }
     }
 
@@ -3502,13 +4118,13 @@ Return a JSON array; each object has: fr (exact French answer), alt (array of ot
         const userPrompt = `Create ${phraseBatchSize} DIFFERENT French sentences (8-20 words each) for: ${catDesc}.
 Theme for this batch: ${topic}. Each sentence must contain at least one B2 structure (connector, relative pronoun, subjunctive, conditional, gérondif, correct participle agreement...).
 Do NOT reuse these sentences: ${avoid.join(' | ')}.
-Return a JSON array; each object has: fr (the sentence), alt (array of 1-2 acceptable variants, e.g. tu/vous or masculine/feminine), en (English translation the learner will translate back), frPrompt (French instruction describing the situation WITHOUT giving the sentence), ru (Russian translation), hint (the skeleton/structure, e.g. "Bien que + subjonctif, ..."), ruleEn, ruleFr, ruleRu (one sentence: why this structure scores at B2 / the trap to avoid).`;
+Return a JSON array; each object has: category (one of: tache1, tache2, tache3, traps), fr (the sentence), alt (array of 1-3 acceptable variants, e.g. tu/vous, masculine/feminine, common synonyms), en (English translation the learner will translate back), frPrompt (French instruction describing the situation WITHOUT giving the sentence), ru (Russian translation), hint (the skeleton/structure, e.g. "Bien que + subjonctif, ..."), ruleEn, ruleFr, ruleRu (one sentence: why this structure scores at B2 / the trap to avoid).`;
         const data = await callGeminiJson(sysPrompt, userPrompt, { temperature: 1.05 });
         const valid = Array.isArray(data) ? data.filter(d => d && d.fr && (d.en || d.ru)) : [];
         if (valid.length === 0) throw new Error('AI returned no usable phrases');
         currentPhraseBatch = valid.slice(0, phraseBatchSize).map((d, i) => ({
           id: 'ai_p_' + Date.now() + '_' + i,
-          category: cat === 'all' ? 'tache3' : cat,
+          category: cat === 'all' ? (['tache1', 'tache2', 'tache3', 'traps'].includes(d.category) ? d.category : 'tache3') : cat,
           fr: String(d.fr).trim(),
           alt: Array.isArray(d.alt) ? d.alt : [],
           en: d.en || d.ru,
@@ -3570,13 +4186,11 @@ Return a JSON array; each object has: fr (the sentence), alt (array of 1-2 accep
       const [mn, mx] = OFFICIAL_BRACKETS[taskKey];
       setWordCountBracket(mn, mx);
 
+      // Keep the subject of the running full exam, or the subject that was graded for this task
+      const lockedId = (fullExamMode && examThemeByTask[taskKey]?.id) || examResults?.themeIds?.[taskKey];
+      const locked = lockedId && getAllThemes().find(th => th.id === lockedId);
+      if (locked) currentExamTheme = locked;
       populateExamThemeSelect();
-      if (fullExamMode && examThemeByTask[taskKey]) {
-        currentExamTheme = examThemeByTask[taskKey];
-        const sel = document.getElementById('exam-theme-select');
-        if (sel) sel.value = currentExamTheme.id;
-        renderActiveExamPrompt();
-      }
 
       // Restore this task's draft
       const ta = document.getElementById('exam-essay-textarea');
@@ -3596,7 +4210,7 @@ Return a JSON array; each object has: fr (the sentence), alt (array of 1-2 accep
         examThemeByTask[k] = pickRandom(getAllThemes().filter(th => th.task === k));
       });
       try { localStorage.setItem(EXAM_DRAFTS_KEY, JSON.stringify({})); } catch (e) {}
-      document.getElementById('exam-evaluation-report')?.classList.add('hidden');
+      examResults = null; saveExamResults();
       document.getElementById('full-exam-banner')?.classList.remove('hidden');
       selectExamTask('tache1', { skipSave: true });
       clearInterval(examTimerInterval);
@@ -3692,7 +4306,7 @@ Return a JSON array; each object has: fr (the sentence), alt (array of 1-2 accep
       document.getElementById('exam-model-answer-text').textContent = currentExamTheme.modelB2 || '—';
       document.getElementById('exam-model-wordcount').textContent = `${modelWords} mots (Niveau B2)`;
       document.getElementById('exam-model-answer-box')?.classList.add('hidden');
-      document.getElementById('exam-evaluation-report')?.classList.add('hidden');
+      renderExamResults();
     }
 
     function renderB2ToolkitSidebar() {
@@ -3821,7 +4435,6 @@ Return a JSON array; each object has: fr (the sentence), alt (array of 1-2 accep
       if (textarea) textarea.value = '';
       saveCurrentDraft();
       updateLiveWordCount();
-      document.getElementById('exam-evaluation-report')?.classList.add('hidden');
     }
 
     // BUILT-IN HYBRID FRENCH B2 ESSAY ANALYZER
@@ -3957,7 +4570,7 @@ Return a JSON array; each object has: fr (the sentence), alt (array of 1-2 accep
     }
 
     // Grades one text. Returns a report object; does NOT touch the DOM.
-    async function gradeEssayText(text, theme, minW, maxW) {
+    async function gradeEssayText(text, theme, minW, maxW, onAttempt) {
       const prevMin = currentMinWords, prevMax = currentMaxWords;
       currentMinWords = minW; currentMaxWords = maxW;
       const report = runLocalFrenchEssayAnalyzer(text);
@@ -3984,7 +4597,8 @@ Required points: ${(theme.points || []).join('; ')}
 Word range: ${minW}-${maxW} words (learner wrote ${report.wordCount}).
 Learner's text:
 """${text}"""`;
-        const aiRes = await callGeminiJson(sysPrompt, userPrompt, { temperature: 0.3 });
+        // 60 s per attempt, 2 min max for this text, short "thinking": a full exam now takes ~1 min instead of up to 20+.
+        const aiRes = await callGeminiJson(sysPrompt, userPrompt, { temperature: 0.3, thinking: 'low', timeoutMs: 60000, maxTotalMs: 120000, onAttempt });
         if (aiRes && typeof aiRes.score === 'number') {
           report.score = Math.max(0, Math.min(20, Math.round(aiRes.score * 10) / 10));
           report.cefr = aiRes.cefr || report.cefr;
@@ -3998,7 +4612,7 @@ Learner's text:
           report.source = 'ai';
         }
       } catch (err) {
-        report.aiError = err.message;
+        report.aiError = /timeout|time limit/i.test(err.message) ? `${t('aiTooSlow')} (${err.message})` : err.message;
       }
       return report;
     }
@@ -4017,7 +4631,7 @@ Learner's text:
         if (iss.correct && iss.wrong) {
           // Local-analyzer corrections are generic rules ("j'ai / j'étais / j'espère") -> saved as notes, not as spelling drills.
           addOrUpdateMistake(iss.correct, { en: `« ${iss.wrong} »`, fr: `« ${iss.wrong} »`, ru: `« ${iss.wrong} »` }, iss.explanation,
-            { silent: true, drillable: !!iss.drillable && String(iss.correct).length <= 60 });
+            { silent: true, drillable: !!iss.drillable && String(iss.correct).length <= 60, kind: 'essay' });
         }
       });
       saveAppState();
@@ -4030,24 +4644,29 @@ Learner's text:
         showToast(t('writeFirstToast'));
         return;
       }
+      saveCurrentDraft();
       const btn = document.getElementById('grade-essay-btn');
       const originalHtml = btn.innerHTML;
       btn.innerHTML = `<span>⏳</span> <span>${t('analyzingLabel')}</span>`;
       btn.disabled = true;
+      const task = currentExamTask, theme = currentExamTheme;
       try {
-        const report = await gradeEssayText(text, currentExamTheme, currentMinWords, currentMaxWords);
-        const container = document.getElementById('exam-evaluation-report');
-        container.innerHTML = renderEssayReportHtml(report);
-        container.classList.remove('hidden');
-        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const report = await gradeEssayText(text, theme, currentMinWords, currentMaxWords,
+          (model) => { btn.innerHTML = `<span>⏳</span> <span>${t('analyzingLabel')} (${escapeHtml(model)})</span>`; });
+        saveEssayResult(report, theme);
+        if (!examResults) examResults = { full: false, reports: {}, themeIds: {} };
+        examResults.reports[task] = report;
+        examResults.themeIds[task] = theme.id;
+        saveExamResults();
+        renderExamResults(true);
         if (report.aiError) aiFailToast(new Error(report.aiError));
-        saveEssayResult(report, currentExamTheme);
       } finally {
         btn.innerHTML = originalHtml;
         btn.disabled = false;
       }
     }
 
+    // All 3 texts are graded AT THE SAME TIME (v1.2 graded them one after another).
     async function gradeFullExam() {
       saveCurrentDraft();
       const drafts = loadExamDrafts();
@@ -4056,36 +4675,98 @@ Learner's text:
       clearInterval(examTimerInterval);
       isExamTimerRunning = false;
       const btn = document.getElementById('grade-full-exam-btn');
-      if (btn) { btn.disabled = true; btn.textContent = '⏳ ' + t('analyzingLabel'); }
-      const container = document.getElementById('exam-evaluation-report');
-      const reports = [];
-      for (const k of tasks) {
-        const theme = examThemeByTask[k] || getAllThemes().find(th => th.task === k);
+      let done = 0;
+      const toGrade = tasks.filter(k => (drafts[k] || '').trim()).length;
+      const showProgress = () => { if (btn) btn.textContent = `⏳ ${t('analyzingLabel')} ${done}/${toGrade}`; };
+      if (btn) btn.disabled = true;
+      showProgress();
+      const themes = {};
+      tasks.forEach(k => { themes[k] = examThemeByTask[k] || getAllThemes().find(th => th.task === k); });
+      const reports = await Promise.all(tasks.map(async (k) => {
         const text = (drafts[k] || '').trim();
         const [mn, mx] = OFFICIAL_BRACKETS[k];
-        let rep;
         if (!text) {
-          rep = { score: 0, cefr: 'A1 non atteint', wordCount: 0, issues: [], strengths: t('taskNotDone'), minW: mn, maxW: mx, taskLabel: k.toUpperCase().replace('TACHE', 'TÂCHE ') };
-        } else {
-          rep = await gradeEssayText(text, theme, mn, mx);
-          saveEssayResult(rep, theme);
+          return { score: 0, cefr: 'A1 non atteint', wordCount: 0, issues: [], strengths: t('taskNotDone'), minW: mn, maxW: mx, taskLabel: k.toUpperCase().replace('TACHE', 'TÂCHE ') };
         }
-        reports.push(rep);
-      }
-      const avg = Math.round(reports.reduce((a, r) => a + (Number(r.score) || 0), 0) / 3 * 10) / 10;
-      const anyFail = reports.some(r => r.wordCount < r.minW || r.wordCount > r.maxW);
-      container.innerHTML = `
-        <div class="bg-gradient-to-r from-blue-700 to-indigo-700 text-white px-5 py-4">
-          <div class="text-[11px] font-bold uppercase tracking-wider text-blue-200">${t('fullExamResultTitle')}</div>
-          <div class="text-2xl font-extrabold">${avg} / 20</div>
-          ${anyFail ? `<div class="mt-1 text-xs font-bold text-amber-200">⚠️ ${t('wordRuleWarning')}</div>` : ''}
-        </div>
-        ${reports.map(r => renderEssayReportHtml(r)).join('<div class="h-2 bg-slate-100"></div>')}`;
-      container.classList.remove('hidden');
-      container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const rep = await gradeEssayText(text, themes[k], mn, mx);
+        done++; showProgress();
+        return rep;
+      }));
+      tasks.forEach((k, i) => { if ((drafts[k] || '').trim()) saveEssayResult(reports[i], themes[k]); });
+      examResults = { full: true, reports: {}, themeIds: {} };
+      tasks.forEach((k, i) => { examResults.reports[k] = reports[i]; examResults.themeIds[k] = themes[k]?.id; });
+      saveExamResults();
       if (btn) { btn.disabled = false; btn.textContent = '🏁 ' + t('gradeFullExamBtn'); }
       if (reports.some(r => r.aiError)) aiFailToast(new Error(reports.find(r => r.aiError).aiError));
       exitFullExam();
+      renderExamResults(true);
+    }
+
+    // ---- Results stay on screen (per task) until the learner presses "Reset results" ----
+    const EXAM_RESULTS_KEY = 'tcf_irn_exam_results_v1';
+    let examResults = loadJsonLS(EXAM_RESULTS_KEY, null);
+    function saveExamResults() {
+      try {
+        if (examResults) localStorage.setItem(EXAM_RESULTS_KEY, JSON.stringify(examResults));
+        else localStorage.removeItem(EXAM_RESULTS_KEY);
+      } catch (e) {}
+    }
+    function examResultAverage() {
+      const r = examResults?.reports || {};
+      return Math.round(['tache1', 'tache2', 'tache3'].reduce((a, k) => a + (Number(r[k]?.score) || 0), 0) / 3 * 10) / 10;
+    }
+    function resetExamResults() {
+      examResults = null;
+      saveExamResults();
+      renderExamResults();
+      showToast(t('resultsResetToast'));
+    }
+    function showResultForTask(k) {
+      selectExamTask(k);
+      document.getElementById('exam-evaluation-report')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function renderExamResults(scroll = false) {
+      const container = document.getElementById('exam-evaluation-report');
+      if (!container) return;
+      if (!examResults || !Object.keys(examResults.reports || {}).length) {
+        container.classList.add('hidden');
+        container.innerHTML = '';
+        return;
+      }
+      const tasks = ['tache1', 'tache2', 'tache3'];
+      const reports = examResults.reports;
+      // Show this task's report only if it was written on the subject now on screen
+      const rep = reports[currentExamTask];
+      const sameTheme = rep && (!currentExamTheme || examResults.themeIds[currentExamTask] === currentExamTheme.id);
+      const chips = tasks.map(k => {
+        const r = reports[k];
+        const active = k === currentExamTask;
+        const label = k.toUpperCase().replace('TACHE', 'T');
+        const val = r ? `${r.score}/20` : '—';
+        const warn = r && (r.wordCount < r.minW || r.wordCount > r.maxW) ? ' ⛔' : '';
+        return `<button type="button" onclick="showResultForTask('${k}')" class="px-3 py-1.5 rounded-xl text-xs font-extrabold transition ${active ? 'bg-white text-blue-800 shadow' : 'bg-white/15 hover:bg-white/25 text-white'}">${label}: ${val}${warn}</button>`;
+      }).join('');
+      const anyFail = tasks.some(k => reports[k] && (reports[k].wordCount < reports[k].minW || reports[k].wordCount > reports[k].maxW));
+      const header = `
+        <div class="bg-gradient-to-r from-blue-700 to-indigo-700 text-white px-5 py-4 space-y-2">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div class="text-[11px] font-bold uppercase tracking-wider text-blue-200">${examResults.full ? t('fullExamResultTitle') : t('resultsTitle')}</div>
+              ${examResults.full ? `<div class="text-2xl font-extrabold">${examResultAverage()} / 20</div>` : ''}
+            </div>
+            <button type="button" onclick="resetExamResults()" class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-rose-500 hover:bg-rose-400 text-white shadow-sm">🔄 ${t('resetResultsBtn')}</button>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">${chips}</div>
+          <div class="text-[11px] text-blue-100">${t('resultsHint')}</div>
+          ${examResults.full && anyFail ? `<div class="text-xs font-bold text-amber-200">⚠️ ${t('wordRuleWarning')}</div>` : ''}
+        </div>`;
+      const body = sameTheme
+        ? renderEssayReportHtml(rep)
+        : `<div class="p-5 text-sm text-slate-600">${rep ? t('resultOtherSubject') : t('noResultForTask')}</div>`;
+      container.innerHTML = header + body;
+      container.classList.remove('hidden');
+      if (scroll) container.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function renderEssayReportHtml(report) {
@@ -4218,6 +4899,8 @@ Return JSON: { "titleEn", "titleFr", "titleRu" (short titles starting with "Tâc
         existing.lastSeen = Date.now();
         if (rule) existing.rule = rule;
         if (meanings && !existing.meanings) existing.meanings = meanings;
+        if (opts.kind && !existing.kind) existing.kind = opts.kind;
+        if (opts.category && !existing.category) existing.category = opts.category;
       } else {
         user.mistakeBank.unshift({
           id: 'mb_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
@@ -4229,6 +4912,8 @@ Return JSON: { "titleEn", "titleFr", "titleRu" (short titles starting with "Tâc
           errors: 1,
           lastSeen: Date.now(),
           drillable: opts.drillable === false ? false : true,
+          kind: opts.kind || undefined,
+          category: opts.category || undefined,
           mastered: false
         });
       }
@@ -4265,7 +4950,7 @@ Return JSON: { "titleEn", "titleFr", "titleRu" (short titles starting with "Tâc
 
     function PracticeMistakesInWordsMode() {
       const user = getActiveUser();
-      const active = (user.mistakeBank || []).filter(m => !m.mastered && m.drillable !== false);
+      const active = (user.mistakeBank || []).filter(m => !m.mastered && m.drillable !== false && mistakeKind(m) !== 'phrase');
       if (active.length === 0) {
         showToast(t('noActiveMistakes'));
         return;

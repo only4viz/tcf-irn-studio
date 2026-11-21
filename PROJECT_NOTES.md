@@ -6,7 +6,8 @@
 - **Goal**: help adults pass the **TCF IRN** (Intégration, Résidence, Nationalité) writing test at **level B2** (B2 is required for French naturalisation).
 - **Users now**: owner + close relatives (beta). **Later**: commercial app (store / subscription).
 - **Interface languages**: English, French, Russian.
-- **Live version**: `index.html` (root) → GitHub repo `only4viz/tcf-irn-studio`, branch `main`.
+- **Live version**: `index.html` (root) → GitHub repo `only4viz/tcf-irn-studio`, branch `main` → GitHub Pages: https://only4viz.github.io/tcf-irn-studio/ (updates ~1 min after a push).
+- Commits are signed `only4viz <357567804+only4viz@users.noreply.github.com>` (GitHub private noreply address, keeps the personal email out of the public repo).
 
 ### Modes
 1. **Words drill** – spelling, accents (é è ê à ç…), gender (le/la). Score /20, mistakes saved.
@@ -17,7 +18,8 @@
 
 ### Tech
 - One HTML file, Tailwind (CDN), Supabase JS (CDN), Gemini REST API (browser `fetch`).
-- Storage keys (localStorage): `tcf_irn_studio_state_v1` (profiles), `tcf_irn_cloud_config_v1` (keys), `tcf_irn_ai_bank_v1` (AI-generated items cached offline), `tcf_irn_recent_items_v1` (anti-repetition), `tcf_irn_exam_drafts_v1` (essay drafts), `tcf_irn_lang_v1` (UI language).
+- Storage keys (localStorage): `tcf_irn_studio_state_v1` (profiles), `tcf_irn_cloud_config_v1` (keys), `tcf_irn_ai_bank_v1` (AI-generated items cached offline), `tcf_irn_recent_items_v1` (anti-repetition), `tcf_irn_exam_drafts_v1` (essay drafts), `tcf_irn_exam_results_v1` (last graded results, kept until "Reset results"), `tcf_irn_lang_v1` (UI language).
+- AI calls: 45 s limit per attempt (60 s for essay grading), 2 min max per call, "thinking" limited (`thinkingLevel: low` on Gemini 3.x, `thinkingBudget: 1024` on 2.5; retried without it if a model refuses).
 - Supabase table `tcf_irn_users (id text pk, name, data jsonb, updated_at)`, realtime enabled.
 - Gemini models: **auto-detected** from Google's model list for the user's key (newest stable `flash` first, then `flash-lite`, previews last), cached 24 h in `tcf_irn_gemini_models_v1`; retired models (404) are dropped automatically. Fallback list if detection fails: `gemini-3.5-flash`, `gemini-3.5-flash-lite`, `gemini-flash-latest`, `gemini-flash-lite-latest`, `gemini-2.5-flash`. Key sent **only** in the `x-goog-api-key` header.
 
@@ -32,11 +34,21 @@
 - "A1 non atteint" if: word count not respected, off-topic, a task missing, illegible.
 - Re-corrections of writing/speaking suspended from 1 Sept 2026 (back autumn 2027).
 
-## 3. Current state (v1.2, 2026-11-19)
-- Offline bank: **40 words, 15 phrases, 12 exam subjects** (+ everything Gemini generates, cached per device).
+## 3. Current state (v1.3, 2026-11-21)
+- Offline bank: **112 words (16–24 per category), 50 phrases (10–14 per category), 18 exam subjects (6 per task)** (+ everything Gemini generates, cached per device).
 - Exam ranges now follow the official table above (v1.0 had Tâche 3 at 90–110 words = would be "A1 non atteint").
 
 ## 4. Changelog
+### v1.3 — 2026-11-21
+Owner feedback after testing v1.2 (5 notes + "grading sometimes takes 20+ min").
+- **Slow grading fixed**: v1.2 had no time limit on Google requests (a busy server could hold one for minutes), tried up to 4 models one after another, graded the 3 texts one after another, and let "thinking" models think without limit. Now: time limit per attempt + per call, the 3 texts are graded **in parallel**, short thinking, live label "Analyzing… 1/3 (model)". If the AI is too slow, the offline result is shown with a clear message.
+- **Results stay on screen**: after grading (full exam or one task), clicking T1/T2/T3 shows each text with its own correction; the graded subject stays selected; results survive a page refresh. A **🔄 Reset results** button clears them. Changing the subject shows "graded on another subject" instead of deleting the result.
+- **Topic filters really filter**: v1.2 mixed ~1/3 of *all* active mistakes into every batch (even whole phrases in the Words drill, whatever the category). Now mistakes remember their kind (word/phrase/essay) and category; only matching ones come back. Phrase mistakes now come back in the Phrases drill (same category). Old mistakes are classified automatically. AI batches made in "All" are filed in the right category (v1.2 put all phrases under Tâche 3).
+- **Synonyms accepted**: with a Gemini key, answers that don't match the expected text are checked by the AI once per batch: "✅ correct too" (20/20), "👍 works, but better: X" (17/20, not saved as a mistake) or explained errors + your sentence corrected (phrases). 25 s limit; offline the app explains that a different wording may still be right. AI prompts now ask for synonyms in `alt`.
+- **Bigger offline bank**: +72 words, +35 phrases, +6 subjects (all model answers counted inside the official ranges). Two duplicate words replaced (*à cause de*, *par conséquent*).
+- Rules display *italic* / `code` formatting instead of raw stars; user text escaped in feedback.
+- Tested with simulated Google responses (timeout → next model, parallel grading, synonym verdicts, reset, reload, RU, offline). **Not yet tested with the owner's real key.**
+
 ### v1.2 — 2026-11-19
 - Owner's Test showed: `gemini-2.5-flash-lite: HTTP 404 — no longer available to new users… use gemini-3.5-flash-lite`. The hard-coded model names were retired for new keys.
 - Fix: the app now asks Google which models the key can use (ListModels) and picks the best `flash` model automatically; retired models are skipped and forgotten; cache 24 h; Test button refreshes the list and shows which model answered.
@@ -88,6 +100,8 @@
 - Realtime update replaces a profile without comparing `updated_at` (last write wins).
 - Phrases "traps" category still small (2 items offline).
 - Offline essay checker is rule-based (a few traps only); scores without AI are indicative.
+- Offline Words/Phrases check can't recognise synonyms that are not in `alt` (AI check needed). Some phrases are given in one gender only (alt lists the other where it matters).
+- Free Gemini quota: 3 parallel grading calls + retries can hit the per-minute limit (429) on some keys; the app then falls back to the next model / offline result.
 
 ## 6. Security (MUST fix before going commercial — owner chose "later", 2026-11-19)
 - Supabase policy `for all using (true)` + anon key inside `index.html` ⇒ anyone can read/modify/delete **all** users' data.
@@ -103,6 +117,10 @@
 - [ ] Real spaced repetition (review dates: 1 d / 3 d / 7 d / 21 d) instead of "2 correct in a row".
 - [ ] Progress chart (score per task over time) and "weak points" summary.
 - [ ] Dictation / listening-free "correct the text" exercises (find the 5 mistakes).
+
+### Ideas discussed (2026-11-21)
+- **Local/offline LLM instead of Gemini?** Not for now: a model good enough to grade French at B2 is several GB, slow on phones, and weaker than Gemini at catching accent/agreement errors. Training one ourselves is far beyond the budget. Better path: keep the offline bank (rules + data) for drills, use an online AI for grading; for the commercial version, call it through our own backend (key hidden, quotas).
+- **Expression orale (speaking)**: needs an online model with speech (e.g. Gemini Live / audio input) — good premium feature for v2.x. Prototype: record answer → transcript + examiner feedback.
 
 ### v2.0 (when beta is polished — commercial prep)
 - [ ] Split into modules (data/, js/, css/, i18n/) with a build step (Vite). Tailwind compiled (no CDN).
