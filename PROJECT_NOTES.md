@@ -34,11 +34,18 @@
 - "A1 non atteint" if: word count not respected, off-topic, a task missing, illegible.
 - Re-corrections of writing/speaking suspended from 1 Sept 2026 (back autumn 2027).
 
-## 3. Current state (v1.3, 2026-11-21)
-- Offline bank: **112 words (16–24 per category), 50 phrases (10–14 per category), 18 exam subjects (6 per task)** (+ everything Gemini generates, cached per device).
+## 3. Current state (v1.4, 2026-11-24)
+- Offline bank: **112 words (16–24 per category), 50 phrases (10–14 per category), 21 exam subjects (7 per task)** (+ everything Gemini generates, cached per device).
 - Exam ranges now follow the official table above (v1.0 had Tâche 3 at 90–110 words = would be "A1 non atteint").
 
 ## 4. Changelog
+### v1.4 — 2026-11-24
+- 3 new exam subjects requested by the owner (FR prompt + EN/RU translations, required points, B2 model answer counted inside the official range):
+  - T1 `t1_nouvelle_boulangerie` — reply to a friend: describe the new bakery nearby + your opinion (model 57/60 words).
+  - T2 `t2_soiree_parc` — tell a friend about an evening with friends in the park (model 76/90).
+  - T3 `t3_seul_ou_equipe` — opinion: working alone or in a team, pros and cons (model 71/90).
+- Tested in a Supabase-blanked copy: subjects listed per task, prompt + model shown, RU titles OK, no console errors.
+
 ### v1.3 — 2026-11-21
 Owner feedback after testing v1.2 (5 notes + "grading sometimes takes 20+ min").
 - **Slow grading fixed**: v1.2 had no time limit on Google requests (a busy server could hold one for minutes), tried up to 4 models one after another, graded the 3 texts one after another, and let "thinking" models think without limit. Now: time limit per attempt + per call, the 3 texts are graded **in parallel**, short thinking, live label "Analyzing… 1/3 (model)". If the AI is too slow, the offline result is shown with a clear message.

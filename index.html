@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TCF IRN B2 — Expression Écrite Studio</title>
-  <!-- APP VERSION: v1.3 (2026-11-21) — see PROJECT_NOTES.md for the changelog -->
+  <!-- APP VERSION: v1.4 (2026-11-24) — see PROJECT_NOTES.md for the changelog -->
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231e3a8a'/%3E%3Crect x='6' y='6' width='17' height='52' rx='8' fill='%232563eb'/%3E%3Crect x='23' y='6' width='18' height='52' fill='%23ffffff'/%3E%3Crect x='41' y='6' width='17' height='52' rx='8' fill='%23ef4444'/%3E%3Ccircle cx='32' cy='32' r='14' fill='%231e293b'/%3E%3Ctext x='32' y='37' font-family='Arial,sans-serif' font-size='13' font-weight='bold' fill='%23ffffff' text-anchor='middle'%3EB2%3C/text%3E%3C/svg%3E" />
 
@@ -2626,6 +2626,44 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         },
         points: ["Présenter la personne", "Qualités justifiées", "Exemple concret", "Conclusion"],
         modelB2: "J'admire beaucoup ma grand-mère. Selon moi, c'est une femme exceptionnelle. En effet, elle a élevé quatre enfants tout en travaillant à l'hôpital. De plus, elle reste toujours généreuse et patiente, bien que sa vie n'ait pas été facile. Par exemple, elle aide encore les voisins âgés de son immeuble. C'est pourquoi elle est un véritable modèle pour moi."
+      },
+
+      // ---- v1.4 additions (owner's requests) ----
+      {
+        id: "t1_nouvelle_boulangerie", task: "tache1", register: "Amical (Tu)", defaultMin: 30, defaultMax: 60,
+        title: { en: "Tâche 1 • The new bakery near your home", fr: "Tâche 1 • La nouvelle boulangerie du quartier", ru: "Tâche 1 • Новая пекарня рядом с домом" },
+        promptFr: "Une nouvelle boulangerie vient d'ouvrir près de chez vous. Votre amie Claire vous demande si elle est bien. Vous lui répondez : vous décrivez la boulangerie et vous donnez votre avis. (30 mots minimum/60 mots maximum)",
+        promptTrans: {
+          en: "A new bakery has just opened near your home. Your friend Claire asks you if it's good. Reply: describe the bakery and give your opinion.",
+          fr: "Décrivez le lieu (situation, décor, produits, accueil) et dites ce que vous en pensez.",
+          ru: "Рядом с вашим домом открылась новая пекарня. Ваша подруга Клэр спрашивает, хорошая ли она. Ответьте ей: опишите пекарню и выскажите своё мнение."
+        },
+        points: ["Où elle se trouve", "Description (décor, produits)", "Accueil / prix", "Votre avis + conseil"],
+        modelB2: "Coucou Claire,\n\nOui, je l'ai testée samedi ! Elle se trouve juste en face de la pharmacie. La boutique est petite mais lumineuse, avec une jolie décoration en bois. Le pain est croustillant et les croissants sont délicieux. En plus, la boulangère est très souriante et les prix restent raisonnables.\n\nJe te la conseille vivement !\nBises"
+      },
+      {
+        id: "t2_soiree_parc", task: "tache2", register: "Amical (Tu)", defaultMin: 40, defaultMax: 90,
+        title: { en: "Tâche 2 • An evening with friends in the park", fr: "Tâche 2 • Une soirée entre amis au parc", ru: "Tâche 2 • Вечер с друзьями в парке" },
+        promptFr: "Hier soir, vous avez passé la soirée avec des amis dans un parc. Vous écrivez un message à un ami qui n'a pas pu venir pour lui raconter cette soirée : ce que vous avez fait, l'ambiance et vos impressions. (40 mots minimum/90 mots maximum)",
+        promptTrans: {
+          en: "Last night you spent the evening with friends in a park. Write to a friend who couldn't come and tell him about the evening: what you did, the atmosphere and your impressions.",
+          fr: "Racontez au passé : passé composé pour les actions, imparfait pour le décor, la météo et les sentiments.",
+          ru: "Вчера вечером вы провели время с друзьями в парке. Напишите другу, который не смог прийти: расскажите, что вы делали, какая была атмосфера и ваши впечатления."
+        },
+        points: ["Quand / où / avec qui", "Activités (passé composé)", "Ambiance, météo (imparfait)", "Impression finale"],
+        modelB2: "Salut Thomas,\n\nDommage que tu n'aies pas pu venir hier soir ! Nous nous sommes retrouvés vers dix-neuf heures au parc de la Tête d'Or. Il faisait encore chaud, alors nous nous sommes installés sur l'herbe près du lac. Chacun avait apporté quelque chose à manger. Après le pique-nique, nous avons joué aux cartes et Léo a sorti sa guitare. L'ambiance était vraiment détendue. Nous sommes rentrés vers minuit, fatigués mais ravis.\n\nÀ la prochaine !"
+      },
+      {
+        id: "t3_seul_ou_equipe", task: "tache3", register: "Standard (Forum)", defaultMin: 40, defaultMax: 90,
+        title: { en: "Tâche 3 • Working alone or in a team?", fr: "Tâche 3 • Travailler seul ou en équipe ?", ru: "Tâche 3 • Работать одному или в команде?" },
+        promptFr: "Sur un forum consacré à la vie professionnelle, on demande : « Vaut-il mieux travailler seul ou en équipe ? » Vous donnez votre opinion en présentant les avantages et les inconvénients, et vous la justifiez. (40 mots minimum/90 mots maximum)",
+        promptTrans: {
+          en: "On a forum about working life, someone asks: “Is it better to work alone or in a team?” Give your opinion, presenting the pros and cons, and justify it.",
+          fr: "Présentez les avantages et les inconvénients des deux façons de travailler, puis prenez position et concluez.",
+          ru: "На форуме о работе спрашивают: «Что лучше — работать одному или в команде?» Выскажите своё мнение, приведите плюсы и минусы и обоснуйте его."
+        },
+        points: ["Avantages du travail en équipe", "Inconvénients / avantages du travail seul", "Votre position (nuancée)", "Conclusion"],
+        modelB2: "À mon avis, le travail en équipe est souvent plus efficace. D'une part, on partage les idées et on apprend des autres. D'autre part, on se sent moins seul face aux difficultés. Cependant, travailler en groupe demande du temps, car il faut se mettre d'accord. En revanche, quand on travaille seul, on est plus concentré et on avance à son rythme. Finalement, je pense que l'idéal est d'alterner selon les tâches."
       }
     );
 
