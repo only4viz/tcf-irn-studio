@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TCF IRN B2 — Expression Écrite Studio</title>
-  <!-- APP VERSION: v1.4 (2026-11-24) — see PROJECT_NOTES.md for the changelog -->
+  <!-- APP VERSION: v1.5 (2026-11-24) — see PROJECT_NOTES.md for the changelog -->
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231e3a8a'/%3E%3Crect x='6' y='6' width='17' height='52' rx='8' fill='%232563eb'/%3E%3Crect x='23' y='6' width='18' height='52' fill='%23ffffff'/%3E%3Crect x='41' y='6' width='17' height='52' rx='8' fill='%23ef4444'/%3E%3Ccircle cx='32' cy='32' r='14' fill='%231e293b'/%3E%3Ctext x='32' y='37' font-family='Arial,sans-serif' font-size='13' font-weight='bold' fill='%23ffffff' text-anchor='middle'%3EB2%3C/text%3E%3C/svg%3E" />
 
@@ -995,7 +995,8 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         resultsTitle: "Your results",
         resetResultsBtn: "Reset results",
         resultsHint: "Click T1 / T2 / T3 (or the task buttons) to see each text and its correction. Results stay until you press Reset.",
-        resultsResetToast: "Results cleared.",
+        resultsResetToast: "Results and texts cleared.",
+        confirmResetResults: "Clear the results and the graded texts? This cannot be undone.",
         resultOtherSubject: "This task was graded on another subject. Choose that subject again to see its correction, or grade this text.",
         noResultForTask: "No result for this task yet: write your text and grade it.",
         aiCheckingSynonyms: "AI is checking your other wordings...",
@@ -1160,7 +1161,8 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         resultsTitle: "Vos résultats",
         resetResultsBtn: "Effacer les résultats",
         resultsHint: "Cliquez sur T1 / T2 / T3 (ou les boutons de tâche) pour revoir chaque texte et sa correction. Les résultats restent jusqu'à ce que vous les effaciez.",
-        resultsResetToast: "Résultats effacés.",
+        resultsResetToast: "Résultats et textes effacés.",
+        confirmResetResults: "Effacer les résultats et les textes corrigés ? Cette action est définitive.",
         resultOtherSubject: "Cette tâche a été corrigée sur un autre sujet. Choisissez de nouveau ce sujet pour revoir la correction, ou faites corriger ce texte.",
         noResultForTask: "Pas encore de résultat pour cette tâche : écrivez votre texte et faites-le corriger.",
         aiCheckingSynonyms: "L'IA vérifie vos autres formulations...",
@@ -1325,7 +1327,8 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         resultsTitle: "Ваши результаты",
         resetResultsBtn: "Сбросить результаты",
         resultsHint: "Нажмите T1 / T2 / T3 (или кнопки заданий), чтобы посмотреть каждый текст и его разбор. Результаты остаются, пока вы их не сбросите.",
-        resultsResetToast: "Результаты сброшены.",
+        resultsResetToast: "Результаты и тексты удалены.",
+        confirmResetResults: "Удалить результаты и проверенные тексты? Это действие нельзя отменить.",
         resultOtherSubject: "Это задание проверено по другой теме. Выберите ту тему снова, чтобы увидеть разбор, или проверьте этот текст.",
         noResultForTask: "Для этого задания пока нет результата: напишите текст и отправьте на проверку.",
         aiCheckingSynonyms: "ИИ проверяет ваши варианты...",
@@ -4753,9 +4756,18 @@ Learner's text:
       const r = examResults?.reports || {};
       return Math.round(['tache1', 'tache2', 'tache3'].reduce((a, k) => a + (Number(r[k]?.score) || 0), 0) / 3 * 10) / 10;
     }
+    // Reset = clear the results AND the texts that were graded, so the next attempt starts empty
     function resetExamResults() {
+      if (!confirm(t('confirmResetResults'))) return;
+      const graded = Object.keys(examResults?.reports || {});
+      const drafts = loadExamDrafts();
+      graded.forEach(k => { delete drafts[k]; });
+      try { localStorage.setItem(EXAM_DRAFTS_KEY, JSON.stringify(drafts)); } catch (e) {}
       examResults = null;
       saveExamResults();
+      const ta = document.getElementById('exam-essay-textarea');
+      if (ta) ta.value = drafts[currentExamTask] || '';
+      updateLiveWordCount();
       renderExamResults();
       showToast(t('resultsResetToast'));
     }

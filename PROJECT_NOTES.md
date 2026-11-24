@@ -34,11 +34,15 @@
 - "A1 non atteint" if: word count not respected, off-topic, a task missing, illegible.
 - Re-corrections of writing/speaking suspended from 1 Sept 2026 (back autumn 2027).
 
-## 3. Current state (v1.4, 2026-11-24)
+## 3. Current state (v1.5, 2026-11-24)
 - Offline bank: **112 words (16–24 per category), 50 phrases (10–14 per category), 21 exam subjects (7 per task)** (+ everything Gemini generates, cached per device).
 - Exam ranges now follow the official table above (v1.0 had Tâche 3 at 90–110 words = would be "A1 non atteint").
 
 ## 4. Changelog
+### v1.5 — 2026-11-24
+- "🔄 Reset results" now also clears the texts that were graded (all 3 after a full exam, or the graded task), so the next attempt starts with an empty box. It asks for confirmation first (EN/FR/RU). Owner request: old text stayed in the box after reset.
+- Tested in a Supabase-blanked copy: cancel keeps text + results; confirm empties textarea, drafts, results, word counter.
+
 ### v1.4 — 2026-11-24
 - 3 new exam subjects requested by the owner (FR prompt + EN/RU translations, required points, B2 model answer counted inside the official range):
   - T1 `t1_nouvelle_boulangerie` — reply to a friend: describe the new bakery nearby + your opinion (model 57/60 words).
