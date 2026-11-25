@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TCF IRN B2 — Expression Écrite Studio</title>
-  <!-- APP VERSION: v1.5 (2026-11-24) — see PROJECT_NOTES.md for the changelog -->
+  <!-- APP VERSION: v1.6 (2026-11-25) — see PROJECT_NOTES.md for the changelog -->
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231e3a8a'/%3E%3Crect x='6' y='6' width='17' height='52' rx='8' fill='%232563eb'/%3E%3Crect x='23' y='6' width='18' height='52' fill='%23ffffff'/%3E%3Crect x='41' y='6' width='17' height='52' rx='8' fill='%23ef4444'/%3E%3Ccircle cx='32' cy='32' r='14' fill='%231e293b'/%3E%3Ctext x='32' y='37' font-family='Arial,sans-serif' font-size='13' font-weight='bold' fill='%23ffffff' text-anchor='middle'%3EB2%3C/text%3E%3C/svg%3E" />
 
@@ -159,8 +159,11 @@
           <button onclick="switchTab('exam')" id="tab-btn-exam" class="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap text-slate-300 hover:text-white hover:bg-slate-700/60">
             <span>📝</span> <span data-i18n="tabExam">3. TCF Exam Simulator (Tâche 1-3)</span>
           </button>
+          <button onclick="switchTab('errors')" id="tab-btn-errors" class="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap text-slate-300 hover:text-white hover:bg-slate-700/60">
+            <span>🔍</span> <span data-i18n="tabErrors">4. Find the Errors</span>
+          </button>
           <button onclick="switchTab('mistakes')" id="tab-btn-mistakes" class="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap text-slate-300 hover:text-white hover:bg-slate-700/60">
-            <span>🎯</span> <span data-i18n="tabMistakes">4. Mistake Bank & Progress</span>
+            <span>🎯</span> <span data-i18n="tabMistakes">5. Mistake Bank & Progress</span>
             <span id="nav-mistake-badge" class="px-1.5 py-0.2 rounded-full text-[11px] bg-rose-500/20 text-rose-300 border border-rose-500/40 font-mono">0</span>
           </button>
           <button onclick="switchTab('cheatsheet')" id="tab-btn-cheatsheet" class="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap text-slate-300 hover:text-white hover:bg-slate-700/60">
@@ -549,7 +552,82 @@
     </section>
 
     <!-- =================================================================== -->
-    <!-- MODULE 4: PERSONAL MISTAKE BANK & USER PROGRESS                     -->
+    <!-- MODULE 4 (v1.6): ERROR HUNT — find and fix the mistakes in a text   -->
+    <!-- =================================================================== -->
+    <section id="view-errors" class="hidden space-y-5">
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-5">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 mb-1">
+              <span>🔍</span> <span data-i18n="mode4Badge">MODE 4 • CHASSE AUX ERREURS</span>
+            </span>
+            <h2 class="text-lg sm:text-xl font-extrabold text-slate-900" data-i18n="ehTitle">Find & Fix the Errors</h2>
+            <p class="text-xs sm:text-sm text-slate-600" data-i18n="ehDesc">A TCF-style text with hidden mistakes (accents, gender, agreement, être/avoir...). Tap a word to correct it.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2.5">
+            <div>
+              <label class="block text-[11px] font-bold uppercase text-slate-400 mb-1" data-i18n="ehTaskLabel">Task</label>
+              <select id="eh-task-select" onchange="newErrorText()" class="bg-slate-50 border border-slate-300 text-slate-800 text-xs sm:text-sm font-semibold rounded-xl px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                <option value="all" data-i18n="ehTaskAll">All tasks</option>
+                <option value="tache1" data-i18n="ehTask1">Tâche 1 • Message / description</option>
+                <option value="tache2" data-i18n="ehTask2">Tâche 2 • Story / experience</option>
+                <option value="tache3" data-i18n="ehTask3">Tâche 3 • Opinion</option>
+              </select>
+            </div>
+            <div class="pt-4 flex items-center gap-2">
+              <button onclick="newErrorText()" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-800 hover:bg-slate-700 text-white shadow-sm transition flex items-center gap-1.5">
+                <span>🎲</span> <span data-i18n="ehNewBtn">New text</span>
+              </button>
+              <button onclick="generateAiErrorText()" id="ai-errors-btn" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white shadow-sm transition flex items-center gap-1.5">
+                <span>✨</span> <span data-i18n="ehAiBtn">AI text</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-5 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <h3 id="eh-theme-title" class="text-sm sm:text-base font-extrabold text-slate-800"></h3>
+          <span id="eh-counter" class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800"></span>
+        </div>
+        <p class="text-xs text-slate-500" data-i18n="ehHowTo">Tap a word you think is wrong, type the correct form and press Enter. Careful: changing a correct word costs points.</p>
+        <div id="eh-text" class="text-base sm:text-lg leading-loose text-slate-800 bg-slate-50 border border-slate-200 rounded-xl p-4 select-none"></div>
+
+        <div id="eh-editor" class="hidden flex flex-col sm:flex-row sm:items-center gap-2 bg-blue-50 border border-blue-200 rounded-xl p-3">
+          <label id="eh-editor-label" for="eh-edit-input" class="text-xs font-bold text-blue-900 sm:whitespace-nowrap"></label>
+          <input id="eh-edit-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" onfocus="setLastFocusedInput(this)" onkeydown="ehEditKey(event)" class="flex-1 min-w-0 rounded-lg border border-blue-300 px-3 py-2 text-sm font-semibold focus:ring-2 focus:ring-blue-500" />
+          <div class="flex items-center gap-2">
+            <button onclick="ehSaveEdit()" class="px-3 py-2 rounded-lg text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white">✔ <span data-i18n="ehSaveBtn">Save</span></button>
+            <button onclick="ehUndoEdit()" class="px-3 py-2 rounded-lg text-xs font-bold bg-white hover:bg-slate-100 text-slate-700 border border-slate-300">↩ <span data-i18n="ehUndoBtn">Undo</span></button>
+            <button onclick="ehCancelEdit()" class="px-2 py-2 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800" aria-label="Cancel">✕</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <button onclick="checkErrorHunt()" id="eh-check-btn" class="px-6 py-3 rounded-xl text-sm font-extrabold bg-blue-600 hover:bg-blue-500 text-white shadow-md transition flex items-center gap-2">
+            <span>✅</span> <span data-i18n="ehCheckBtn">Check my corrections</span>
+          </button>
+          <button onclick="checkErrorHunt(true)" class="px-4 py-3 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+            <span>👁️</span> <span data-i18n="ehShowBtn">Show solution</span>
+          </button>
+        </div>
+        <div id="eh-score-banner" class="hidden flex items-center gap-4 bg-slate-50 px-4 py-2.5 rounded-xl border border-slate-200">
+          <div>
+            <div class="text-[11px] font-bold uppercase text-slate-400" data-i18n="yourNoteLabel">Exam Note</div>
+            <div id="eh-score-value" class="text-2xl font-extrabold text-blue-600"></div>
+          </div>
+          <div id="eh-score-feedback" class="text-xs sm:text-sm text-slate-700 font-medium max-w-md"></div>
+        </div>
+      </div>
+
+      <div id="eh-results" class="space-y-2"></div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- MODULE 5: PERSONAL MISTAKE BANK & USER PROGRESS                     -->
     <!-- =================================================================== -->
     <section id="view-mistakes" class="hidden space-y-5">
       <!-- User Stats Summary Cards -->
@@ -885,7 +963,7 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         tabWords: "1. Words Drill",
         tabPhrases: "2. Phrases & Skeletons",
         tabExam: "3. TCF Exam Simulator (Tâche 1-3)",
-        tabMistakes: "4. Mistake Bank & Progress",
+        tabMistakes: "5. Mistake Bank & Progress",
         tabCheatSheet: "B2 Grammar Memo",
         backupBtn: "Backup",
         restoreBtn: "Restore",
@@ -1032,12 +1110,47 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         savedToBank: "saved to your Mistake Bank",
         reportCorrected: "Corrected B2 version of your text",
         sessionsCompleted: "sessions completed",
-        mistakeBankEmpty: "No mistakes saved yet! Anything you miss in Modes 1–3 will appear here automatically.",
+        mistakeBankEmpty: "No mistakes saved yet! Anything you miss in Modes 1–4 will appear here automatically.",
         historyEmpty: "Complete a word drill, phrase batch or essay to see your notes here.",
         masteredLabel: "Mastered",
         streakLabel: "Streak",
         ruleNoteLabel: "Rule note",
-        ruleNoteHint: "Grammar rule from an essay correction — kept as a reminder, not used in spelling drills."
+        ruleNoteHint: "Grammar rule from an essay correction — kept as a reminder, not used in spelling drills.",
+        tabErrors: "4. Find the Errors",
+        mode4Badge: "MODE 4 • CHASSE AUX ERREURS",
+        ehTitle: "Find & Fix the Errors",
+        ehDesc: "A TCF-style text with hidden mistakes (accents, gender, agreement, être/avoir...). Tap a word to correct it.",
+        ehTaskLabel: "Task",
+        ehTaskAll: "All tasks",
+        ehTask1: "Tâche 1 • Message / description",
+        ehTask2: "Tâche 2 • Story / experience",
+        ehTask3: "Tâche 3 • Opinion",
+        ehNewBtn: "New text",
+        ehAiBtn: "AI text",
+        ehAiWorking: "Writing...",
+        ehAiOk: "New AI text ready — it is saved for offline use.",
+        ehHowTo: "Tap a word you think is wrong, type the correct form and press Enter. Careful: changing a correct word costs points.",
+        ehCounter: "{n} errors to find • {m} corrected",
+        ehEditLabel: "Your correction for « {w} »:",
+        ehSaveBtn: "Save",
+        ehUndoBtn: "Undo",
+        ehCheckBtn: "Check my corrections",
+        ehShowBtn: "Show solution",
+        ehScoreMsg: "Fixed: {f}/{n} • Spotted but wrong fix: {s} • Correct words changed: {a}.",
+        ehRevealedMsg: "Solution shown — no score this time. Try a new text!",
+        ehResultsTitle: "Corrections & rules",
+        ehFalseAlarmsTitle: "These words were already correct",
+        ehWasCorrect: "This word was already correct",
+        ehSavedHint: "Missed errors were added to your Mistake Bank as rule notes.",
+        ehType_accent: "Accent",
+        ehType_gender: "Gender (le/la)",
+        ehType_agree: "Agreement",
+        ehType_aux: "Être / avoir",
+        ehType_conj: "Verb form",
+        ehType_prep: "Preposition",
+        ehType_spell: "Spelling",
+        ehType_subj: "Subjunctive",
+        ehType_form: "Word form (au, du, nouvel)"
       },
       fr: {
         appTitle: "TCF IRN B2 — Studio d'Expression Écrite",
@@ -1051,7 +1164,7 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         tabWords: "1. Mots & Orthographe",
         tabPhrases: "2. Phrases & Squelettes B2",
         tabExam: "3. Simulateur TCF (Tâches 1-3)",
-        tabMistakes: "4. Banque d'Erreurs & Progrès",
+        tabMistakes: "5. Banque d'Erreurs & Progrès",
         tabCheatSheet: "Mémo Grammaire B2",
         backupBtn: "Sauvegarder",
         restoreBtn: "Importer",
@@ -1198,12 +1311,47 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         savedToBank: "enregistrées dans votre Banque d'erreurs",
         reportCorrected: "Version corrigée B2 de votre texte",
         sessionsCompleted: "séances terminées",
-        mistakeBankEmpty: "Aucune erreur enregistrée ! Tout ce que vous manquez dans les modes 1 à 3 apparaîtra ici.",
+        mistakeBankEmpty: "Aucune erreur enregistrée ! Tout ce que vous manquez dans les modes 1 à 4 apparaîtra ici.",
         historyEmpty: "Terminez une série de mots, de phrases ou une rédaction pour voir vos notes ici.",
         masteredLabel: "Maîtrisé",
         streakLabel: "Série",
         ruleNoteLabel: "Règle",
-        ruleNoteHint: "Règle de grammaire issue d'une correction — gardée comme rappel, pas utilisée dans les dictées de mots."
+        ruleNoteHint: "Règle de grammaire issue d'une correction — gardée comme rappel, pas utilisée dans les dictées de mots.",
+        tabErrors: "4. Trouver les erreurs",
+        mode4Badge: "MODE 4 • CHASSE AUX ERREURS",
+        ehTitle: "Trouvez et corrigez les erreurs",
+        ehDesc: "Un texte type TCF avec des erreurs cachées (accents, genre, accords, être/avoir...). Touchez un mot pour le corriger.",
+        ehTaskLabel: "Tâche",
+        ehTaskAll: "Toutes les tâches",
+        ehTask1: "Tâche 1 • Message / description",
+        ehTask2: "Tâche 2 • Récit / expérience",
+        ehTask3: "Tâche 3 • Opinion",
+        ehNewBtn: "Nouveau texte",
+        ehAiBtn: "Texte IA",
+        ehAiWorking: "Rédaction...",
+        ehAiOk: "Nouveau texte IA prêt — il est gardé pour le mode hors ligne.",
+        ehHowTo: "Touchez un mot qui vous semble faux, tapez la bonne forme et appuyez sur Entrée. Attention : modifier un mot correct fait perdre des points.",
+        ehCounter: "{n} erreurs à trouver • {m} corrigé(s)",
+        ehEditLabel: "Votre correction pour « {w} » :",
+        ehSaveBtn: "Valider",
+        ehUndoBtn: "Défaire",
+        ehCheckBtn: "Vérifier mes corrections",
+        ehShowBtn: "Voir la solution",
+        ehScoreMsg: "Corrigées : {f}/{n} • Repérées mais mal corrigées : {s} • Mots corrects modifiés : {a}.",
+        ehRevealedMsg: "Solution affichée — pas de note cette fois. Essayez un nouveau texte !",
+        ehResultsTitle: "Corrections et règles",
+        ehFalseAlarmsTitle: "Ces mots étaient déjà corrects",
+        ehWasCorrect: "Ce mot était déjà correct",
+        ehSavedHint: "Les erreurs manquées ont été ajoutées à votre Banque d'erreurs comme notes de règle.",
+        ehType_accent: "Accent",
+        ehType_gender: "Genre (le/la)",
+        ehType_agree: "Accord",
+        ehType_aux: "Être / avoir",
+        ehType_conj: "Forme du verbe",
+        ehType_prep: "Préposition",
+        ehType_spell: "Orthographe",
+        ehType_subj: "Subjonctif",
+        ehType_form: "Forme du mot (au, du, nouvel)"
       },
       ru: {
         appTitle: "TCF IRN B2 — Тренажёр Expression Écrite",
@@ -1217,7 +1365,7 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         tabWords: "1. Тренировка Слов",
         tabPhrases: "2. Фразы и Шаблоны B2",
         tabExam: "3. Симулятор Экзамена (Tâche 1-3)",
-        tabMistakes: "4. Банк Ошибок и Прогресс",
+        tabMistakes: "5. Банк Ошибок и Прогресс",
         tabCheatSheet: "Шпаргалка B2",
         backupBtn: "Бэкап",
         restoreBtn: "Загрузить",
@@ -1364,12 +1512,47 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         savedToBank: "сохранены в Банк ошибок",
         reportCorrected: "Исправленная версия вашего текста (B2)",
         sessionsCompleted: "занятий завершено",
-        mistakeBankEmpty: "Ошибок пока нет! Всё, что вы пропустите в режимах 1–3, появится здесь автоматически.",
+        mistakeBankEmpty: "Ошибок пока нет! Всё, что вы пропустите в режимах 1–4, появится здесь автоматически.",
         historyEmpty: "Пройдите тренировку слов, фраз или напишите текст, чтобы увидеть оценки здесь.",
         masteredLabel: "Выучено",
         streakLabel: "Серия",
         ruleNoteLabel: "Правило",
-        ruleNoteHint: "Грамматическое правило из проверки текста — сохранено как напоминание, не используется в диктанте слов."
+        ruleNoteHint: "Грамматическое правило из проверки текста — сохранено как напоминание, не используется в диктанте слов.",
+        tabErrors: "4. Найди ошибки",
+        mode4Badge: "РЕЖИМ 4 • CHASSE AUX ERREURS",
+        ehTitle: "Найдите и исправьте ошибки",
+        ehDesc: "Текст в формате TCF со спрятанными ошибками (акценты, род, согласование, être/avoir...). Нажмите на слово, чтобы исправить его.",
+        ehTaskLabel: "Задание",
+        ehTaskAll: "Все задания",
+        ehTask1: "Tâche 1 • Сообщение / описание",
+        ehTask2: "Tâche 2 • Рассказ / опыт",
+        ehTask3: "Tâche 3 • Мнение",
+        ehNewBtn: "Новый текст",
+        ehAiBtn: "Текст ИИ",
+        ehAiWorking: "Пишу...",
+        ehAiOk: "Новый текст ИИ готов — он сохранён для офлайн-режима.",
+        ehHowTo: "Нажмите на слово, которое кажется неправильным, введите верную форму и нажмите Enter. Осторожно: изменение правильного слова снижает оценку.",
+        ehCounter: "Найти ошибок: {n} • исправлено: {m}",
+        ehEditLabel: "Ваше исправление для « {w} »:",
+        ehSaveBtn: "Сохранить",
+        ehUndoBtn: "Отменить",
+        ehCheckBtn: "Проверить исправления",
+        ehShowBtn: "Показать решение",
+        ehScoreMsg: "Исправлено: {f}/{n} • Найдено, но исправлено неверно: {s} • Изменено правильных слов: {a}.",
+        ehRevealedMsg: "Решение показано — без оценки. Попробуйте новый текст!",
+        ehResultsTitle: "Исправления и правила",
+        ehFalseAlarmsTitle: "Эти слова уже были правильными",
+        ehWasCorrect: "Это слово уже было правильным",
+        ehSavedHint: "Пропущенные ошибки добавлены в ваш Банк ошибок как заметки-правила.",
+        ehType_accent: "Акцент",
+        ehType_gender: "Род (le/la)",
+        ehType_agree: "Согласование",
+        ehType_aux: "Être / avoir",
+        ehType_conj: "Форма глагола",
+        ehType_prep: "Предлог",
+        ehType_spell: "Орфография",
+        ehType_subj: "Subjonctif",
+        ehType_form: "Форма слова (au, du, nouvel)"
       }
     };
 
@@ -2711,6 +2894,183 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
     /*************************************************************************
      * 6. GLOBAL APPLICATION STATE & MULTI-USER PROFILES
      *************************************************************************/
+    /*************************************************************************
+     * v1.6 ERROR HUNT DATA — planted mistakes in the B2 model answers.
+     * Format per theme: [correct form, planted wrong form, type, short French rule].
+     * The correct text = the theme's modelB2; the app swaps in the wrong forms.
+     *************************************************************************/
+    const ERROR_TYPES = ['accent', 'gender', 'agree', 'aux', 'conj', 'prep', 'spell', 'subj', 'form'];
+    const ERROR_HUNT_BANK = {
+      t1_fete_voisins: [
+        ["Chers", "Cher", "agree", "voisins (m. pl.) → chers"],
+        ["J'espère", "J'éspère", "accent", "espérer : j'espère (pas d'accent sur le premier e)"],
+        ["la cour", "le cour", "gender", "la cour (f.) ≠ le cours (leçon)"],
+        ["excellente", "excellent", "agree", "une occasion (f.) → excellente"],
+        ["peut", "peuvent", "conj", "chacun + verbe au singulier : chacun peut"],
+        ["pourrez", "pouvrez", "conj", "pouvoir au futur : vous pourrez"]
+      ],
+      t1_retard_rdv: [
+        ["désolé", "desolé", "accent", "désolé : é au début"],
+        ["pourrai", "pourais", "conj", "pouvoir au futur : je pourrai (deux r)"],
+        ["eu", "eut", "conj", "avoir → participe passé : eu (j'ai eu)"],
+        ["dernière", "dernier", "agree", "la minute (f.) → de dernière minute"],
+        ["dois", "doit", "conj", "devoir : je dois, il doit"],
+        ["Serais-tu", "Serait-tu", "conj", "être au conditionnel : tu serais"]
+      ],
+      t2_installation_france: [
+        ["me suis", "m'ai", "aux", "verbe pronominal → être : je me suis installé"],
+        ["j'avais", "j'avait", "conj", "imparfait : j'avais, il avait"],
+        ["s'est", "a", "aux", "se passer (pronominal) → être : il s'est passé"],
+        ["agréable", "agreable", "accent", "agréable : é"],
+        ["étaient", "était", "conj", "mes voisins (pl.) → ils étaient"],
+        ["dès", "des", "accent", "dès que = à partir du moment où (accent grave)"]
+      ],
+      t2_voyage_inoubliable: [
+        ["je suis allé", "j'ai allé", "aux", "aller → être : je suis allé(e)"],
+        ["faisait", "fesait", "spell", "faire à l'imparfait : il faisait (on dit « fe », on écrit « fai »)"],
+        ["conviviale", "convivial", "agree", "l'ambiance (f.) → conviviale"],
+        ["pris", "prenu", "conj", "prendre → participe passé : pris"],
+        ["locales", "locals", "agree", "les spécialités (f. pl.) → locales (m. pl. : locaux)"],
+        ["permis", "permit", "conj", "permettre → participe passé : permis"]
+      ],
+      t3_teletravail: [
+        ["essentielle", "essentiel", "agree", "une place (f.) → essentielle"],
+        ["considérablement", "considerablement", "accent", "considérable → considérablement"],
+        ["favorise", "favorisent", "conj", "sujet singulier « cette organisation » → favorise"],
+        ["privée", "privé", "agree", "la vie (f.) → privée"],
+        ["gagnent", "gagne", "conj", "les salariés (pl.) → gagnent"],
+        ["soit", "est", "subj", "bien que + subjonctif : bien que ce mode soit"]
+      ],
+      t3_transports_gratuits: [
+        ["permettrait", "permetrait", "spell", "permettre → deux t : permettrait"],
+        ["individuelle", "individuel", "agree", "la voiture (f.) → individuelle"],
+        ["atmosphérique", "atmospherique", "accent", "atmosphère → atmosphérique"],
+        ["sociale", "social", "agree", "une mesure (f.) → sociale"],
+        ["soit", "est", "subj", "bien que + subjonctif : bien que cet investissement soit"],
+        ["indéniables", "indéniable", "agree", "les bénéfices (pl.) → indéniables"]
+      ],
+      t1_decrire_appartement: [
+        ["nouvel", "nouveau", "form", "devant une voyelle : un nouvel appartement"],
+        ["lumineux", "lumineuse", "agree", "un appartement (m.) → lumineux"],
+        ["chambres", "chambre", "agree", "deux → pluriel : deux chambres"],
+        ["équipée", "équipé", "agree", "une cuisine (f.) → équipée"],
+        ["préfère", "préfére", "accent", "préférer : je préfère (è devant une syllabe muette)"],
+        ["d'où", "d'ou", "accent", "où (lieu) ≠ ou (choix)"]
+      ],
+      t1_decrire_collegue: [
+        ["Ma", "Mon", "gender", "collègue (f. ici) → ma nouvelle collègue"],
+        ["s'appelle", "s'apelle", "spell", "appeler : deux p, et ll devant un e muet"],
+        ["souriante", "souriant", "agree", "elle → souriante"],
+        ["organisée", "organisé", "agree", "elle → organisée"],
+        ["prend", "prends", "conj", "il/elle prend (je/tu prends)"],
+        ["plairait", "plairais", "conj", "elle te plairait (3e personne : -ait)"]
+      ],
+      t2_premiere_semaine: [
+        ["commencé", "commencer", "conj", "passé composé → participe passé : j'ai commencé"],
+        ["étais", "était", "conj", "imparfait : j'étais, il était"],
+        ["accueillie", "acceuillie", "spell", "accueillir : ac-cueil (u avant e)"],
+        ["suivi", "suivit", "conj", "suivre → participe passé : suivi"],
+        ["sommes allés", "avons allé", "aux", "aller → être : nous sommes allés"],
+        ["premiers", "premières", "agree", "les clients (m. pl.) → premiers"]
+      ],
+      t2_dimanche: [
+        ["me suis levé", "m'ai levé", "aux", "verbe pronominal → être : je me suis levé"],
+        ["longue", "long", "agree", "une semaine (f.) → longue"],
+        ["au marché", "à le marché", "form", "à + le = au"],
+        ["acheter", "acheté", "conj", "après « pour » → infinitif : pour acheter"],
+        ["promenés", "promené", "agree", "nous nous sommes promenés (accord avec le sujet)"],
+        ["regardé", "regarder", "conj", "passé composé → participe passé : nous avons regardé"]
+      ],
+      t3_mediatheque: [
+        ["la trouve", "le trouve", "gender", "la médiathèque (f.) → je la trouve"],
+        ["réussie", "réussi", "agree", "la (médiathèque) → réussie"],
+        ["lumineux", "lumineuses", "agree", "les espaces (m. pl.) → lumineux"],
+        ["accessibles", "accessible", "agree", "les espaces (pl.) → accessibles"],
+        ["soit", "est", "subj", "bien que + subjonctif : bien que le lieu soit"],
+        ["restent", "reste", "conj", "les horaires (pl.) → restent"]
+      ],
+      t3_smartphone_enfants: [
+        ["À", "A", "accent", "à (préposition) garde son accent, même en majuscule : À mon avis"],
+        ["une bonne", "un bonne", "gender", "une idée (f.) → une bonne idée"],
+        ["réduisent", "réduit", "conj", "les écrans (pl.) → réduisent"],
+        ["protéger", "protégé", "conj", "savoir + infinitif : savoir se protéger"],
+        ["suffit", "suffisent", "conj", "un simple portable (sing.) → suffit"],
+        ["l'entrée", "l'entré", "spell", "une entrée (f.) : -ée"]
+      ],
+      t1_decrire_ville: [
+        ["Ma ville", "Mon ville", "gender", "la ville (f.) → ma ville"],
+        ["petite", "petit", "agree", "ma ville (f.) → petite"],
+        ["au bord", "à le bord", "form", "à + le = au"],
+        ["accueillants", "accueillant", "agree", "les habitants (pl.) → accueillants"],
+        ["beaucoup de", "beaucoup des", "prep", "beaucoup de + nom (sans article)"],
+        ["adorer", "adoré", "conj", "aller + infinitif : tu vas adorer"]
+      ],
+      t1_objet_perdu: [
+        ["oublié", "oublier", "conj", "passé composé → participe passé : j'ai oublié"],
+        ["noir", "noire", "agree", "un sac (m.) → noir"],
+        ["moyenne", "moyen", "agree", "la taille (f.) → moyenne"],
+        ["contient", "contiens", "conj", "il contient (je/tu contiens)"],
+        ["un livre", "une livre", "gender", "un livre (à lire) ≠ une livre (monnaie, poids)"],
+        ["Pourriez-vous", "Pouvriez-vous", "conj", "pouvoir au conditionnel : vous pourriez"]
+      ],
+      t2_demenagement: [
+        ["déménagé", "déménager", "conj", "passé composé → participe passé : j'ai déménagé"],
+        ["sont arrivés", "ont arrivé", "aux", "arriver → être : mes amis sont arrivés"],
+        ["heures", "heure", "agree", "huit → pluriel : huit heures"],
+        ["dû", "du", "accent", "devoir → participe passé : dû (≠ du = de + le)"],
+        ["fait", "faits", "agree", "avoir + participe : pas d'accord ici → nous avons fait une pause"],
+        ["Malheureusement", "Malheuresement", "spell", "malheureux → malheureuse → malheureusement"]
+      ],
+      t2_journee_benevolat: [
+        ["participé à", "participé dans", "prep", "participer à quelque chose"],
+        ["organisée", "organisé", "agree", "la journée (f.) → organisée"],
+        ["étions", "étaient", "conj", "imparfait : nous étions"],
+        ["du canal", "de le canal", "form", "de + le = du"],
+        ["voisins", "voisin", "agree", "plusieurs → pluriel : plusieurs voisins"],
+        ["enrichissante", "enrichissant", "agree", "une expérience (f.) → enrichissante"]
+      ],
+      t3_voitures_centre_ville: [
+        ["une excellente", "un excellent", "gender", "une idée (f.) → une excellente idée"],
+        ["pollué", "polluée", "agree", "l'air (m.) → pollué"],
+        ["deviendraient", "deviendrait", "conj", "les rues (pl.) → deviendraient"],
+        ["circuler", "circulé", "conj", "pouvoir + infinitif : pourraient circuler"],
+        ["sécurité", "securité", "accent", "sécurité : é au début"],
+        ["âgées", "âgés", "agree", "les personnes (f. pl.) → âgées"]
+      ],
+      t3_personne_admiree: [
+        ["exceptionnelle", "exceptionnel", "agree", "une femme (f.) → exceptionnelle"],
+        ["élevé", "élever", "conj", "passé composé → participe passé : elle a élevé"],
+        ["travaillant", "travaillent", "conj", "gérondif : en + -ant (en travaillant)"],
+        ["généreuse", "généreux", "agree", "elle → généreuse"],
+        ["n'ait", "n'a", "subj", "bien que + subjonctif : bien que sa vie n'ait pas été facile"],
+        ["un véritable", "une véritable", "gender", "le modèle (m.) → un véritable modèle"]
+      ],
+      t1_nouvelle_boulangerie: [
+        ["testée", "testé", "agree", "COD placé avant (l' = la boulangerie) → je l'ai testée"],
+        ["en face de", "en face", "prep", "en face de + lieu"],
+        ["petite", "petit", "agree", "la boutique (f.) → petite"],
+        ["jolie", "joli", "agree", "une décoration (f.) → jolie"],
+        ["sont", "est", "conj", "les croissants (pl.) → sont"],
+        ["conseille", "conseil", "conj", "conseiller : je te la conseille (verbe, pas le nom « conseil »)"]
+      ],
+      t2_soiree_parc: [
+        ["n'aies", "n'as", "subj", "dommage que + subjonctif : que tu n'aies pas pu"],
+        ["sommes retrouvés", "avons retrouvés", "aux", "verbe pronominal → être : nous nous sommes retrouvés"],
+        ["installés", "installé", "agree", "nous nous sommes installés (accord avec le sujet)"],
+        ["avait", "avaient", "conj", "chacun + singulier : chacun avait"],
+        ["aux cartes", "les cartes", "prep", "jouer à + jeu : jouer aux cartes"],
+        ["détendue", "détendu", "agree", "l'ambiance (f.) → détendue"]
+      ],
+      t3_seul_ou_equipe: [
+        ["partage", "partagent", "conj", "on + 3e personne du singulier : on partage"],
+        ["apprend", "apprends", "conj", "on apprend (je/tu apprends)"],
+        ["difficultés", "difficultées", "spell", "une difficulté : -té, sans e final"],
+        ["travailler", "travaillé", "conj", "sujet de la phrase → infinitif : travailler en groupe demande…"],
+        ["son rythme", "sa rythme", "gender", "le rythme (m.) → son rythme"],
+        ["tâches", "taches", "accent", "une tâche (travail) ≠ une tache (salissure)"]
+      ]
+    };
+
     const STORAGE_KEY = 'tcf_irn_studio_state_v1';
     const CLOUD_CONFIG_KEY = 'tcf_irn_cloud_config_v1';
 
@@ -3313,7 +3673,7 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
 
     function getAiBank() {
       const b = loadJsonLS(AI_BANK_KEY, {});
-      return { words: b.words || [], phrases: b.phrases || [], themes: b.themes || [] };
+      return { words: b.words || [], phrases: b.phrases || [], themes: b.themes || [], errorTexts: b.errorTexts || [] };
     }
 
     function addToAiBank(kind, items, cap) {
@@ -4930,8 +5290,304 @@ Return JSON: { "titleEn", "titleFr", "titleRu" (short titles starting with "Tâc
       }
     }
 
+
     /*************************************************************************
-     * 14. MODE 4: PERSONAL MISTAKE BANK & USER PROGRESS MANAGEMENT
+     * 13b. MODE 4 (v1.6): ERROR HUNT — find and fix planted mistakes in a text
+     *************************************************************************/
+    let ehItem = null;      // { id, themeId, task, source, text, errors:[{right, wrong, type, note, start, end}] }
+    let ehTokens = [];      // [{ kind: 'space'|'plain'|'word'|'err', orig, err }]
+    let ehEdits = {};       // token index -> learner's correction
+    let ehSelected = null;  // token index being edited
+    let ehResult = null;    // results after "Check" (or "Show solution")
+
+    // Same matching rule as the bank checker: whole words, first free occurrence
+    function ehFind(text, right, used) {
+      const isL = c => !!c && /\p{L}/u.test(c);
+      let i = 0;
+      while (true) {
+        i = text.indexOf(right, i);
+        if (i < 0) return -1;
+        const e = i + right.length;
+        if (!isL(text[i - 1]) && !isL(text[e]) && !used.some(([a, b]) => i < b && e > a)) return i;
+        i++;
+      }
+    }
+
+    function ehNorm(s) {
+      return normalizeForCompare(s).replace(/^[«"(\s]+|[»")\s,;:.!?…]+$/g, '').trim();
+    }
+
+    // Keep only errors whose correct form is really in the text; sort by position
+    function ehPrepare(src) {
+      const used = [];
+      const errors = [];
+      (src.errors || []).forEach(e => {
+        if (!e || !e.right || !e.wrong || ehNorm(e.right) === ehNorm(e.wrong)) return;
+        const p = ehFind(src.text, e.right, used);
+        if (p < 0) return;
+        used.push([p, p + e.right.length]);
+        errors.push({ right: e.right, wrong: e.wrong, type: ERROR_TYPES.includes(e.type) ? e.type : 'spell', note: e.note || '', start: p, end: p + e.right.length });
+      });
+      errors.sort((a, b) => a.start - b.start);
+      return { ...src, errors };
+    }
+
+    function ehTokenize(item) {
+      const tokens = [];
+      const pushPlain = chunk => chunk.split(/(\s+)/).forEach(part => {
+        if (!part) return;
+        if (/^\s+$/.test(part)) tokens.push({ kind: 'space', orig: part });
+        else tokens.push({ kind: /\p{L}/u.test(part) ? 'word' : 'plain', orig: part });
+      });
+      let last = 0;
+      item.errors.forEach((e, k) => {
+        pushPlain(item.text.slice(last, e.start));
+        tokens.push({ kind: 'err', orig: e.wrong, err: k });
+        last = e.end;
+      });
+      pushPlain(item.text.slice(last));
+      return tokens;
+    }
+
+    function ehBankItems() {
+      const themes = getAllThemes();
+      const fromBank = Object.keys(ERROR_HUNT_BANK).map(id => {
+        const th = themes.find(x => x.id === id);
+        if (!th || !th.modelB2) return null;
+        return { id: 'eh_' + id, themeId: id, task: th.task, source: 'bank', text: th.modelB2,
+          errors: ERROR_HUNT_BANK[id].map(([right, wrong, type, note]) => ({ right, wrong, type, note })) };
+      }).filter(Boolean);
+      return [...getAiBank().errorTexts, ...fromBank];
+    }
+
+    function ehLoad(src) {
+      ehItem = ehPrepare(src);
+      ehTokens = ehTokenize(ehItem);
+      ehEdits = {};
+      ehSelected = null;
+      ehResult = null;
+      rememberRecent('errorhunt', [ehItem.id]);
+      renderErrorHunt();
+    }
+
+    function newErrorText() {
+      const task = document.getElementById('eh-task-select')?.value || 'all';
+      let pool = ehBankItems().filter(it => task === 'all' || it.task === task);
+      if (!pool.length) return;
+      const recent = new Set(getRecent('errorhunt', Math.min(12, pool.length - 1)));
+      const fresh = pool.filter(it => !recent.has(it.id) && it.id !== ehItem?.id);
+      ehLoad(pickRandom(fresh.length ? fresh : pool));
+    }
+
+    async function generateAiErrorText() {
+      const { geminiKey } = getCloudAndAiConfig();
+      if (!geminiKey) { showToast(t('aiNoKeyToast')); newErrorText(); return; }
+      const btn = document.getElementById('ai-errors-btn');
+      const oldHtml = btn ? btn.innerHTML : '';
+      if (btn) { btn.innerHTML = `⏳ ${t('ehAiWorking')}`; btn.disabled = true; }
+      try {
+        const sel = document.getElementById('eh-task-select')?.value || 'all';
+        const task = sel === 'all' ? pickRandom(['tache1', 'tache2', 'tache3']) : sel;
+        const theme = pickRandom(getAllThemes().filter(th => th.task === task && th.promptFr));
+        const [mn, mx] = OFFICIAL_BRACKETS[task];
+        const sysPrompt = 'You create French error-correction exercises for learners preparing the TCF IRN written test (target level B2). You know the typical mistakes of foreign learners of French very well. All French must be perfect except the planted mistakes.';
+        const userPrompt = `Subject (${task}): ${theme.promptFr}
+1) Write a NEW correct answer to this subject in natural B2 French, ${mn + 5}-${mx - 5} words, different from: "${(theme.modelB2 || '').slice(0, 300)}".
+2) Choose 6 places in YOUR text where learners often make mistakes, and give for each a typical WRONG form.
+Rules: "right" must be copied EXACTLY from the text (1 to 3 words, same accents and capitals); every "right" in a different place; "wrong" must be clearly incorrect in that sentence (never another correct form); mix the types.
+Types: accent, gender (le/la, un/une, mon/ma), agree (adjective/participle agreement, plural), aux (être/avoir in passé composé), conj (verb form/tense), prep (preposition), spell (spelling), subj (subjunctive), form (au/du, nouvel/bel, cet).
+"note" = the rule in short simple French (max 12 words), like "la journée (f.) → organisée".
+Return JSON: { "text": "...(use \\n for paragraphs)", "errors": [ { "right": "...", "wrong": "...", "type": "...", "note": "..." } ] }`;
+        const data = await callGeminiJson(sysPrompt, userPrompt, { temperature: 0.9, thinking: 'low', timeoutMs: 45000, maxTotalMs: 90000 });
+        if (!data || !data.text || !Array.isArray(data.errors)) throw new Error('AI returned no text');
+        const item = ehPrepare({ id: 'eh_ai_' + Date.now(), themeId: theme.id, task, source: 'ai', text: String(data.text), errors: data.errors });
+        if (item.errors.length < 3) throw new Error('AI text had too few usable mistakes');
+        // Save it: the offline bank grows with every AI text
+        const bank = getAiBank();
+        bank.errorTexts = [item, ...bank.errorTexts].slice(0, 40);
+        try { localStorage.setItem(AI_BANK_KEY, JSON.stringify(bank)); } catch (e) {}
+        ehLoad(item);
+        showToast(`✨ ${t('ehAiOk')}`);
+      } catch (e) {
+        aiFailToast(e);
+        if (!ehItem) newErrorText();
+      } finally {
+        if (btn) { btn.innerHTML = oldHtml; btn.disabled = false; }
+      }
+    }
+
+    function ehSelect(i) {
+      if (ehResult) return;
+      const tok = ehTokens[i];
+      if (!tok || (tok.kind !== 'word' && tok.kind !== 'err')) return;
+      ehSelected = i;
+      renderErrorHunt();
+      const input = document.getElementById('eh-edit-input');
+      if (input) {
+        input.value = ehEdits[i] ?? tok.orig;
+        input.focus();
+        input.select();
+        setLastFocusedInput(input);
+      }
+    }
+
+    function ehSaveEdit() {
+      if (ehSelected === null) return;
+      const input = document.getElementById('eh-edit-input');
+      const val = cleanSpacesAndPunct(input ? input.value : '');
+      const tok = ehTokens[ehSelected];
+      if (!val || ehNorm(val) === ehNorm(tok.orig)) delete ehEdits[ehSelected];
+      else ehEdits[ehSelected] = val;
+      ehSelected = null;
+      renderErrorHunt();
+    }
+
+    function ehUndoEdit() {
+      if (ehSelected === null) return;
+      delete ehEdits[ehSelected];
+      ehSelected = null;
+      renderErrorHunt();
+    }
+
+    function ehCancelEdit() {
+      ehSelected = null;
+      renderErrorHunt();
+    }
+
+    function ehEditKey(ev) {
+      if (ev.key === 'Enter') { ev.preventDefault(); ehSaveEdit(); }
+      else if (ev.key === 'Escape') { ev.preventDefault(); ehCancelEdit(); }
+    }
+
+    function checkErrorHunt(revealed = false) {
+      if (!ehItem || ehResult) return;
+      ehSaveEdit();
+      const perError = ehItem.errors.map(() => 'missed');
+      const falseAlarms = [];
+      ehTokens.forEach((tok, i) => {
+        const val = ehEdits[i];
+        if (tok.kind === 'err') {
+          const e = ehItem.errors[tok.err];
+          if (val === undefined || revealed) return;
+          perError[tok.err] = ehNorm(val) === ehNorm(e.right) ? 'fixed' : 'spotted';
+        } else if (tok.kind === 'word' && val !== undefined && !revealed) {
+          falseAlarms.push(i);
+        }
+      });
+      const n = ehItem.errors.length || 1;
+      const fixed = perError.filter(s => s === 'fixed').length;
+      const spotted = perError.filter(s => s === 'spotted').length;
+      const pts = fixed + 0.5 * spotted - 0.5 * falseAlarms.length;
+      const score = revealed ? 0 : Math.max(0, Math.min(20, Math.round((20 * pts) / n)));
+      ehResult = { perError, falseAlarms, fixed, spotted, score, revealed };
+
+      if (!revealed) {
+        const user = getActiveUser();
+        user.xp = (user.xp || 0) + 20;
+        const theme = getAllThemes().find(th => th.id === ehItem.themeId);
+        user.history.unshift({
+          id: 'h_eh_' + Date.now(),
+          date: nowStamp(),
+          mode: `🔍 Error hunt (${fixed}/${ehItem.errors.length})`,
+          score,
+          summary: `${theme?.title?.en || ehItem.task}${ehItem.source === 'ai' ? ' • AI' : ''}`
+        });
+        ehItem.errors.forEach((e, k) => {
+          if (perError[k] === 'fixed') return;
+          const m = `« ${e.wrong} » ✗`;
+          addOrUpdateMistake(e.right, { en: m, fr: m, ru: m }, `🔍 ${t('ehType_' + e.type)} — ${e.note}`,
+            { silent: true, drillable: false, kind: 'error' });
+        });
+        saveAppState();
+        renderMistakesAndHistoryView();
+      }
+      renderErrorHunt();
+    }
+
+    function renderErrorHunt() {
+      const box = document.getElementById('eh-text');
+      if (!box) return;
+      if (!ehItem) { box.innerHTML = ''; return; }
+      const theme = getAllThemes().find(th => th.id === ehItem.themeId);
+      const titleEl = document.getElementById('eh-theme-title');
+      if (titleEl) titleEl.textContent = (theme?.title?.[currentLang] || theme?.title?.en || ehItem.task) + (ehItem.source === 'ai' ? ' • ✨ AI' : '');
+      const editsCount = Object.keys(ehEdits).length;
+      const countEl = document.getElementById('eh-counter');
+      if (countEl) countEl.textContent = t('ehCounter').replace('{n}', ehItem.errors.length).replace('{m}', editsCount);
+
+      const r = ehResult;
+      box.innerHTML = ehTokens.map((tok, i) => {
+        if (tok.kind === 'space') return tok.orig.includes('\n') ? tok.orig.replace(/[^\n]/g, '').replace(/\n/g, '<br>') : ' ';
+        if (tok.kind === 'plain') return escapeHtml(tok.orig);
+        const val = ehEdits[i];
+        const o = escapeHtml(tok.orig);
+        if (r) {
+          if (tok.kind === 'err') {
+            const e = ehItem.errors[tok.err];
+            const st = r.perError[tok.err];
+            const right = `<span class="font-bold text-emerald-700">${escapeHtml(e.right)}</span>`;
+            if (st === 'fixed') return `<span class="px-1 rounded bg-emerald-100 border border-emerald-300">✅ ${right}</span>`;
+            if (st === 'spotted') return `<span class="px-1 rounded bg-amber-100 border border-amber-300"><s class="text-rose-600">${escapeHtml(val)}</s> ➔ ${right}</span>`;
+            return `<span class="px-1 rounded bg-rose-100 border border-rose-300"><s class="text-rose-600">${o}</s> ➔ ${right}</span>`;
+          }
+          if (val !== undefined) return `<span class="px-1 rounded bg-slate-200 border border-slate-300" title="${escapeHtml(t('ehWasCorrect'))}"><s class="text-slate-500">${escapeHtml(val)}</s> ${o}</span>`;
+          return o;
+        }
+        const sel = ehSelected === i ? ' ring-2 ring-blue-500 bg-blue-50' : '';
+        const inner = val !== undefined
+          ? `<s class="text-slate-400">${o}</s> <span class="font-bold text-amber-700">${escapeHtml(val)}</span>`
+          : o;
+        const cls = val !== undefined ? 'bg-amber-50 border-b-2 border-amber-400' : 'hover:bg-blue-50 border-b border-dotted border-slate-300';
+        return `<span role="button" tabindex="0" onclick="ehSelect(${i})" onkeydown="if(event.key==='Enter')ehSelect(${i})" class="cursor-pointer rounded px-0.5 ${cls}${sel}">${inner}</span>`;
+      }).join('');
+
+      const editor = document.getElementById('eh-editor');
+      if (editor) {
+        const show = ehSelected !== null && !r;
+        editor.classList.toggle('hidden', !show);
+        if (show) {
+          const lab = document.getElementById('eh-editor-label');
+          if (lab) lab.textContent = t('ehEditLabel').replace('{w}', ehTokens[ehSelected].orig);
+        }
+      }
+
+      const banner = document.getElementById('eh-score-banner');
+      const resBox = document.getElementById('eh-results');
+      if (!r) {
+        banner?.classList.add('hidden');
+        if (resBox) resBox.innerHTML = '';
+        return;
+      }
+      if (banner) {
+        banner.classList.remove('hidden');
+        document.getElementById('eh-score-value').textContent = r.revealed ? '—' : `${r.score}/20`;
+        document.getElementById('eh-score-feedback').textContent = r.revealed
+          ? t('ehRevealedMsg')
+          : t('ehScoreMsg').replace('{f}', r.fixed).replace('{n}', ehItem.errors.length).replace('{s}', r.spotted).replace('{a}', r.falseAlarms.length);
+      }
+      if (resBox) {
+        const icon = { fixed: '✅', spotted: '🟡', missed: '❌' };
+        const rows = ehItem.errors.map((e, k) => `
+          <div class="p-3 rounded-xl border ${r.perError[k] === 'fixed' ? 'bg-emerald-50/60 border-emerald-200' : (r.perError[k] === 'spotted' ? 'bg-amber-50/60 border-amber-200' : 'bg-rose-50/60 border-rose-200')} text-sm">
+            <div class="flex flex-wrap items-center gap-2">
+              <span>${icon[r.perError[k]]}</span>
+              <s class="text-rose-600">${escapeHtml(e.wrong)}</s> ➔ <strong class="text-emerald-700">${escapeHtml(e.right)}</strong>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700">${t('ehType_' + e.type)}</span>
+            </div>
+            <div class="text-xs text-slate-600 mt-1">${escapeHtml(e.note)}</div>
+          </div>`).join('');
+        const fa = r.falseAlarms.length ? `
+          <div class="p-3 rounded-xl border bg-slate-50 border-slate-200 text-sm">
+            <div class="font-bold text-slate-700 mb-1">⚪ ${t('ehFalseAlarmsTitle')}</div>
+            <div class="text-xs text-slate-600">${r.falseAlarms.map(i => `<s>${escapeHtml(ehEdits[i])}</s> ➔ <strong>${escapeHtml(ehTokens[i].orig)}</strong>`).join(' • ')}</div>
+          </div>` : '';
+        const saved = (!r.revealed && r.perError.some(s => s !== 'fixed')) ? `<div class="text-xs text-slate-500">🎯 ${t('ehSavedHint')}</div>` : '';
+        resBox.innerHTML = `<h3 class="text-sm font-extrabold text-slate-800">${t('ehResultsTitle')}</h3>${rows}${fa}${saved}`;
+      }
+    }
+
+    /*************************************************************************
+     * 14. MODE 5: PERSONAL MISTAKE BANK & USER PROGRESS MANAGEMENT
      *************************************************************************/
     // meaning: string OR {en, fr, ru}. opts: { silent: skip save/render (caller saves), drillable: false for rule notes }
     function addOrUpdateMistake(fr, meaning, rule, opts = {}) {
@@ -5302,11 +5958,12 @@ Return JSON: { "titleEn", "titleFr", "titleRu" (short titles starting with "Tâc
       populateExamThemeSelect();
       setWordCountBracket(currentMinWords, currentMaxWords);
       renderMistakesAndHistoryView();
+      renderErrorHunt();
     }
 
     function switchTab(tabId) {
       activeTab = tabId;
-      const tabs = ['words', 'phrases', 'exam', 'mistakes', 'cheatsheet'];
+      const tabs = ['words', 'phrases', 'exam', 'errors', 'mistakes', 'cheatsheet'];
       tabs.forEach(t => {
         const view = document.getElementById(`view-${t}`);
         const btn = document.getElementById(`tab-btn-${t}`);
@@ -5324,6 +5981,7 @@ Return JSON: { "titleEn", "titleFr", "titleRu" (short titles starting with "Tâc
       if (tabId === 'mistakes') {
         renderMistakesAndHistoryView();
       }
+      if (tabId === 'errors' && !ehItem) newErrorText();
     }
 
     function showToast(msg, duration = 3200) {

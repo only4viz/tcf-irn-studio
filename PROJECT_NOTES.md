@@ -13,12 +13,13 @@
 1. **Words drill** – spelling, accents (é è ê à ç…), gender (le/la). Score /20, mistakes saved.
 2. **Phrases & skeletons** – reusable B2 sentences per task + grammar traps.
 3. **Exam simulator** – official tasks, word counter, timer, local checker + optional Gemini examiner. **Full exam mode**: 3 random subjects, one 30-min clock.
-4. **Mistake bank & progress** – per-profile mistakes, streak (2 correct in a row = mastered), history, XP.
-5. **B2 grammar memo** – cheat sheet.
+4. **Find the errors** (v1.6) – a TCF-style text with 6 planted mistakes; tap a word, type the fix, check. Score /20, missed errors saved as rule notes.
+5. **Mistake bank & progress** – per-profile mistakes, streak (2 correct in a row = mastered), history, XP.
+6. **B2 grammar memo** – cheat sheet.
 
 ### Tech
 - One HTML file, Tailwind (CDN), Supabase JS (CDN), Gemini REST API (browser `fetch`).
-- Storage keys (localStorage): `tcf_irn_studio_state_v1` (profiles), `tcf_irn_cloud_config_v1` (keys), `tcf_irn_ai_bank_v1` (AI-generated items cached offline), `tcf_irn_recent_items_v1` (anti-repetition), `tcf_irn_exam_drafts_v1` (essay drafts), `tcf_irn_exam_results_v1` (last graded results, kept until "Reset results"), `tcf_irn_lang_v1` (UI language).
+- Storage keys (localStorage): `tcf_irn_studio_state_v1` (profiles), `tcf_irn_cloud_config_v1` (keys), `tcf_irn_ai_bank_v1` (AI-generated words/phrases/themes/errorTexts cached offline), `tcf_irn_recent_items_v1` (anti-repetition), `tcf_irn_exam_drafts_v1` (essay drafts), `tcf_irn_exam_results_v1` (last graded results, kept until "Reset results"), `tcf_irn_lang_v1` (UI language).
 - AI calls: 45 s limit per attempt (60 s for essay grading), 2 min max per call, "thinking" limited (`thinkingLevel: low` on Gemini 3.x, `thinkingBudget: 1024` on 2.5; retried without it if a model refuses).
 - Supabase table `tcf_irn_users (id text pk, name, data jsonb, updated_at)`, realtime enabled.
 - Gemini models: **auto-detected** from Google's model list for the user's key (newest stable `flash` first, then `flash-lite`, previews last), cached 24 h in `tcf_irn_gemini_models_v1`; retired models (404) are dropped automatically. Fallback list if detection fails: `gemini-3.5-flash`, `gemini-3.5-flash-lite`, `gemini-flash-latest`, `gemini-flash-lite-latest`, `gemini-2.5-flash`. Key sent **only** in the `x-goog-api-key` header.
@@ -34,11 +35,19 @@
 - "A1 non atteint" if: word count not respected, off-topic, a task missing, illegible.
 - Re-corrections of writing/speaking suspended from 1 Sept 2026 (back autumn 2027).
 
-## 3. Current state (v1.5, 2026-11-24)
-- Offline bank: **112 words (16–24 per category), 50 phrases (10–14 per category), 21 exam subjects (7 per task)** (+ everything Gemini generates, cached per device).
+## 3. Current state (v1.6, 2026-11-25)
+- Offline bank: **112 words (16–24 per category), 50 phrases (10–14 per category), 21 exam subjects (7 per task), 21 error-hunt texts (6 mistakes each)** (+ everything Gemini generates, cached per device).
 - Exam ranges now follow the official table above (v1.0 had Tâche 3 at 90–110 words = would be "A1 non atteint").
 
 ## 4. Changelog
+### v1.6 — 2026-11-25
+- New tab **🔍 4. Find the Errors** (Mistake bank is now tab 5). Owner idea: a correction exercise.
+  - Offline: the 21 B2 model answers with 6 planted learner mistakes each (`ERROR_HUNT_BANK`: correct form, wrong form, type, short French rule). Types: accent, gender, agreement, être/avoir, verb form, preposition, spelling, subjunctive, word form (au/du/nouvel).
+  - Tap a word → edit box (accent keyboard works) → Enter. "Check": fixed = 1 pt, spotted but wrong fix = ½, changing a correct word = −½; score /20, +20 XP, history line "🔍 Error hunt". Missed mistakes → Mistake bank as rule notes (not used in spelling drills). "Show solution" gives no score.
+  - ✨ AI text: Gemini writes a new text on a random subject of the chosen task with 6 mistakes; the app checks every "correct form" really exists in the text (bad ones dropped, needs ≥3) and saves it (max 40) in the AI bank → grows the offline set.
+  - EN/FR/RU for all new texts. All 126 planted mistakes checked by script (each correct form found in its model text).
+- Tested in a Supabase-blanked copy: scoring (3 fixed + 1 spotted + 1 false alarm = 10/20), mistakes saved, AI path with a mocked reply (invalid item dropped), RU/FR labels, phone width (no horizontal scroll). Not yet tested with the real Gemini key.
+
 ### v1.5 — 2026-11-24
 - "🔄 Reset results" now also clears the texts that were graded (all 3 after a full exam, or the graded task), so the next attempt starts with an empty box. It asks for confirmation first (EN/FR/RU). Owner request: old text stayed in the box after reset.
 - Tested in a Supabase-blanked copy: cancel keeps text + results; confirm empties textarea, drafts, results, word counter.
@@ -127,11 +136,19 @@ Owner feedback after testing v1.2 (5 notes + "grading sometimes takes 20+ min").
 - [ ] Translate remaining EN-only UI (settings modal, cheat sheet).
 - [ ] Real spaced repetition (review dates: 1 d / 3 d / 7 d / 21 d) instead of "2 correct in a row".
 - [ ] Progress chart (score per task over time) and "weak points" summary.
-- [ ] Dictation / listening-free "correct the text" exercises (find the 5 mistakes).
+- [x] "Correct the text" exercise → v1.6 Find the Errors.
+- [ ] Find the Errors: more offline texts (a 2nd set of mistakes per subject), optional "hint" (show the line with an error).
 
 ### Ideas discussed (2026-11-21)
 - **Local/offline LLM instead of Gemini?** Not for now: a model good enough to grade French at B2 is several GB, slow on phones, and weaker than Gemini at catching accent/agreement errors. Training one ourselves is far beyond the budget. Better path: keep the offline bank (rules + data) for drills, use an online AI for grading; for the commercial version, call it through our own backend (key hidden, quotas).
 - **Expression orale (speaking)**: needs an online model with speech (e.g. Gemini Live / audio input) — good premium feature for v2.x. Prototype: record answer → transcript + examiner feedback.
+
+### Commercial plan discussed (2026-11-25) — keep for later, after polishing
+- Rough running costs (estimates, re-check prices before launch): GitHub Pages free; Supabase free → ~$25/month (Pro) with hundreds of active users; domain ~$10–15/year; Apple $99/year + Google $25 once, stores take 15–30%; Stripe ~3%/sale.
+- AI: text grading with a Flash model ≈ $0.002–0.005 per essay (< $0.50/month for a heavy user). Speaking: recorded answer + grading = a few cents; live voice conversation ≈ $0.05–0.15/min → premium only.
+- Price idea: €5–10/month or a €15–30 "exam pass".
+- Marketing: small/medium YouTubers (5k–100k) teaching French / naturalisation / TCF prep: free premium + viewer discount code with commission (affiliate); also Facebook/Reddit/Telegram expat groups. Only after the app is polished, with a landing page.
+- Never present the app as official (TCF = France Éducation international trademark): "TCF IRN prep".
 
 ### v2.0 (when beta is polished — commercial prep)
 - [ ] Split into modules (data/, js/, css/, i18n/) with a build step (Vite). Tailwind compiled (no CDN).
