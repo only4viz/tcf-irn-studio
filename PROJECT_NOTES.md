@@ -35,11 +35,18 @@
 - "A1 non atteint" if: word count not respected, off-topic, a task missing, illegible.
 - Re-corrections of writing/speaking suspended from 1 Sept 2026 (back autumn 2027).
 
-## 3. Current state (v1.7, 2026-11-26)
+## 3. Current state (v1.8, 2026-11-26)
 - Offline bank: **112 words (16–24 per category), 50 phrases (10–14 per category), 21 exam subjects (7 per task), 21 error-hunt texts (6 mistakes each)** (+ everything Gemini generates, cached per device).
 - Exam ranges now follow the official table above (v1.0 had Tâche 3 at 90–110 words = would be "A1 non atteint").
 
 ## 4. Changelog
+### v1.8 — 2026-11-26
+- Owner hit "HTTP 429 … Generate content requests per day limit exceeded on Free Tier (limit 20)". Free Gemini keys allow ~20 requests **per model per day**; a full exam used 3, each retry / AI text 1 more.
+- **Full exam = 1 AI request** for all written tasks (`gradeEssaysTogether`, JSON keyed by tache1/2/3, 90 s per attempt, 3 min max). A task missing from the answer gets the yellow box + Retry (single-task request). Single "Grade" and Retry still use `gradeEssayText` (1 request). Prompt pieces shared (`AI_TASK_SPEC`, `aiReportJsonShape`, `localEssayReport`, `applyAiGrade`).
+- `callGeminiJson`: a **daily** 429 ("per day" / "retry in NNh") no longer waits; goes straight to the next model and shows a translated message (`aiDailyLimit`: resets ~9:00 France time). New key `aiIncomplete`. The yellow box shows up to 360 characters.
+- Note for owner: a Google AI Pro (Gemini app) subscription does NOT raise API limits — the API is billed separately (Google AI Studio → enable billing on the key's project).
+- Tested on a blanked copy with mocked Gemini: 1 request for 3 tasks; partial answer → task 3 offline + Retry → AI; daily 429 in RU → 2 quick calls (one per model), RU message, no waiting.
+
 ### v1.7 — 2026-11-26
 - Bug report (owner, full exam in RU): "no grammar errors found" although there were some. Cause: not RU and not the new mode — when the AI grading failed (most likely the free per-minute quota, 429, with 3 texts at once), the app silently fell back to the offline checker, which only knows a few traps and then said "🎉 No major errors". The AI error was only a short toast.
 - Fixes:
@@ -130,7 +137,7 @@ Owner feedback after testing v1.2 (5 notes + "grading sometimes takes 20+ min").
 - Phrases "traps" category still small (2 items offline).
 - Offline essay checker is rule-based (a few traps only); scores without AI are indicative.
 - Offline Words/Phrases check can't recognise synonyms that are not in `alt` (AI check needed). Some phrases are given in one gender only (alt lists the other where it matters).
-- Free Gemini quota: 3 parallel grading calls + retries can hit the per-minute limit (429) on some keys; the app then falls back to the next model / offline result.
+- Free Gemini quota: ~20 requests per model per day (and a per-minute limit). Since v1.8 a full exam uses 1 request; heavy testing can still use up the free day. Paid tier (billing on) removes this in practice.
 
 ## 6. Security (MUST fix before going commercial — owner chose "later", 2026-11-19)
 - Supabase policy `for all using (true)` + anon key inside `index.html` ⇒ anyone can read/modify/delete **all** users' data.

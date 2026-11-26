@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TCF IRN B2 — Expression Écrite Studio</title>
-  <!-- APP VERSION: v1.7 (2026-11-26) — see PROJECT_NOTES.md for the changelog -->
+  <!-- APP VERSION: v1.8 (2026-11-26) — see PROJECT_NOTES.md for the changelog -->
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231e3a8a'/%3E%3Crect x='6' y='6' width='17' height='52' rx='8' fill='%232563eb'/%3E%3Crect x='23' y='6' width='18' height='52' fill='%23ffffff'/%3E%3Crect x='41' y='6' width='17' height='52' rx='8' fill='%23ef4444'/%3E%3Ccircle cx='32' cy='32' r='14' fill='%231e293b'/%3E%3Ctext x='32' y='37' font-family='Arial,sans-serif' font-size='13' font-weight='bold' fill='%23ffffff' text-anchor='middle'%3EB2%3C/text%3E%3C/svg%3E" />
 
@@ -1070,6 +1070,8 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         writeFirstToast: "Please write your French text first!",
         analyzingLabel: "Analyzing...",
         aiTooSlow: "The AI was too slow, so the offline checker result is shown",
+        aiDailyLimit: "Your free Gemini key has used its daily limit (about 20 requests per model per day). It resets around 9:00 (France time). Until then the offline checker is used.",
+        aiIncomplete: "The AI answer was incomplete for this text.",
         resultsTitle: "Your results",
         resetResultsBtn: "Reset results",
         resultsHint: "Click T1 / T2 / T3 (or the task buttons) to see each text and its correction. Results stay until you press Reset.",
@@ -1274,6 +1276,8 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         writeFirstToast: "Écrivez d'abord votre texte en français !",
         analyzingLabel: "Analyse en cours...",
         aiTooSlow: "L'IA a été trop lente : le résultat du correcteur hors ligne est affiché",
+        aiDailyLimit: "Votre clé Gemini gratuite a atteint sa limite quotidienne (environ 20 requêtes par modèle et par jour). Elle se réinitialise vers 9 h (heure de France). D'ici là, le correcteur hors ligne est utilisé.",
+        aiIncomplete: "La réponse de l'IA était incomplète pour ce texte.",
         resultsTitle: "Vos résultats",
         resetResultsBtn: "Effacer les résultats",
         resultsHint: "Cliquez sur T1 / T2 / T3 (ou les boutons de tâche) pour revoir chaque texte et sa correction. Les résultats restent jusqu'à ce que vous les effaciez.",
@@ -1478,6 +1482,8 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
         writeFirstToast: "Сначала напишите текст по-французски!",
         analyzingLabel: "Анализ...",
         aiTooSlow: "ИИ отвечал слишком долго, поэтому показан результат офлайн-проверки",
+        aiDailyLimit: "Бесплатный ключ Gemini исчерпал дневной лимит (около 20 запросов на модель в день). Лимит обновится примерно в 9:00 (по Франции). До этого используется офлайн-проверка.",
+        aiIncomplete: "Ответ ИИ для этого текста был неполным.",
         resultsTitle: "Ваши результаты",
         resetResultsBtn: "Сбросить результаты",
         resultsHint: "Нажмите T1 / T2 / T3 (или кнопки заданий), чтобы посмотреть каждый текст и его разбор. Результаты остаются, пока вы их не сбросите.",
@@ -3561,6 +3567,7 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
 
       let lastErr = null;
       const errors = [];
+      let dailyHits = 0;
       const models = await getGeminiModels(apiKey, options.refreshModels);
       for (const modelName of models) {
         const left = deadline - Date.now();
@@ -3582,15 +3589,18 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
               try { detail = (await res.json())?.error?.message || ''; } catch (e) {}
               // This model does not accept our thinking setting: retry the same model once without it
               if (res.status === 400 && thinking && /think/i.test(detail)) { thinking = null; continue; }
+              // v1.8: DAILY free quota used up => waiting is useless, go straight to the next model
+              const dailyLimit = res.status === 429 && /per ?day|daily|retry in \d+h/i.test(detail);
+              if (dailyLimit) dailyHits++;
               // v1.7: free quota per minute (429): wait what Google asks (max 15 s) and retry this model once
-              if (res.status === 429 && attempt === 0) {
+              if (res.status === 429 && attempt === 0 && !dailyLimit) {
                 const m = /retry in ([\d.]+)s/i.exec(detail);
                 const waitMs = Math.min(15000, Math.max(2000, m ? Math.ceil(parseFloat(m[1]) * 1000) : 6000));
                 if (deadline - Date.now() > waitMs + 15000) { await new Promise(r => setTimeout(r, waitMs)); continue; }
               }
               lastErr = new Error(`${modelName}: HTTP ${res.status}${detail ? ' — ' + detail : ''}`);
               lastErr.status = res.status;
-              errors.push(`${modelName}: ${res.status}`);
+              errors.push(`${modelName}: ${res.status}${dailyLimit ? ' (daily)' : ''}`);
               if (res.status === 404) forgetGeminiModel(modelName);
               break;
             }
@@ -3617,6 +3627,8 @@ alter publication supabase_realtime add table tcf_irn_users;</pre>
             (lastErr.status === 400 && /api key|credential|auth/i.test(lastErr.message)))) break;
       }
       lastAiError = (lastErr && lastErr.message) || 'AI request failed';
+      // v1.8: short, translated message when the free daily quota is the reason
+      if (dailyHits) lastAiError = t('aiDailyLimit');
       if (errors.length > 1) lastAiError += `  [tried: ${errors.join(', ')}]`;
       console.warn('Gemini error:', lastAiError);
       throw new Error(lastAiError);
@@ -4985,8 +4997,27 @@ Return a JSON array; each object has: category (one of: tache1, tache2, tache3, 
       };
     }
 
-    // Grades one text. Returns a report object; does NOT touch the DOM.
-    async function gradeEssayText(text, theme, minW, maxW, onAttempt) {
+    // ---- AI grading helpers (v1.8: shared by single-task and full-exam grading) ----
+    const AI_TASK_SPEC = {
+      tache1: 'Tâche 1 — short message (30-60 words) replying to someone: describe a person, place or object, give the requested information, adapted register (tu/vous), greeting and closing.',
+      tache2: 'Tâche 2 — account of daily activities or a past experience (40-90 words): clear chronology, imparfait for description/feelings + passé composé for events, connectors of time.',
+      tache3: 'Tâche 3 — opinion about a place, object or person (40-90 words): clear position, at least two justified arguments, nuance/concession, conclusion, B2 connectors.'
+    };
+    const AI_CRITERIA_TEXT = `If the word count is outside the range, the copy can be graded "A1 non atteint" — say so clearly and cap the score at 4/20. Off-topic => same.
+Criteria: task completion & requested information, coherence/cohesion (connectors), lexical range & precision, grammatical accuracy (agreements, tenses, auxiliaries, subjunctive), spelling & accents, register.`;
+    function aiReportJsonShape(minW, maxW) {
+      return `{ "score": number 0-20 (one decimal), "cefr": "A1 non atteint"|"A2"|"B1"|"B2"|"C1", "criteria": {"task": 0-5, "coherence": 0-5, "lexis": 0-5, "grammar": 0-5}, "strengths": string, "toImprove": string (2-3 concrete tips to reach B2), "issues": [{"wrong": exact learner fragment, "correct": corrected fragment (short, French), "explanation": string, "type": "accent"|"grammar"|"vocabulary"|"register"|"structure"}], "correctedVersion": the learner's text corrected and slightly improved to B2 while keeping their ideas and staying within ${minW}-${maxW} words }`;
+    }
+    function aiLangName() { return currentLang === 'ru' ? 'Russian' : (currentLang === 'fr' ? 'French' : 'English'); }
+    function aiTaskBlock(text, theme, minW, maxW, wordCount) {
+      return `Subject (French): ${theme.promptFr}
+Required points: ${(theme.points || []).join('; ')}
+Word range: ${minW}-${maxW} words (learner wrote ${wordCount}).
+Learner's text:
+"""${text}"""`;
+    }
+    // Offline report (always computed first, used as fallback)
+    function localEssayReport(text, theme, minW, maxW) {
       const prevMin = currentMinWords, prevMax = currentMaxWords;
       currentMinWords = minW; currentMaxWords = maxW;
       const report = runLocalFrenchEssayAnalyzer(text);
@@ -4994,44 +5025,75 @@ Return a JSON array; each object has: category (one of: tache1, tache2, tache3, 
       report.minW = minW; report.maxW = maxW; report.source = 'local';
       report.taskLabel = theme.task.toUpperCase().replace('TACHE', 'TÂCHE ');
       report.taskKey = theme.task;
+      return report;
+    }
+    // Copies a valid AI answer into the report. Returns true if it was usable.
+    function applyAiGrade(report, aiRes) {
+      if (!aiRes || typeof aiRes.score !== 'number') return false;
+      report.score = Math.max(0, Math.min(20, Math.round(aiRes.score * 10) / 10));
+      report.cefr = aiRes.cefr || report.cefr;
+      report.strengths = aiRes.strengths || report.strengths;
+      report.toImprove = aiRes.toImprove || '';
+      report.criteria = aiRes.criteria || null;
+      report.aiCorrected = aiRes.correctedVersion || null;
+      if (Array.isArray(aiRes.issues)) {
+        report.issues = aiRes.issues.filter(i => i && i.wrong && i.correct).map(i => ({ ...i, drillable: true }));
+      }
+      report.source = 'ai';
+      delete report.aiError;
+      return true;
+    }
+    function aiErrorText(err) {
+      return /timeout|time limit/i.test(err.message) ? `${t('aiTooSlow')} (${err.message})` : err.message;
+    }
 
+    // Grades one text (1 AI request). Returns a report object; does NOT touch the DOM.
+    async function gradeEssayText(text, theme, minW, maxW, onAttempt) {
+      const report = localEssayReport(text, theme, minW, maxW);
       const { geminiKey } = getCloudAndAiConfig();
       if (!geminiKey) return report;
       try {
-        const langName = currentLang === 'ru' ? 'Russian' : (currentLang === 'fr' ? 'French' : 'English');
-        const taskSpec = {
-          tache1: 'Tâche 1 — short message (30-60 words) replying to someone: describe a person, place or object, give the requested information, adapted register (tu/vous), greeting and closing.',
-          tache2: 'Tâche 2 — account of daily activities or a past experience (40-90 words): clear chronology, imparfait for description/feelings + passé composé for events, connectors of time.',
-          tache3: 'Tâche 3 — opinion about a place, object or person (40-90 words): clear position, at least two justified arguments, nuance/concession, conclusion, B2 connectors.'
-        }[theme.task];
         const sysPrompt = `You are a certified TCF IRN examiner (France Éducation international). Grade strictly and realistically like the real exam, targeting CEFR B2.
-Official rules: ${taskSpec} If the word count is outside the range, the copy can be graded "A1 non atteint" — say so clearly and cap the score at 4/20. Off-topic => same.
-Criteria: task completion & requested information, coherence/cohesion (connectors), lexical range & precision, grammatical accuracy (agreements, tenses, auxiliaries, subjunctive), spelling & accents, register.
-Give ALL explanations in ${langName}. Be specific: quote the learner's exact words. Keep each explanation to 1-2 sentences and say WHY the correction is better.
-Return JSON: { "score": number 0-20 (one decimal), "cefr": "A1 non atteint"|"A2"|"B1"|"B2"|"C1", "criteria": {"task": 0-5, "coherence": 0-5, "lexis": 0-5, "grammar": 0-5}, "strengths": string, "toImprove": string (2-3 concrete tips to reach B2), "issues": [{"wrong": exact learner fragment, "correct": corrected fragment (short, French), "explanation": string, "type": "accent"|"grammar"|"vocabulary"|"register"|"structure"}], "correctedVersion": the learner's text corrected and slightly improved to B2 while keeping their ideas and staying within ${minW}-${maxW} words }`;
-        const userPrompt = `Subject (French): ${theme.promptFr}
-Required points: ${(theme.points || []).join('; ')}
-Word range: ${minW}-${maxW} words (learner wrote ${report.wordCount}).
-Learner's text:
-"""${text}"""`;
-        // 60 s per attempt, 2 min max for this text, short "thinking": a full exam now takes ~1 min instead of up to 20+.
-        const aiRes = await callGeminiJson(sysPrompt, userPrompt, { temperature: 0.3, thinking: 'low', timeoutMs: 60000, maxTotalMs: 120000, onAttempt });
-        if (aiRes && typeof aiRes.score === 'number') {
-          report.score = Math.max(0, Math.min(20, Math.round(aiRes.score * 10) / 10));
-          report.cefr = aiRes.cefr || report.cefr;
-          report.strengths = aiRes.strengths || report.strengths;
-          report.toImprove = aiRes.toImprove || '';
-          report.criteria = aiRes.criteria || null;
-          report.aiCorrected = aiRes.correctedVersion || null;
-          if (Array.isArray(aiRes.issues)) {
-            report.issues = aiRes.issues.filter(i => i && i.wrong && i.correct).map(i => ({ ...i, drillable: true }));
-          }
-          report.source = 'ai';
-        }
+Official rules: ${AI_TASK_SPEC[theme.task]} ${AI_CRITERIA_TEXT}
+Give ALL explanations in ${aiLangName()}. Be specific: quote the learner's exact words. Keep each explanation to 1-2 sentences and say WHY the correction is better.
+Return JSON: ${aiReportJsonShape(minW, maxW)}`;
+        const aiRes = await callGeminiJson(sysPrompt, aiTaskBlock(text, theme, minW, maxW, report.wordCount),
+          { temperature: 0.3, thinking: 'low', timeoutMs: 60000, maxTotalMs: 120000, onAttempt });
+        if (!applyAiGrade(report, aiRes)) report.aiError = t('aiIncomplete');
       } catch (err) {
-        report.aiError = /timeout|time limit/i.test(err.message) ? `${t('aiTooSlow')} (${err.message})` : err.message;
+        report.aiError = aiErrorText(err);
       }
       return report;
+    }
+
+    // v1.8: grades SEVERAL texts of the full exam in ONE AI request (free keys have ~20 requests/day).
+    // items: [{ key: 'tache1', text, theme, minW, maxW }]. Returns { tache1: report, ... }.
+    async function gradeEssaysTogether(items, onAttempt) {
+      const reports = {};
+      items.forEach(it => { reports[it.key] = localEssayReport(it.text, it.theme, it.minW, it.maxW); });
+      const { geminiKey } = getCloudAndAiConfig();
+      if (!geminiKey || !items.length) return reports;
+      const keys = items.map(it => it.key);
+      try {
+        const rules = items.map(it => `- "${it.key}": ${AI_TASK_SPEC[it.key]}`).join('\n');
+        const shapes = items.map(it => `"${it.key}": ${aiReportJsonShape(it.minW, it.maxW)}`).join(',\n');
+        const sysPrompt = `You are a certified TCF IRN examiner (France Éducation international). You receive the learner's written exam (${items.length} task(s)). Grade EACH task separately, strictly and realistically like the real exam, targeting CEFR B2.
+Official rules per task:
+${rules}
+${AI_CRITERIA_TEXT}
+Give ALL explanations in ${aiLangName()}. Be specific: quote the learner's exact words. Keep each explanation to 1-2 sentences and say WHY the correction is better.
+Return ONE JSON object with exactly these keys: ${keys.map(k => `"${k}"`).join(', ')}:
+{ ${shapes} }`;
+        const userPrompt = items.map(it => `=== ${it.key} ===\n${aiTaskBlock(it.text, it.theme, it.minW, it.maxW, reports[it.key].wordCount)}`).join('\n\n');
+        // Bigger answer than one task: 90 s per attempt, 3 min max.
+        const aiRes = await callGeminiJson(sysPrompt, userPrompt,
+          { temperature: 0.3, thinking: 'low', timeoutMs: 90000, maxTotalMs: 180000, onAttempt });
+        keys.forEach(k => { if (!applyAiGrade(reports[k], aiRes && aiRes[k])) reports[k].aiError = t('aiIncomplete'); });
+      } catch (err) {
+        const msg = aiErrorText(err);
+        keys.forEach(k => { reports[k].aiError = msg; });
+      }
+      return reports;
     }
 
     function saveEssayResult(report, theme) {
@@ -5098,7 +5160,7 @@ Learner's text:
       if (report.aiError) aiFailToast(new Error(report.aiError));
     }
 
-    // All 3 texts are graded AT THE SAME TIME (v1.2 graded them one after another).
+    // v1.8: all written texts are graded in ONE AI request (was 3 requests in v1.3-v1.7).
     async function gradeFullExam() {
       saveCurrentDraft();
       const drafts = loadExamDrafts();
@@ -5107,25 +5169,19 @@ Learner's text:
       clearInterval(examTimerInterval);
       isExamTimerRunning = false;
       const btn = document.getElementById('grade-full-exam-btn');
-      let done = 0;
-      const toGrade = tasks.filter(k => (drafts[k] || '').trim()).length;
-      const showProgress = () => { if (btn) btn.textContent = `⏳ ${t('analyzingLabel')} ${done}/${toGrade}`; };
-      if (btn) btn.disabled = true;
-      showProgress();
+      if (btn) { btn.disabled = true; btn.textContent = `⏳ ${t('analyzingLabel')}`; }
       const themes = {};
       tasks.forEach(k => { themes[k] = examThemeByTask[k] || getAllThemes().find(th => th.task === k); });
-      const reports = await Promise.all(tasks.map(async (k) => {
-        const text = (drafts[k] || '').trim();
-        const [mn, mx] = OFFICIAL_BRACKETS[k];
-        if (!text) {
-          return { score: 0, cefr: 'A1 non atteint', wordCount: 0, issues: [], strengths: t('taskNotDone'), minW: mn, maxW: mx, taskLabel: k.toUpperCase().replace('TACHE', 'TÂCHE ') };
-        }
-        // v1.7: small stagger (0 / 1.5 / 3 s) so a free key does not get 3 requests in the same second
-        await new Promise(r => setTimeout(r, tasks.indexOf(k) * 1500));
-        const rep = await gradeEssayText(text, themes[k], mn, mx);
-        done++; showProgress();
-        return rep;
+      const items = tasks.filter(k => (drafts[k] || '').trim()).map(k => ({
+        key: k, text: drafts[k].trim(), theme: themes[k], minW: OFFICIAL_BRACKETS[k][0], maxW: OFFICIAL_BRACKETS[k][1]
       }));
+      const graded = await gradeEssaysTogether(items,
+        (model) => { if (btn) btn.textContent = `⏳ ${t('analyzingLabel')} (${model})`; });
+      const reports = tasks.map(k => {
+        if (graded[k]) return graded[k];
+        const [mn, mx] = OFFICIAL_BRACKETS[k];
+        return { score: 0, cefr: 'A1 non atteint', wordCount: 0, issues: [], strengths: t('taskNotDone'), minW: mn, maxW: mx, taskLabel: k.toUpperCase().replace('TACHE', 'TÂCHE ') };
+      });
       tasks.forEach((k, i) => { if ((drafts[k] || '').trim()) saveEssayResult(reports[i], themes[k]); });
       examResults = { full: true, reports: {}, themeIds: {} };
       tasks.forEach((k, i) => { examResults.reports[k] = reports[i]; examResults.themeIds[k] = themes[k]?.id; });
@@ -5237,7 +5293,7 @@ Learner's text:
       const aiFailHtml = report.aiError ? `
           <div class="p-3 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs sm:text-sm space-y-2">
             <div class="font-bold">⚠️ ${t('aiGradingFailed')}</div>
-            <div class="text-[11px] text-amber-800 break-words">${escapeHtml(String(report.aiError).slice(0, 220))}</div>
+            <div class="text-[11px] text-amber-800 break-words">${escapeHtml(String(report.aiError).slice(0, 360))}</div>
             ${canRetry ? `<button onclick="retryAiGrading('${report.taskKey}')" data-retry="${report.taskKey}" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-600 hover:bg-amber-500 text-white">🔁 ${t('retryAiBtn')}</button>` : ''}
           </div>` : '';
       const crit = report.criteria;
