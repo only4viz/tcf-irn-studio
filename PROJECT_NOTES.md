@@ -35,11 +35,20 @@
 - "A1 non atteint" if: word count not respected, off-topic, a task missing, illegible.
 - Re-corrections of writing/speaking suspended from 1 Sept 2026 (back autumn 2027).
 
-## 3. Current state (v1.6, 2026-11-25)
+## 3. Current state (v1.7, 2026-11-26)
 - Offline bank: **112 words (16–24 per category), 50 phrases (10–14 per category), 21 exam subjects (7 per task), 21 error-hunt texts (6 mistakes each)** (+ everything Gemini generates, cached per device).
 - Exam ranges now follow the official table above (v1.0 had Tâche 3 at 90–110 words = would be "A1 non atteint").
 
 ## 4. Changelog
+### v1.7 — 2026-11-26
+- Bug report (owner, full exam in RU): "no grammar errors found" although there were some. Cause: not RU and not the new mode — when the AI grading failed (most likely the free per-minute quota, 429, with 3 texts at once), the app silently fell back to the offline checker, which only knows a few traps and then said "🎉 No major errors". The AI error was only a short toast.
+- Fixes:
+  - The report now shows a clear ⚠️ box when AI grading failed (with the reason) and a **🔁 Retry with AI** button (re-grades that task from the saved text).
+  - Offline checker no longer says "No errors 🎉": it says it found none of the few traps it knows, which does NOT mean the text is correct.
+  - 429 handling: wait the delay Google asks for (max 15 s) and retry the same model once before trying the next one.
+  - Full exam: the 3 AI calls start 1.5 s apart instead of in the same second.
+- Tested in a Supabase-blanked copy with mocked 429 replies (RU): banner + retry button shown; retry with a working reply replaces the offline report.
+
 ### v1.6 — 2026-11-25
 - New tab **🔍 4. Find the Errors** (Mistake bank is now tab 5). Owner idea: a correction exercise.
   - Offline: the 21 B2 model answers with 6 planted learner mistakes each (`ERROR_HUNT_BANK`: correct form, wrong form, type, short French rule). Types: accent, gender, agreement, être/avoir, verb form, preposition, spelling, subjunctive, word form (au/du/nouvel).
